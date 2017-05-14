@@ -1,0 +1,33 @@
+{
+  "name": "mycache",
+  "version": "0.0.1",
+  "description": "The AppCache replacement that works for all browsers",
+  "main": "index.js",
+  "scripts": {
+    "build": "webpack index.js",
+    "prettier": "prettier --write --tab-width 4 *.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/eladmoshe/offline-cache.git"
+  },
+  "keywords": [
+    "appcache",
+    "cache",
+    "SW",
+    "service",
+    "worker"
+  ],
+  "author": "Elad Moshe",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/eladmoshe/offline-cache/issues"
+  },
+  "homepage": "https://github.com/eladmoshe/offline-cache#readme",
+  "devDependencies": {
+    "babel-core": "^6.24.1",
+    "babel-loader": "^7.0.0",
+    "babel-preset-env": "^1.4.0",
+    "webpack": "^2.5.1"
+  }
+}
