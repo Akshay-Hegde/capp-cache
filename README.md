@@ -1,5 +1,7 @@
 # App cache replacement
 
+## This is a WIP. Check back again soon :)
+
 Tiny library to replace AppCache for all browsers modern, including Safari.
 
 ## Todo
