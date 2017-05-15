@@ -9,69 +9,71 @@ const logger = console.log;
 const verboseOutput = false;
 
 export default function(storeName) {
-	const result = Object.create(null);
-	let _db = null;
-	const req = window.indexedDB.open(DB_NAME, DB_VERSION);
+    const result = Object.create(null);
+    let _db = null;
+    const req = window.indexedDB.open(DB_NAME, DB_VERSION);
 
-	const store = (type = "readwrite") => {
-		const transaction = _db.transaction([storeName], type);
-		return transaction.objectStore(storeName);
-	};
+    const store = (type = "readwrite") => {
+        const transaction = _db.transaction([storeName], type);
+        return transaction.objectStore(storeName);
+    };
 
-	result.getResource = (id) => new Promise((resolve, reject) => {
-		const request = store("readonly").get(id);
-		request.onsuccess = event => {
-			if (event.target.result) {
-				resolve(event.target.result.content);
-			} else {
-				logger.log(`could not find resource with id ${id}`);
-				reject(null);
-			}
-		};
-		request.onerror = event => {
-			reject(event);
-		};
-	});
+    result.getResource = id =>
+        new Promise((resolve, reject) => {
+            const request = store("readonly").get(id);
+            request.onsuccess = event => {
+                if (event.target.result) {
+                    resolve(event.target.result.content);
+                } else {
+                    logger.log(`could not find resource with id ${id}`);
+                    reject(null);
+                }
+            };
+            request.onerror = event => {
+                reject(event);
+            };
+        });
 
-	result.putResource = (id, content) => new Promise((resolve, reject) => {
-		const objectStore = store();
-		const putRequest = objectStore.put({
-			id,
-			content,
-		});
-		if (verboseOutput)
-			putRequest.onsuccess = () =>
-				logger.log(`successfully saved item id ${id} in cache`);
-		putRequest.onerror = e =>
-			logger.error(
-				`failed to save item with id ${id} in cache due to error ${e}`
-			);
-	});
+    result.putResource = (id, content) =>
+        new Promise((resolve, reject) => {
+            const objectStore = store();
+            const putRequest = objectStore.put({
+                id,
+                content
+            });
+            if (verboseOutput)
+                putRequest.onsuccess = () =>
+                    logger.log(`successfully saved item id ${id} in cache`);
+            putRequest.onerror = e =>
+                logger.error(
+                    `failed to save item with id ${id} in cache due to error ${e}`
+                );
+        });
 
-	return new Promise((resolve, reject) => {
-		req.onsuccess = e => {
-			_db = e.target.result;
-			resolve(result);
-		};
-		req.onupgradeneeded = e => {
-			const db = e.target.result;
-			if (e.oldVersion > 0) {
-				try {
-					db.deleteObjectStore(storeName);
-				} catch ( e ) {
-					logger.log(
-						`exception when trying to delete object store during onupgradeneeded. ${JSON.stringify(e)}`
-					);
-				}
-			}
-			db.createObjectStore(storeName, { keyPath: "id" });
-		}
-		req.onerror = e => {
-			logger.error("failed to open indexedDB " + JSON.stringify(e));
-			reject(e);
-		};
-	});
-};
+    return new Promise((resolve, reject) => {
+        req.onsuccess = e => {
+            _db = e.target.result;
+            resolve(result);
+        };
+        req.onupgradeneeded = e => {
+            const db = e.target.result;
+            if (e.oldVersion > 0) {
+                try {
+                    db.deleteObjectStore(storeName);
+                } catch (e) {
+                    logger.log(
+                        `exception when trying to delete object store during onupgradeneeded. ${JSON.stringify(e)}`
+                    );
+                }
+            }
+            db.createObjectStore(storeName, { keyPath: "id" });
+        };
+        req.onerror = e => {
+            logger.error("failed to open indexedDB " + JSON.stringify(e));
+            reject(e);
+        };
+    });
+}
 
 /*
 
@@ -222,3 +224,4 @@ class DB {
 
 // export const cachedResourcesDB = new DB(STORES.cachedResources);
 */
+

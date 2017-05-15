@@ -8,13 +8,13 @@ module.exports = {
         filename: "bundle.js"
     },
     devtool: "eval-source-map",
-	devServer: {
-		hot: true,
-		contentBase: distFolder
-	},
+    devServer: {
+        hot: true,
+        contentBase: distFolder
+    },
     module: {
         rules: [
-/*
+            /*
              {
                 test: /\.js$/,
                 exclude: /(^node_modules$)/,
