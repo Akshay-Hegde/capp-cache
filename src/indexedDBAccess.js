@@ -1,5 +1,5 @@
 const DB_NAME = "RESOURCE_CACHE";
-const DB_VERSION = 1;
+const DB_VERSION = 2;
 const STORES = {
     cachedFiles: "cachedFiles"
 };
@@ -25,7 +25,7 @@ export default function(storeName) {
                 if (event.target.result) {
                     resolve(event.target.result.content);
                 } else {
-                    logger.log(`could not find resource with id ${id}`);
+                    console.log(`could not find resource with id ${id}`);
                     reject(null);
                 }
             };
@@ -43,7 +43,7 @@ export default function(storeName) {
             });
             if (verboseOutput)
                 putRequest.onsuccess = () =>
-                    logger.log(`successfully saved item id ${id} in cache`);
+                    console.log(`successfully saved item id ${id} in cache`);
             putRequest.onerror = e =>
                 logger.error(
                     `failed to save item with id ${id} in cache due to error ${e}`
@@ -61,7 +61,7 @@ export default function(storeName) {
                 try {
                     db.deleteObjectStore(storeName);
                 } catch (e) {
-                    logger.log(
+                    console.log(
                         `exception when trying to delete object store during onupgradeneeded. ${JSON.stringify(e)}`
                     );
                 }
@@ -93,7 +93,7 @@ class DB {
                     if (event.target.result) {
                         resolve(event.target.result.content);
                         verboseOutput &&
-                            logger.log(
+                            console.log(
                                 `successfully fetched ${icon_url} for zapp ${id} from cache, result size is ${event.target.result.content.length}`
                             );
 
@@ -103,7 +103,7 @@ class DB {
                         const putRequest = objectStore.put(event.target.result);
                         if (verboseOutput)
                             putRequest.onsuccess = () =>
-                                logger.log(
+                                console.log(
                                     `successfully updated timestamp of ${icon_url} for zapp ${id} in cache`
                                 );
                         putRequest.onerror = e =>
@@ -112,7 +112,7 @@ class DB {
                             );
                     } else {
                         verboseOutput &&
-                            logger.log(
+                            console.log(
                                 `could not fetch image with id ${icon_url} for zapp ${id} from cache (probably not cached), fetching from network`
                             );
                         const fillCachePromise = fillCacheHandler(icon_url);
@@ -120,13 +120,13 @@ class DB {
                     }
                 };
                 idResult.onerror = event => {
-                    logger.log(
+                    console.log(
                         `${icon_url} is missing for zapp ${id} in cache`
                     );
                     fillCacheHandler(icon_url)
                         .then(data => resolve(data))
                         .then(() =>
-                            logger.log(
+                            console.log(
                                 `successfully fetched ${icon_url} for zapp ${id} from NETWORK`
                             ))
                         .catch(error => {
@@ -155,7 +155,7 @@ class DB {
                     const putRequest = objectStore.put(event.target.result);
                     if (verboseOutput)
                         putRequest.onsuccess = () =>
-                            logger.log(
+                            console.log(
                                 `successfully updated timestamp of ${icon_url} for zapp ${id} in cache after fetching from cache`
                             );
                     putRequest.onerror = e =>
@@ -163,7 +163,7 @@ class DB {
                             `failed to update timestamp of ${icon_url} for zapp ${id} in cache due to error ${JSON.stringify(e)} after fetching from cache`
                         );
                 } else {
-                    logger.log(`could not find image with id ${id}`);
+                    console.log(`could not find image with id ${id}`);
                     reject(null);
                 }
             };
@@ -194,7 +194,7 @@ class DB {
         });
         if (verboseOutput)
             putRequest.onsuccess = () =>
-                logger.log(`successfully saved item id ${id} in cache`);
+                console.log(`successfully saved item id ${id} in cache`);
         putRequest.onerror = e =>
             logger.error(
                 `failed to save item with id ${id} in cache due to error ${e}`
@@ -224,4 +224,3 @@ class DB {
 
 // export const cachedResourcesDB = new DB(STORES.cachedResources);
 */
-

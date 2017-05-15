@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build": "rm -rf ./_dist && webpack index.js",
+    "watch": "rm -rf ./_dist && webpack  --watch index.js",
     "dev": "webpack-dev-server",
     "prettier": "prettier --write --tab-width 4 *.js"
   },
