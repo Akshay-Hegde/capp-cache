@@ -8,51 +8,91 @@ const logger = console.log;
 
 const verboseOutput = false;
 
+export default function(storeName) {
+	const result = Object.create(null);
+	let _db = null;
+	const req = window.indexedDB.open(DB_NAME, DB_VERSION);
+
+	const store = (type = "readwrite") => {
+		const transaction = _db.transaction([storeName], type);
+		return transaction.objectStore(storeName);
+	};
+
+	result.getResource = (id) => new Promise((resolve, reject) => {
+		const request = store("readonly").get(id);
+		request.onsuccess = event => {
+			if (event.target.result) {
+				resolve(event.target.result.content);
+			} else {
+				logger.log(`could not find resource with id ${id}`);
+				reject(null);
+			}
+		};
+		request.onerror = event => {
+			reject(event);
+		};
+	});
+
+	result.putResource = (id, content) => new Promise((resolve, reject) => {
+		const objectStore = store();
+		const putRequest = objectStore.put({
+			id,
+			content,
+		});
+		if (verboseOutput)
+			putRequest.onsuccess = () =>
+				logger.log(`successfully saved item id ${id} in cache`);
+		putRequest.onerror = e =>
+			logger.error(
+				`failed to save item with id ${id} in cache due to error ${e}`
+			);
+	});
+
+	return new Promise((resolve, reject) => {
+		req.onsuccess = e => {
+			_db = e.target.result;
+			resolve(result);
+		};
+		req.onupgradeneeded = e => {
+			const db = e.target.result;
+			if (e.oldVersion > 0) {
+				try {
+					db.deleteObjectStore(storeName);
+				} catch ( e ) {
+					logger.log(
+						`exception when trying to delete object store during onupgradeneeded. ${JSON.stringify(e)}`
+					);
+				}
+			}
+			db.createObjectStore(storeName, { keyPath: "id" });
+		}
+		req.onerror = e => {
+			logger.error("failed to open indexedDB " + JSON.stringify(e));
+			reject(e);
+		};
+	});
+};
+
+/*
+
 class DB {
-    constructor(storeName) {
-        return new Promise((resolve, reject) => {
-            this._db = null;
-            var req = window.indexedDB.open(DB_NAME, DB_VERSION);
-            this.storeName = storeName;
-            req.onsuccess = e => {
-                this._db = e.target.result;
-                resolve(this);
-            };
-            req.onupgradeneeded = e => {
-                const db = e.target.result;
-                try {
-                    db.deleteObjectStore(this.storeName);
-                } catch (e) {
-                    logger.info(
-                        `exception when trying to delete object store. Possibly first run and the store doesn't exist: ${JSON.stringify(e)}`
-                    );
-                }
-                db.createObjectStore(this.storeName, { keyPath: "id" });
-            };
-            req.onerror = e => {
-                logger.error("failed to open indexedDB " + JSON.stringify(e));
-                reject(e);
-            };
-        });
-    }
+    /!*store(type = "readwrite") {
+        const transaction = this._db.transaction([storeName], type);
+        return transaction.objectStore(storeName);
+    }*!/
 
-    store(type = "readwrite") {
-        const transaction = this._db.transaction([this.storeName], type);
-        return transaction.objectStore(this.storeName);
-    }
-
-    getImagesFromCache(zappsInfo, fillCacheHandler) {
+    getResources(info, fillCacheHandler) {
         const resultPromises = {};
         const objectStore = this.store("readonly");
-        zappsInfo.forEach(({ icon_url, id }) => {
+        info.forEach(({ icon_url, id }) => {
             const idResult = objectStore.get(icon_url);
             resultPromises[id] = new Promise((resolve, reject) => {
                 idResult.onsuccess = event => {
                     if (event.target.result) {
-                        resolve(event.target.result.base64Data);
+                        resolve(event.target.result.content);
                         verboseOutput &&
-                            logger.info(
-                                `successfully fetched ${icon_url} for zapp ${id} from cache, result size is ${event.target.result.base64Data.length}`
+                            logger.log(
+                                `successfully fetched ${icon_url} for zapp ${id} from cache, result size is ${event.target.result.content.length}`
                             );
 
                         //update access timestamp
@@ -61,7 +101,7 @@ class DB {
                         const putRequest = objectStore.put(event.target.result);
                         if (verboseOutput)
                             putRequest.onsuccess = () =>
-                                logger.info(
+                                logger.log(
                                     `successfully updated timestamp of ${icon_url} for zapp ${id} in cache`
                                 );
                         putRequest.onerror = e =>
@@ -70,7 +110,7 @@ class DB {
                             );
                     } else {
                         verboseOutput &&
-                            logger.info(
+                            logger.log(
                                 `could not fetch image with id ${icon_url} for zapp ${id} from cache (probably not cached), fetching from network`
                             );
                         const fillCachePromise = fillCacheHandler(icon_url);
@@ -78,13 +118,13 @@ class DB {
                     }
                 };
                 idResult.onerror = event => {
-                    logger.info(
+                    logger.log(
                         `${icon_url} is missing for zapp ${id} in cache`
                     );
                     fillCacheHandler(icon_url)
                         .then(data => resolve(data))
                         .then(() =>
-                            logger.info(
+                            logger.log(
                                 `successfully fetched ${icon_url} for zapp ${id} from NETWORK`
                             ))
                         .catch(error => {
@@ -99,12 +139,13 @@ class DB {
         return { result: resultPromises };
     }
 
-    getBase64(id) {
+/!*
+    getResource(id) {
         return new Promise((resolve, reject) => {
             const request = this.store("readonly").get(id);
             request.onsuccess = event => {
                 if (event.target.result) {
-                    resolve(event.target.result.base64Data);
+                    resolve(event.target.result.content);
 
                     //update access timestamp
                     event.target.result.accessedOn = new Date();
@@ -112,7 +153,7 @@ class DB {
                     const putRequest = objectStore.put(event.target.result);
                     if (verboseOutput)
                         putRequest.onsuccess = () =>
-                            logger.info(
+                            logger.log(
                                 `successfully updated timestamp of ${icon_url} for zapp ${id} in cache after fetching from cache`
                             );
                     putRequest.onerror = e =>
@@ -120,7 +161,7 @@ class DB {
                             `failed to update timestamp of ${icon_url} for zapp ${id} in cache due to error ${JSON.stringify(e)} after fetching from cache`
                         );
                 } else {
-                    logger.info(`could not find image with id ${id}`);
+                    logger.log(`could not find image with id ${id}`);
                     reject(null);
                 }
             };
@@ -129,6 +170,7 @@ class DB {
             };
         });
     }
+*!/
 
     remove(id) {
         return new Promise((resolve, reject) => {
@@ -142,18 +184,15 @@ class DB {
         });
     }
 
-    putResource(id, base64Data) {
+    putResource(id, content) {
         const objectStore = this.store();
-        const date = new Date();
         const putRequest = objectStore.put({
             id,
-            base64Data,
-            createdOn: date,
-            accessedOn: date
+            content,
         });
         if (verboseOutput)
             putRequest.onsuccess = () =>
-                logger.info(`successfully saved item id ${id} in cache`);
+                logger.log(`successfully saved item id ${id} in cache`);
         putRequest.onerror = e =>
             logger.error(
                 `failed to save item with id ${id} in cache due to error ${e}`
@@ -181,4 +220,5 @@ class DB {
     }
 }
 
-export const cachedResourcesDB = new DB(STORES.cachedResources);
+// export const cachedResourcesDB = new DB(STORES.cachedResources);
+*/

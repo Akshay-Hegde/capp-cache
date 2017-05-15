@@ -4,7 +4,8 @@
   "description": "The AppCache replacement that works for all browsers",
   "main": "index.js",
   "scripts": {
-    "build": "webpack index.js",
+    "build": "rm -rf ./_dist && webpack index.js",
+    "dev": "webpack-dev-server",
     "prettier": "prettier --write --tab-width 4 *.js"
   },
   "repository": {
@@ -28,6 +29,7 @@
     "babel-core": "^6.24.1",
     "babel-loader": "^7.0.0",
     "babel-preset-env": "^1.4.0",
-    "webpack": "^2.5.1"
+    "webpack": "^2.5.1",
+    "webpack-dev-server": "^2.4.5"
   }
 }
