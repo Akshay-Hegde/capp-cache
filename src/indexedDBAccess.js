@@ -14,6 +14,7 @@ export default function(storeName) {
     const req = window.indexedDB.open(DB_NAME, DB_VERSION);
 
     const store = (type = "readwrite") => {
+        //todo: create object store when first in the page?
         const transaction = _db.transaction([storeName], type);
         return transaction.objectStore(storeName);
     };

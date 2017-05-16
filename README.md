@@ -14,3 +14,4 @@ Tiny library to replace AppCache for all browsers modern, including Safari.
 
 ## Longer term todos
 - [ ] Use Web Workers for downloading?
+- [ ] Add benchmarking

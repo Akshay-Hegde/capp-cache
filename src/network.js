@@ -9,7 +9,7 @@ export const fetchImage = (url, responseType = "text") => {
             function() {
                 if (xhr.status === 200) {
                     content = xhr.response;
-	                resolve(content);
+                    resolve(content);
                 } else {
                     reject(xhr);
                 }

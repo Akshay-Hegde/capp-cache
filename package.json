@@ -1,5 +1,5 @@
 {
-  "name": "mycache",
+  "name": "capp-cache",
   "version": "0.0.1",
   "description": "The AppCache replacement that works for all browsers",
   "main": "index.js",
@@ -7,7 +7,7 @@
     "build": "rm -rf ./_dist && webpack index.js",
     "watch": "rm -rf ./_dist && webpack  --watch index.js",
     "dev": "webpack-dev-server",
-    "prettier": "prettier --write --tab-width 4 *.js"
+    "prettier": "prettier --write --tab-width 4 src/*.js *.js"
   },
   "repository": {
     "type": "git",

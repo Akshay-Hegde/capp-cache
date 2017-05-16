@@ -1,3 +1,3 @@
-export const id = (url) => {
-	return url;
-}
+export const id = url => {
+    return url;
+};
