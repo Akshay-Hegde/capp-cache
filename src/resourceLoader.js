@@ -2,7 +2,7 @@ import idbAccess from "./indexedDBAccess";
 import { id } from "./id";
 import { fetchImage } from "./network";
 
-const RESOURCE_FETCH_TIMEOUT = 1000;
+const RESOURCE_FETCH_DELAY = 1000;
 
 const scheduleResourceCache = (url, db) => {
     fetchImage(url).then(content => {
@@ -38,7 +38,7 @@ export function load() {
                     tag.setAttribute("src", url);
                     setTimeout(
                         () => scheduleResourceCache(url, db),
-                        RESOURCE_FETCH_TIMEOUT
+                        RESOURCE_FETCH_DELAY
                     );
                 })
                 .then(() => {
