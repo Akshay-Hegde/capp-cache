@@ -13,10 +13,15 @@ const scheduleResourceCache = (url, db) => {
 export function load() {
     idbAccess(window.location).then(db => {
         let resources = window.cappCacheResources || [];
-        resources.push({ url: "measure.js" });
+        resources.push({ url: "measure.js", loadAsync: true});
 
         //todo: make async!
-        resources.forEach(({ url, type = "script", target = "head" }) => {
+        resources.forEach(({
+            url,
+            type = "script",
+            target = "head",
+            loadAsync = true
+        }) => {
             const tag = document.createElement(type);
             db
                 .getResource(id(url))
@@ -26,7 +31,9 @@ export function load() {
                 })
                 .catch(err => {
                     console.log(
-                        `failed to fetch resource from cache ${url} with error ${err}`
+                        err
+                            ? `failed to fetch resource from cache ${url}. error: ${err}`
+                            : `resource ${url} was not in cache`
                     );
                     tag.setAttribute("src", url);
                     setTimeout(
@@ -35,8 +42,18 @@ export function load() {
                     );
                 })
                 .then(() => {
+                    if (loadAsync) {
+                        tag.setAttribute("async", "async");
+                    }
                     document[target].appendChild(tag);
                 });
         });
+
+        setTimeout(
+            () => {
+                db.pruneDb(resources.map(resource => id(resource.url)));
+            },
+            3000
+        );
     });
 }
