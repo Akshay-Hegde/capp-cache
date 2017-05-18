@@ -51,7 +51,7 @@ In your `index.html` file add a reference to that file
 </html>
 ```
 
-#### Programmatic access
+### Programmatic access
 In case you need to dynamically load resources from your Javascript code, use the function `window.cappCache.load(manifest)`.
 The function expects a manifest in the same format described above.
 For example:
