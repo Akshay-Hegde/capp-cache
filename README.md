@@ -66,7 +66,7 @@ After using App Cache for years, we encountered multiple issues with this techno
 * Whenever a resource is unfetchable, App Cache stops working. This is sometimes a desired behavior, to prevent mix between versions of the code.
   However, in many scenarios there are optional resources (e.g. images), which shouldn't prevent critical resources from loading if they fail to download.
 
-#### Wait. Isn't having the index.html and this library in App Cache defies the purpose of this library?
+#### Wait! You are recommending to use App Cache to cache index.html and this library, but claim that this library replacec App Cache. What gives?
 No. Based on our experience, the issues with App Cache are correlated with the size of App Cache and the frequency of changes. If you just cache just those two files, you shouldn't encounter the issues described above.
 
 #### What's the deal with the name?
