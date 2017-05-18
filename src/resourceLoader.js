@@ -11,30 +11,45 @@ const scheduleResourceCache = (url, db) => {
     });
 };
 
-
+// We use this mock document when loading assets with "cacheOnly" property. this keeps code consistent (no "if cacheOnly... else... ),
+// while avoiding performance hit of adding unnecessary elements to the DOM when we just want to pre-cache the elements
+const MOCK_DOCUMENT = {
+    createElement: () => ({
+        appendChild: Function.prototype,
+        setAttribute: Function.prototype,
+    }),
+    head: { appendChild: Function.prototype },
+    body: { appendChild: Function.prototype },
+	createTextNode: Function.prototype,
+};
 
 /**
  * Loads a list of resources according to the manifest.
  * */
 export function load(manifest) {
     idbAccess(window.location).then(db => {
-
-        let { resources } = manifest;
+        const { resources } = manifest;
         // resources.push({ url: "measure.js", loadAsync: true });
 
+        const orderedResources = resources
+            .filter(r => !r.cacheOnly)
+            .concat(resources.filter(r => r.cacheOnly));
+
         //todo: make async!
-        resources.forEach(({
+        orderedResources.forEach(({
             url,
             type = "script",
             target = "head",
             loadAsync = true,
+            cacheOnly = false,
         }) => {
-            const tag = document.createElement(type);
+            const tagTarget = cacheOnly ? MOCK_DOCUMENT : document;
+            const tag = tagTarget.createElement(type);
             db
                 .getResource(id(url))
                 .then(resource => {
                     console.log(`resource ${url} was in cache`);
-                    tag.appendChild(document.createTextNode(resource));
+                    tag.appendChild(tagTarget.createTextNode(resource));
                 })
                 .catch(err => {
                     console.log(
@@ -52,11 +67,12 @@ export function load(manifest) {
                     if (loadAsync) {
                         tag.setAttribute("async", "async");
                     }
-                    document[target].appendChild(tag);
+                    tagTarget[target].appendChild(tag);
                 });
         });
-	    const cachedResources = resources.map(resource => id(resource.url));
-	    cachedFilesInSession = cachedFilesInSession.concat(cachedResources);
+
+        const cachedResources = resources.map(resource => id(resource.url));
+        cachedFilesInSession = cachedFilesInSession.concat(cachedResources);
     });
 }
 
@@ -65,8 +81,7 @@ export function load(manifest) {
  * Call this function to remove old obsolete files from the cache.
  */
 export function pruneDB() {
-	idbAccess(window.location).then(db => {
-		db.pruneDb(cachedFilesInSession);
-	});
-
+    idbAccess(window.location).then(db => {
+        db.pruneDb(cachedFilesInSession);
+    });
 }
