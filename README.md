@@ -72,6 +72,9 @@ No. Based on our experience, the issues with App Cache are correlated with the s
 #### What's the deal with the name?
 This library was developed in [Capriza](https://capriza.github.io/) to replace App Cache. Capriza+AppCache = CappCache. Clever, huh? :)
 
+#### You say tiny library. How tiny?
+Less than 2KB gzipped and minifed.
+
 #### Who designed the amazing Cupcake logo?
 [Nadav](https://github.com/fujifish). Thanks!
 
