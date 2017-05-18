@@ -27,7 +27,7 @@ Immediately following this script, include a reference to this library.
 <script src="bundle.js"/>
 </html>
 ```
-When the page loads, the library will add your resources to the DOM, according to the manifest.
+When the page loads, the library will add your resources to the DOM, according to the resources list.
 The supported properties for each resource entry are:
 
 Property | description | Type | default 
@@ -37,6 +37,20 @@ loadAsync | add "async" property to script elements | bool | false
 type | type of resource | "script","css","img" | "script"
 target | parent element of the resource | "head", "body" | "head"
 
+You will need to have your `index.html` file this library cached in order to allow it to work offline and get the best performance. The easiest way is to create a tiny App Cache manifest to store those two files.
+
+Create a file called `manifest.appcache` with the following content
+```
+CACHE MANIFEST
+_dist/bundle.js
+index.html
+```
+In your `index.html` file add a reference to that file
+```html
+<html manifest="manifest.appcache">
+...
+</html>
+```
 
 ### FAQ
 
