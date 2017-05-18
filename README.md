@@ -1,6 +1,4 @@
-# App cache replacement
-
-## This is a WIP. Check back again soon :)
+# App Cache replacement
 
 ### Tiny library with zero external dependencies to replace AppCache for all browsers modern, including Safari.
 This library aims to address the need to cache resources to support offline applications and improve performance,
@@ -57,6 +55,12 @@ After using App Cache for years, we encountered multiple issues with this techno
 
 #### Isn't having the index.html and this library in App Cache defies the purpose of this library?
 No. Based on our experience, the issues with App Cache are correlated with the size of App Cache and the frequency of changes. If you just cache just those two files, you shouldn't encounter the issues described above.
+
+#### What's the deal with the name?
+This library was developed in [Capriza](https://capriza.github.io/) to replace App Cache. Capriza+AppCache = CappCache. Get it? :)
+
+#### Who designed the amazing Cupcake logo?
+[Nadav](https://github.com/fujifish). Thanks!
 
 ## Todo
 - [ ] Main index file is saved in regular app cache
