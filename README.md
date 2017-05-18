@@ -71,7 +71,7 @@ After using App Cache for years, we encountered multiple issues with this techno
 No. Based on our experience, the issues with App Cache are correlated with the size of App Cache and the frequency of changes. If you just cache just those two files, you shouldn't encounter the issues described above.
 
 #### What's the deal with the name?
-This library was developed in [Capriza](https://capriza.github.io/) to replace App Cache. Capriza+AppCache = CappCache. Get it? :)
+This library was developed in [Capriza](https://capriza.github.io/) to replace App Cache. Capriza+AppCache = CappCache. Clever, huh? :)
 
 #### Who designed the amazing Cupcake logo?
 [Nadav](https://github.com/fujifish). Thanks!
