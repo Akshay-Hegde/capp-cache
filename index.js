@@ -1,5 +1,10 @@
-import { load } from "./src/resourceLoader";
+import { load, pruneDB } from "./src/resourceLoader";
 
 (function init() {
-    load();
+	const manifest = window.cappCacheResources || { resources: [] };
+    load(manifest);
+	window.cappCache = {
+		load,
+		pruneDB
+	};
 })();

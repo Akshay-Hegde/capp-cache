@@ -1,8 +1,11 @@
-<!--<html manifest="manifest.appcache">-->
+
+<!--This file is an usage example and not part of the library-->
+
 <html >
+<!--<html manifest="manifest.appcache">-->
 <head>
     <script>
-	    window.performance.mark('start');
+	    window.performance.mark('capp-cache-start');
     </script>
     <script>
 	    window.cappCacheResources = {
@@ -18,6 +21,17 @@
 	    };
     </script>
     <script src="./_dist/capp-cache.js"></script>
+    <script type="text/javascript">
+	    setTimeout(() => window.cappCache.load({
+		    resources: [
+			    {
+				    url: "https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.4/lodash.min.js",
+				    loadAsync: false,
+			    },
+		    ],
+	    }), 1000);
+	    setTimeout(window.cappCache.pruneDB, 2000);
+    </script>
 <script>
 
 </script>

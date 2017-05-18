@@ -14,7 +14,7 @@ module.exports = function(env = { dev: "true" }) {
             path: distFolder,
             filename: "capp-cache.js",
         },
-        devtool: buildForDev ? "cheap-module-eval-source-map" : "source-map",
+        devtool: buildForDev ? "eval-source-map" : "source-map",
         plugins: buildForDev ? [] : [new webpack.optimize.UglifyJsPlugin([])],
         devServer: {
             hot: true,

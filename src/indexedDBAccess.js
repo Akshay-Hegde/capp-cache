@@ -74,6 +74,7 @@ export default function(storeName) {
                 if (cursor) {
                     if (!ids.includes(cursor.key)) {
                         idbWrapper.removeResource(cursor.key);
+                        console.log(`pruned ${cursor.key}`);
                     }
                     cursor.continue();
                 }

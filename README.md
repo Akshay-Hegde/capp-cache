@@ -51,6 +51,25 @@ In your `index.html` file add a reference to that file
 </html>
 ```
 
+#### Programmatic access
+In case you need to dynamically load resources from your Javascript code, use the function `window.cappCache.load(manifest)`.
+The function expects a manifest in the same format described above.
+For example:
+```javascript
+setTimeout(() => window.cappCache.load({
+		    resources: [
+			    {
+				    url: "https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.4/lodash.min.js",
+				    loadAsync: false,
+			    },
+		    ],
+	    }), 1000);
+```
+
+It is recommended to remove from the database old scripts. You'll need to manually call `window.cappCache.pruneDB()` after
+all the resources were loaded, both at load time and dynamically throughout the life of the application.
+The library keeps track of all resources it loaded. When you call this function, all files on the page what were not loaded in this session are removed.
+
 ### FAQ
 
 #### Why not just use Service Worker?
