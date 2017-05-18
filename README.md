@@ -1,3 +1,5 @@
+<div align="center"><img src="https://capriza.github.io/images/logos/logos-cupcake.svg" height="128" /></div>
+
 # App Cache replacement
 
 ### Tiny library with zero external dependencies to replace AppCache for all browsers modern, including Safari.
@@ -15,7 +17,7 @@ Property  | description                                                 | type  
 ----------|-------------------------------------------------------------|----------------------|-----------
 url       | mandatory. The url of the resource from which it is fetched | URL                  |
 loadAsync | add "async" property to script elements                     | bool                 | false
-type      | type of resource                                            | "script","css","img" | "script"
+type      | type of resource                                            | "script","link","img" | "script"
 target    | parent element of the resource                              | "head", "body"       | "head"
 cacheOnly | sync the script to the database, but don't append it to the DOM. Use to ensure a resource is in the cache for future use | manifest |
 
