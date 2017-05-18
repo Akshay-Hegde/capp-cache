@@ -20,7 +20,7 @@ const MOCK_DOCUMENT = {
     }),
     head: { appendChild: Function.prototype },
     body: { appendChild: Function.prototype },
-	createTextNode: Function.prototype,
+    createTextNode: Function.prototype,
 };
 
 /**
