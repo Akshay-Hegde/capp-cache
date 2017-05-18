@@ -4,7 +4,20 @@
     <script>
 	    window.performance.mark('start');
     </script>
-    <script src="./_dist/bundle.js"></script>
+    <script>
+	    window.cappCacheResources = {
+		    resources: [
+			    {
+				    url: "https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js",
+				    loadAsync: false,
+			    },
+			    {
+				    url: "https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/locale/ar-ma.js",
+			    },
+		    ],
+	    };
+    </script>
+    <script src="./_dist/capp-cache.js"></script>
 <script>
 
 </script>

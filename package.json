@@ -4,8 +4,8 @@
   "description": "The AppCache replacement that works for all browsers",
   "main": "index.js",
   "scripts": {
-    "build": "rm -rf ./_dist && webpack --env.prod index.js",
-    "watch": "rm -rf ./_dist && webpack --env.dev --watch index.js",
+    "build": "webpack --env.prod index.js",
+    "watch": "webpack --env.dev --watch index.js",
     "dev": "webpack-dev-server --env.dev",
     "prettier": "prettier --trailing-comma es5 --write --tab-width 4 src/*.js *.js"
   },

@@ -47,7 +47,7 @@ In your `index.html` file add a reference to that file
         ],
     };
 </script>
-<script src="bundle.js"/>
+<script src="dist/capp-cache.js"/>
 </html>
 ```
 

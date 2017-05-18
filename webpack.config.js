@@ -1,9 +1,10 @@
 const webpack = require("webpack");
 const path = require("path");
 
-const distFolder = path.join(__dirname, "_dist");
+
 module.exports = function(env = { dev: "true" }) {
     const buildForDev = env.dev;
+	const distFolder = path.join(__dirname, buildForDev? "_dist": "dist");
     console.log(
         `Building webpack with env ${JSON.stringify(env)}. buildForDev = ${env.dev}`
     );
@@ -11,7 +12,7 @@ module.exports = function(env = { dev: "true" }) {
         entry: "./index.js",
         output: {
             path: distFolder,
-            filename: "bundle.js",
+            filename: "capp-cache.js",
         },
         devtool: buildForDev ? "cheap-module-eval-source-map" : "source-map",
         plugins: buildForDev ? [] : [new webpack.optimize.UglifyJsPlugin([])],
