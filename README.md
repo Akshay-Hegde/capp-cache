@@ -1,16 +1,39 @@
 # App Cache replacement
 
 ### Tiny library with zero external dependencies to replace AppCache for all browsers modern, including Safari.
-This library aims to address the need to cache resources to support offline applications and improve performance,
+This library aims to address the need to cache resources for offline applications and improved performance,
 especially on mobile devices.
 
 ### Usage
 In your index.html file, include a script tag with an object describing your resources. 
 The script should add an object called `cappCacheManifest` to the window. This object must have 
 a property called `resources` that includes an array of resources.
-Immediately following this script, include a reference to this library. 
+When the page loads, the library will add your resources to the DOM, according to the resources list.
+The supported properties for each resource entry are:
+
+Property | description | Type | default 
+----------|------------|--------|-----------
+url | mandatory. The url of the resource from which it is fetched | URL | 
+loadAsync | add "async" property to script elements | bool | false 
+type | type of resource | "script","css","img" | "script"
+target | parent element of the resource | "head", "body" | "head"
+
+You will need to have your `index.html` file and this library cached in order to allow it to work offline and get the best performance. The easiest way is to create a tiny App Cache manifest to store those two files.
+Create a file called `manifest.appcache` with the following content
+```
+CACHE MANIFEST
+_dist/bundle.js
+index.html
+```
+In your `index.html` file add a reference to that file
 ```html
-<html>
+<html manifest="manifest.appcache">
+...
+</html>
+```
+#### Example
+```html
+<html manifest="manifest.appcache">
 <script>
  window.cappCacheResources = {
         resources: [
@@ -25,30 +48,6 @@ Immediately following this script, include a reference to this library.
     };
 </script>
 <script src="bundle.js"/>
-</html>
-```
-When the page loads, the library will add your resources to the DOM, according to the resources list.
-The supported properties for each resource entry are:
-
-Property | description | Type | default 
-----------|------------|--------|-----------
-url | mandatory. The url of the resource from which it is fetched | URL | 
-loadAsync | add "async" property to script elements | bool | false 
-type | type of resource | "script","css","img" | "script"
-target | parent element of the resource | "head", "body" | "head"
-
-You will need to have your `index.html` file this library cached in order to allow it to work offline and get the best performance. The easiest way is to create a tiny App Cache manifest to store those two files.
-
-Create a file called `manifest.appcache` with the following content
-```
-CACHE MANIFEST
-_dist/bundle.js
-index.html
-```
-In your `index.html` file add a reference to that file
-```html
-<html manifest="manifest.appcache">
-...
 </html>
 ```
 
@@ -67,7 +66,7 @@ After using App Cache for years, we encountered multiple issues with this techno
 * Whenever a resource is unfetchable, App Cache stops working. This is sometimes a desired behavior, to prevent mix between versions of the code.
   However, in many scenarios there are optional resources (e.g. images), which shouldn't prevent critical resources from loading if they fail to download.
 
-#### Isn't having the index.html and this library in App Cache defies the purpose of this library?
+#### Wait. Isn't having the index.html and this library in App Cache defies the purpose of this library?
 No. Based on our experience, the issues with App Cache are correlated with the size of App Cache and the frequency of changes. If you just cache just those two files, you shouldn't encounter the issues described above.
 
 #### What's the deal with the name?
