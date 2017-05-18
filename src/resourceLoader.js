@@ -12,7 +12,8 @@ const scheduleResourceCache = (url, db) => {
 
 export function load() {
     idbAccess(window.location).then(db => {
-        let resources = window.cappCacheResources || [];
+        let manifest = window.cappCacheResources || { resources: [] };
+        let { resources } = manifest;
         resources.push({ url: "measure.js", loadAsync: true });
 
         //todo: make async!
