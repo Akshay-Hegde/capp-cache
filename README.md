@@ -17,7 +17,7 @@ url       | mandatory. The url of the resource from which it is fetched | URL   
 loadAsync | add "async" property to script elements                     | bool                 | false
 type      | type of resource                                            | "script","css","img" | "script"
 target    | parent element of the resource                              | "head", "body"       | "head"
-cacheOnly | download the script to the database, but don't append it to the DOM. Use ensuring a resource is in the cache for future use | manifest |
+cacheOnly | sync the script to the database, but don't append it to the DOM. Use to ensure a resource is in the cache for future use | manifest |
 
 You will need to have your `index.html` file and this library cached in order to allow it to work offline and get the best performance. The easiest way is to create a tiny App Cache manifest to store those two files.
 Create a file called `manifest.appcache` with the following content
