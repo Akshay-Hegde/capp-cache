@@ -7,7 +7,38 @@ This library aims to address the need to cache resources to support offline appl
 especially on mobile devices.
 
 ### Usage
-Include ... 
+In your index.html file, include a script tag with an object describing your resources. 
+The script should add an object called `cappCacheManifest` to the window. This object must have 
+a property called `resources` that includes an array of resources.
+Immediately following this script, include a reference to this library. 
+```html
+<html>
+<script>
+ window.cappCacheResources = {
+        resources: [
+            {
+                url: "https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js",
+                loadAsync: false,
+            },
+            {
+                url: "https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/locale/ar-ma.js",
+            },
+        ],
+    };
+</script>
+<script src="bundle.js"/>
+</html>
+```
+When the page loads, the library will add your resources to the DOM, according to the manifest.
+The supported properties for each resource entry are:
+
+Property | description | Type | default 
+----------|------------|--------|-----------
+url | mandatory. The url of the resource from which it is fetched | URL | 
+loadAsync | add "async" property to script elements | bool | false 
+type | type of resource | "script","css","img" | "script"
+target | parent element of the resource | "head", "body" | "head"
+
 
 ### FAQ
 
@@ -24,7 +55,7 @@ After using App Cache for years, we encountered multiple issues with this techno
 * Whenever a resource is unfetchable, App Cache stops working. This is sometimes a desired behavior, to prevent mix between versions of the code.
   However, in many scenarios there are optional resources (e.g. images), which shouldn't prevent critical resources from loading if they fail to download.
 
-#### Isn't having the index.html and this library in App Cache defies the purpose of this library
+#### Isn't having the index.html and this library in App Cache defies the purpose of this library?
 No. Based on our experience, the issues with App Cache are correlated with the size of App Cache and the frequency of changes. If you just cache just those two files, you shouldn't encounter the issues described above.
 
 ## Todo
