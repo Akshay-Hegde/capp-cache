@@ -5,12 +5,12 @@ module.exports = {
     entry: "./index.js",
     output: {
         path: distFolder,
-        filename: "bundle.js"
+        filename: "bundle.js",
     },
     devtool: "eval-source-map",
     devServer: {
         hot: true,
-        contentBase: distFolder
+        contentBase: distFolder,
     },
     module: {
         rules: [
@@ -26,6 +26,6 @@ module.exports = {
                 }
             }
 */
-        ]
-    }
+        ],
+    },
 };

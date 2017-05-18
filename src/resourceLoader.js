@@ -13,14 +13,14 @@ const scheduleResourceCache = (url, db) => {
 export function load() {
     idbAccess(window.location).then(db => {
         let resources = window.cappCacheResources || [];
-        resources.push({ url: "measure.js", loadAsync: true});
+        resources.push({ url: "measure.js", loadAsync: true });
 
         //todo: make async!
         resources.forEach(({
             url,
             type = "script",
             target = "head",
-            loadAsync = true
+            loadAsync = true,
         }) => {
             const tag = document.createElement(type);
             db
