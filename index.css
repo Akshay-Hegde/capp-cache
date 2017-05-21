@@ -1,0 +1,28 @@
+body {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background: thistle;
+    font-family: "Lucida Console", Monaco, monospace;
+}
+
+#container {
+    text-align: center;
+    width: 80vw;
+    margin-left: 10vw;
+    margin-right: 10vw;
+}
+
+#container > img {
+    width: 30vw;
+}
+
+
+#container > h1 {
+    font-size: 5vw;
+
+}
+
+#container > p {
+    font-size: 3vw;
+}

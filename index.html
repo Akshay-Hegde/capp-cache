@@ -14,9 +14,14 @@
 				    url: "https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js",
 				    loadAsync: false,
 			    },
+                {
+                	url: "https://cdnjs.cloudflare.com/ajax/libs/select2-bootstrap-css/1.4.6/select2-bootstrap.css",
+                    type: "css"
+                },
 			    {
-				    url: "https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/locale/ar-ma.js",
-			    },
+				    url: "index.css",
+				    type: "css"
+			    }
 		    ],
 	    };
     </script>
@@ -41,5 +46,13 @@
 </script>
 </head>
 <body>
+<div id="container">
+    <img src="resources/logos-cupcake.svg"/>
+    <h1>Thanks for checking out CappCache!</h1>
+    <p>Open your dev tools console to check what's happening under the hood.</p>
+    <p>Take a look at the elements panel. All scripts and style tags are added by CappCache.
+        After first load turn off your connectivity and reload, everything will still work.
+    </p>
+</div>
 </body>
 </html>

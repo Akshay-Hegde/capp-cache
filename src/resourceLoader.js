@@ -1,6 +1,7 @@
 import idbAccess from "./indexedDBAccess";
 import { id } from "./id";
 import { fetchImage } from "./network";
+import tagPropertiesMap from "./tagPropertiesMap";
 
 const RESOURCE_FETCH_DELAY = 1000;
 let cachedFilesInSession = [];
@@ -40,16 +41,21 @@ export function load(manifest) {
             url,
             type = "script",
             target = "head",
-            loadAsync = true,
+            loadAsync = false,
             cacheOnly = false,
         }) => {
-            const tagTarget = cacheOnly ? MOCK_DOCUMENT : document;
-            const tag = tagTarget.createElement(type);
+            const tagProperties = tagPropertiesMap[type];
+            const documentTarget = cacheOnly ? MOCK_DOCUMENT : document;
+            const tag = documentTarget.createElement(tagProperties.tagName);
             db
                 .getResource(id(url))
                 .then(resource => {
                     console.log(`resource ${url} was in cache`);
-                    tag.appendChild(tagTarget.createTextNode(resource));
+                    tagProperties.appendTextContent(
+                        tag,
+                        documentTarget,
+                        resource
+                    );
                 })
                 .catch(err => {
                     console.log(
@@ -57,17 +63,19 @@ export function load(manifest) {
                             ? `failed to fetch resource from cache ${url}. error: ${err}`
                             : `resource ${url} was not in cache`
                     );
-                    tag.setAttribute("src", url);
+                    tag.setAttribute(tagProperties.contentFetchKey, url);
                     setTimeout(
                         () => scheduleResourceCache(url, db),
                         RESOURCE_FETCH_DELAY
                     );
                 })
                 .then(() => {
-                    if (loadAsync) {
+                    if (loadAsync && type === "script") {
                         tag.setAttribute("async", "async");
                     }
-                    tagTarget[target].appendChild(tag);
+                    Object.keys(tagProperties.props).forEach(prop =>
+                        tag.setAttribute(prop, tagProperties.props[prop]));
+                    documentTarget[target].appendChild(tag);
                 });
         });
 
