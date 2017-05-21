@@ -3,10 +3,10 @@ const DB_VERSION = 3;
 
 const verboseOutput = false;
 
-export default function(storeName) {
+export default function(storeName, indexedDB) {
     const idbWrapper = Object.create(null);
     let _db = null;
-    const req = window.indexedDB.open(DB_NAME, DB_VERSION);
+    const req = indexedDB.open(DB_NAME, DB_VERSION);
 
     const store = (type = "readwrite") => {
         //todo: create object store when first in the page?
@@ -33,12 +33,12 @@ export default function(storeName) {
     idbWrapper.removeResource = id =>
         new Promise((resolve, reject) => {
             const objectStore = store();
-            objectStore.delete(id);
-            objectStore.onsuccess = () => {
+            const request = objectStore.delete(id);
+            request.onsuccess = () => {
                 console.log(`removed resource ${id}`);
                 resolve();
             };
-            objectStore.onerror = e => {
+            request.onerror = e => {
                 console.error(`failed to remove resource ${id}. error: ${e}`);
                 reject(e);
             };
@@ -51,16 +51,15 @@ export default function(storeName) {
                 id,
                 content,
             });
-            if (verboseOutput) {
-                putRequest.onsuccess = () => {
+
+            putRequest.onsuccess = () => {
+                if (verboseOutput) {
                     console.log(`successfully saved item id ${id} in cache`);
-                    resolve();
-                };
-            }
+                }
+                resolve();
+            };
             putRequest.onerror = e => {
-                console.error(
-                    `failed to save item with id ${id} in cache due to error ${e}`
-                );
+                console.error(`failed to save item with id ${id} in cache due to error ${e}`);
                 reject();
             };
         });
@@ -70,19 +69,19 @@ export default function(storeName) {
             const objectStore = store();
             const request = objectStore.openCursor();
             request.onsuccess = e => {
-                const cursor = event.target.result;
+                const cursor = e.target.result;
                 if (cursor) {
                     if (!ids.includes(cursor.key)) {
                         idbWrapper.removeResource(cursor.key);
                         console.log(`pruned ${cursor.key}`);
                     }
                     cursor.continue();
+                } else {
+                    resolve();
                 }
             };
             request.onerror = e => {
-                console.error(
-                    `failed to get all keys while pruning cache. error`
-                );
+                console.error(`failed to get all keys while pruning cache. error`);
                 reject(e);
             };
         });

@@ -28,13 +28,11 @@ const MOCK_DOCUMENT = {
  * Loads a list of resources according to the manifest.
  * */
 export function load(manifest) {
-    idbAccess(window.location).then(db => {
+    idbAccess(window.location, window.indexedDB).then(db => {
         const { resources } = manifest;
         // resources.push({ url: "measure.js", loadAsync: true });
 
-        const orderedResources = resources
-            .filter(r => !r.cacheOnly)
-            .concat(resources.filter(r => r.cacheOnly));
+        const orderedResources = resources.filter(r => !r.cacheOnly).concat(resources.filter(r => r.cacheOnly));
 
         //todo: make async!
         orderedResources.forEach(({
@@ -51,11 +49,7 @@ export function load(manifest) {
                 .getResource(id(url))
                 .then(resource => {
                     console.log(`resource ${url} was in cache`);
-                    tagProperties.appendTextContent(
-                        tag,
-                        documentTarget,
-                        resource
-                    );
+                    tagProperties.appendTextContent(tag, documentTarget, resource);
                 })
                 .catch(err => {
                     console.log(
@@ -64,17 +58,13 @@ export function load(manifest) {
                             : `resource ${url} was not in cache`
                     );
                     tag.setAttribute(tagProperties.contentFetchKey, url);
-                    setTimeout(
-                        () => scheduleResourceCache(url, db),
-                        RESOURCE_FETCH_DELAY
-                    );
+                    setTimeout(() => scheduleResourceCache(url, db), RESOURCE_FETCH_DELAY);
                 })
                 .then(() => {
                     if (loadAsync && type === "script") {
                         tag.setAttribute("async", "async");
                     }
-                    Object.keys(tagProperties.props).forEach(prop =>
-                        tag.setAttribute(prop, tagProperties.props[prop]));
+                    Object.keys(tagProperties.props).forEach(prop => tag.setAttribute(prop, tagProperties.props[prop]));
                     documentTarget[target].appendChild(tag);
                 });
         });

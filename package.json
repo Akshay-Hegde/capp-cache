@@ -7,7 +7,7 @@
     "build": "webpack --env.prod index.js",
     "watch": "webpack --env.dev --watch index.js",
     "dev": "webpack-dev-server --env.dev",
-    "prettier": "prettier --trailing-comma es5 --write --tab-width 4 src/*.js *.js"
+    "prettier": "prettier --trailing-comma es5 --print-width 120 --write --tab-width 4 src/**/*.js test/**/*.js *.js"
   },
   "repository": {
     "type": "git",
@@ -29,8 +29,11 @@
   "devDependencies": {
     "babel-core": "^6.24.1",
     "babel-loader": "^7.0.0",
-    "babel-preset-env": "^1.4.0",
     "webpack": "^2.5.1",
-    "webpack-dev-server": "^2.4.5"
+    "webpack-dev-server": "^2.4.5",
+    "babel-jest": "*",
+    "babel-plugin-transform-runtime": "*",
+    "babel-preset-env": "*",
+    "jest": "*"
   }
 }
