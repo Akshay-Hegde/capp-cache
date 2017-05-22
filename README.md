@@ -1,15 +1,19 @@
 <div align="center"><img src="https://capriza.github.io/images/logos/logos-cupcake.svg" height="128" /></div>
 
-# App Cache replacement
+# Cross Platform Offline Resource Persistency
 
-### Tiny library with zero external dependencies to replace AppCache for all browsers modern, including Safari.
-This library aims to address the need to cache resources for offline applications and improved performance,
-especially on mobile devices.
+### Tiny library with zero external dependencies to persist resources (Javascript, css, etc.) for offline
+ usage and optimal performance; supports all modern browsers, Safari included. Mobile optimized.
 
 ### Usage
 In your index.html file, include a script tag with an object describing your resources. 
-The script should add an object called `cappCacheManifest` to the window. This object must have 
-a property called `resources` that includes an array of resources.
+The script should add an object called `cappCacheManifest` to the window.
+The cappCacheManifest structure is:
+Property  | description                                                              | type                        | default
+----------|--------------------------------------------------------------------------|-----------------------------|-----------------------
+resources | An array of resources to be cached. See the following table for details. | array of resource entries   | []
+pageId    | An ID of the page under which all resources are cached.                  | string                      | Current page URL
+
 When the page loads, the library will add your resources to the DOM, according to the resources list.
 The supported properties for each resource entry are:
 
