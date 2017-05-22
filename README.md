@@ -2,8 +2,7 @@
 
 # Cross Platform Offline Resource Persistency
 
-### Tiny library with zero external dependencies to persist resources (Javascript, css, etc.) for offline
- usage and optimal performance; supports all modern browsers, Safari included. Mobile optimized.
+### Tiny library with zero external dependencies to persist resources (Javascript, css, etc.) for offline usage and optimal performance; supports all modern browsers, Safari included. Mobile optimized.
 
 ### Usage
 In your index.html file, include a script tag with an object describing your resources. 
