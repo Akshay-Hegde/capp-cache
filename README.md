@@ -6,7 +6,7 @@
 
 ### Usage
 In your index.html file, include a script tag with an object describing your resources. 
-The script should add an object called `cappCacheManifest` to the window. If you are using a bundler (Webpack, Rollup etc.) see [FAQ](#faq) about bundlers.
+The script should add an object called `cappCacheManifest` to the window, see [example](#example). If you are using a bundler (Webpack, Rollup etc.) see [FAQ](#faq) about bundlers.
 
 The cappCacheManifest structure is:
 
