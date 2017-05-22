@@ -6,7 +6,7 @@
 
 ### Usage
 In your index.html file, include a script tag with an object describing your resources. 
-The script should add an object called `cappCacheManifest` to the window. If you are using a bundler (Webpack, Rollup etc.) see [FAQ](#adding-a-script-tag-to-my-indexhtml-is-so-2016-i-use-a-bundler-eg-webpack-to-pack-all-my-files-can-i-just-import-capp-cache)
+The script should add an object called `cappCacheManifest` to the window. If you are using a bundler (Webpack, Rollup etc.) see [FAQ](#faq) about bundlers.
 
 The cappCacheManifest structure is:
 
@@ -98,7 +98,9 @@ No. Based on our experience, the issues with App Cache are correlated with the s
 If you just cache just those two files, you shouldn't encounter the issues described above.
 
 #### Adding a script tag to my index.html is so 2016. I use a bundler (e.g. Webpack) to pack all my files. Can I just `import` capp-cache?
-Yes, but in the naive implementation, this means that the library is added as part of your application bundle. Obviously, Capp Cache has to be loaded before any other script is should load. If it is part of the rest of the code bundle, it can't load that bundle. You can declare a separate entry point for Capp Cache which would result in a separate file. Then, make sure to load that file first.
+Yes, but in the naive implementation, this means that the library is added as part of your application bundle. Obviously, Capp Cache has to be loaded before any other script is should load.
+If it is part of the code bundle, it can't load that bundle. You can declare a separate entry point for Capp Cache which would result in a separate file.
+Then, make sure to load that file first.
 For example, in Webpack:
 ```javascript
 entry: {

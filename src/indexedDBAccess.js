@@ -64,14 +64,14 @@ export default function(storeName, indexedDB) {
             };
         });
 
-    idbWrapper.pruneDb = ids =>
+    idbWrapper.pruneDb = (knownIds = []) =>
         new Promise((resolve, reject) => {
             const objectStore = store();
             const request = objectStore.openCursor();
             request.onsuccess = e => {
                 const cursor = e.target.result;
                 if (cursor) {
-                    if (!ids.includes(cursor.key)) {
+                    if (!knownIds.includes(cursor.key)) {
                         idbWrapper.removeResource(cursor.key);
                         console.log(`pruned ${cursor.key}`);
                     }

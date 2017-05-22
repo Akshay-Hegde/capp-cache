@@ -27,9 +27,8 @@ const MOCK_DOCUMENT = {
 /**
  * Loads a list of resources according to the manifest.
  * */
-export function load(manifest) {
-    idbAccess(window.location, window.indexedDB).then(db => {
-        const { resources } = manifest;
+export function load({ resources = [], pageId = window.location, indexedDB = window.indexedDB }) {
+    idbAccess(pageId, indexedDB).then(db => {
         // resources.push({ url: "measure.js", loadAsync: true });
 
         const orderedResources = resources.filter(r => !r.cacheOnly).concat(resources.filter(r => r.cacheOnly));
@@ -78,8 +77,8 @@ export function load(manifest) {
  * Clears indexedDB from any files on this page which were not loaded in this session by calling the load function.
  * Call this function to remove old obsolete files from the cache.
  */
-export function pruneDB() {
-    idbAccess(window.location).then(db => {
+export function pruneDB(pageId = window.location, indexedDB = window.indexedDB) {
+    idbAccess(pageId, indexedDB).then(db => {
         db.pruneDb(cachedFilesInSession);
     });
 }

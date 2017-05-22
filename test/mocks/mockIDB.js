@@ -43,7 +43,7 @@ const mockIndexedDb = function() {
                                     const keys = Object.keys(store);
                                     let idx = 0;
                                     const nextResult = () => ({
-                                         target: {
+                                        target: {
                                             result: idx === keys.length
                                                 ? null
                                                 : {
