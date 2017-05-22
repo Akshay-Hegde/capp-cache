@@ -9,6 +9,7 @@
 In your index.html file, include a script tag with an object describing your resources. 
 The script should add an object called `cappCacheManifest` to the window.
 The cappCacheManifest structure is:
+
 Property  | description                                                              | type                        | default
 ----------|--------------------------------------------------------------------------|-----------------------------|-----------------------
 resources | An array of resources to be cached. See the following table for details. | array of resource entries   | []
