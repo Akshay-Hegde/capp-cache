@@ -7,7 +7,7 @@
 
 ### Usage
 In your index.html file, include a script tag with an object describing your resources. 
-The script should add an object called `cappCacheManifest` to the window.
+The script should add an object called `cappCacheManifest` to the window. If you are using a bundler (Webpack, Rollup etc.) see [FAQ](#using-with-bundler)
 The cappCacheManifest structure is:
 
 Property  | description                                                              | type                        | default
@@ -94,7 +94,20 @@ After using App Cache for years, we encountered multiple issues with this techno
   However, in many scenarios there are optional resources (e.g. images), which shouldn't prevent critical resources from loading if they fail to download.
 
 #### Wait! You are recommending to use App Cache to cache index.html and this library, but claim that this library replacec App Cache. What gives?
-No. Based on our experience, the issues with App Cache are correlated with the size of App Cache and the frequency of changes. If you just cache just those two files, you shouldn't encounter the issues described above.
+No. Based on our experience, the issues with App Cache are correlated with the size of App Cache and the frequency of changes.
+If you just cache just those two files, you shouldn't encounter the issues described above.
+
+#using-with-bundler
+#### Adding a script tag to my index.html is so 2016. I use a bundler (e.g. Webpack) to pack all my files. Can I just `import` capp-cache?
+Yes, but in the naive implementation, this means that the library is added as part of your application bundle. Obviously, Capp Cache has to be loaded before any other script is should load. If it is part of the rest of the code bundle, it can't load that bundle. You can declare a separate entry point for Capp Cache which would result in a separate file. Then, make sure to load that file first.
+For example, in Webpack:
+```javascript
+entry: {
+	CappCache: "capp-cache",
+	App: "./index.js"
+}
+``` 
+before other resources and saved
 
 #### What's the deal with the name?
 This library was developed in [Capriza](https://capriza.github.io/) to replace App Cache. Capriza+AppCache = CappCache. Clever, huh? :)
