@@ -8,6 +8,7 @@
 ### Usage
 In your index.html file, include a script tag with an object describing your resources. 
 The script should add an object called `cappCacheManifest` to the window. If you are using a bundler (Webpack, Rollup etc.) see [FAQ](#adding-a-script-tag-to-my-indexhtml-is-so-2016-i-use-a-bundler-eg-webpack-to-pack-all-my-files-can-i-just-import-capp-cache)
+
 The cappCacheManifest structure is:
 
 Property  | description                                                              | type                        | default
