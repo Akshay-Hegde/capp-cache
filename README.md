@@ -16,6 +16,8 @@ Property  | description                                                         
 resources | An array of resources to be cached. See the following table for details. | array of resource entries   | []
 pageId    | An ID of the page under which all resources are cached.                  | string                      | Current page URL
 manifestUrl | A URL from which the manifest JSON is fetched.                         | URL
+version   | The library cache the manifest to save time on subsequent runs. After each load it fetches the manifest again in the background. If you want to be notified about new available version, you need to specify a different version. It is up to you how to handle this case. You can just reload the page, which is guaranteed  | string | 
+
 
 When the page loads, the library will add your resources to the DOM, according to the resources list.
 The supported properties for each resource entry are:
@@ -128,6 +130,7 @@ Less than 2KB gzipped and minifed.
 [Nadav](https://github.com/fujifish). Thanks!
 
 ## Todo
+- [ ] Better support for inline debug
 - [ ] Local storage fallback
 - [ ] Main index file is saved in regular app cache
 - [ ] If service worker exists - fallback to regular SW?

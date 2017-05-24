@@ -1,20 +1,28 @@
 import { load, pruneDB } from "./src/resourceManager";
+import { on, trigger } from "./src/eventBus";
 import manifestManager from "./src/manifestManager";
 
 (function init() {
-	window.cappCache = {
-		load,
-		pruneDB,
-	};
-
-	let manifest = window.cappCacheManifest;
-	if (manifest === undefined) {
-	    manifest = { manifestUrl: 'cappCacheManifest.json' };
+    let manifest = window.cappCacheManifest;
+    if (manifest === undefined) {
+        manifest = { manifestUrl: "cappCacheManifest.json" };
     }
-	if (manifest.manifestUrl !== undefined) {
-	    manifestManager.fetchManifest(manifest.manifestUrl);
-    } else { //inline manifest
-	    const pageId = manifest.pageId || window.location.href;
-	    load({ manifest, pageId, indexedDB: window.indexedDB });
+    if (manifest.manifestUrl !== undefined) {
+        manifestManager.fetchManifest(manifest.manifestUrl).then(({ manifest, wasModified }) => {
+            if (wasModified) {
+                load(manifest, true).then(() => trigger("manifestUpdated"));
+            }
+        });
+    } else {
+        //inline manifest
+        load({ manifest });
     }
+    const loadResources = () => {
+        load({ manifest });
+    };
+    window.cappCache = {
+        loadResources,
+        pruneDB,
+        on,
+    };
 })();

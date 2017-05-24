@@ -13,11 +13,11 @@ export default {
         tagName: "style",
         contentFetchKey: "href",
         props: {
-	        type: "text/css",
+            type: "text/css",
         },
-	    tagNameWhenNotInline: "link",
+        tagNameWhenNotInline: "link",
         propsWhenNotInline: {
-	        rel: "stylesheet",
+            rel: "stylesheet",
         },
         appendTextContent(tag, documentTarget, content) {
             tag.innerHTML = content;

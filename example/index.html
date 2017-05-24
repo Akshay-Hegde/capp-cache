@@ -43,10 +43,8 @@
 		    ],
 	    }), 1000);
 	    setTimeout(window.cappCache.pruneDB, 2000);*/
+	   window.cappCache.on('manifestUpdated',window.location.reload)
     </script>
-<script>
-
-</script>
 </head>
 <body>
 <div id="container">
