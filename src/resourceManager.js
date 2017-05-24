@@ -54,8 +54,8 @@ export function load(
                         }
                         Object.keys(attributes).forEach(attribute =>
                             tag.setAttribute(attribute, attributes[attribute]));
-	                    Object.keys(tagProperties.attributes).forEach(attribute =>
-		                    tag.setAttribute(attribute, tagProperties.attributes[attribute]));
+                        Object.keys(tagProperties.attributes).forEach(attribute =>
+                            tag.setAttribute(attribute, tagProperties.attributes[attribute]));
                         documentTarget[target].appendChild(tag);
                     })
                     .catch(err => {

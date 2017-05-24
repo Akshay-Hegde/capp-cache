@@ -4,6 +4,7 @@ const mockIDB = require("./mocks/mockIDB").mock;
 const ID1 = "id1";
 const ID2 = "id2";
 const CONTENT_VALUE = "some content";
+const NOT_FOUND = "not found";
 
 it("opens indexeddb connection", async () => {
     const db = await idbAccess("root", mockIDB);
@@ -26,26 +27,24 @@ it("removes previously saved resource", async () => {
 	const db = await idbAccess("root", mockIDB);
 	await db.putResource(ID1, CONTENT_VALUE);
 	await db.removeResource(ID1);
-	const result = await db.getResource(ID1);
-	expect(result).toBeUndefined();
+	expect(db.getResource(ID1)).rejects.toEqual(NOT_FOUND);
 });
 it("prunes resources that are not in the id list", async ()=> {
 	const db = await idbAccess("root", mockIDB);
 	await db.putResource(ID1, CONTENT_VALUE);
 	await db.putResource(ID2, CONTENT_VALUE);
 	await db.pruneDb([]);
-	expect(db.getResource(ID1)).resolves.toBeUndefined();
-	expect(db.getResource(ID2)).resolves.toBeUndefined();
+	
+	expect(db.getResource(ID1)).rejects.toEqual(NOT_FOUND);
+	expect(db.getResource(ID2)).rejects.toEqual(NOT_FOUND);
 });
 it("doesn`t prune resources that are in the id list", async ()=>{
 	const db = await idbAccess("root", mockIDB);
 	await db.putResource(ID1, CONTENT_VALUE);
 	await db.putResource(ID2, CONTENT_VALUE);
 	await db.pruneDb([ID1]);
-	const id1Result = await db.getResource(ID1);
-	const id2Result = await db.getResource(ID2);
-	expect(id1Result).toBeDefined();
-	expect(id2Result).toBeUndefined();
+	expect(db.getResource(ID1)).resolves.toEqual(CONTENT_VALUE);
+	expect(db.getResource(ID2)).rejects.toEqual(NOT_FOUND);
 });
 
 it(`prunes all resources when pruneDB called without any parameter`, async () => {
@@ -53,7 +52,7 @@ it(`prunes all resources when pruneDB called without any parameter`, async () =>
 	await db.putResource(ID1, CONTENT_VALUE);
 	await db.putResource(ID2, CONTENT_VALUE);
 	await db.pruneDb();
-	expect(db.getResource(ID1)).resolves.toBeUndefined();
-	expect(db.getResource(ID2)).resolves.toBeUndefined();
+	expect(db.getResource(ID1)).rejects.toEqual(NOT_FOUND);
+	expect(db.getResource(ID2)).rejects.toEqual(NOT_FOUND);
 
 });

@@ -27,7 +27,12 @@ const mockIndexedDb = function() {
                                             result: { content: store[id] },
                                         },
                                     };
-                                    process.nextTick(() => getReq.onsuccess(result));
+                                    if (store[id]) {
+                                        process.nextTick(() => getReq.onsuccess(result));
+                                    } else {
+                                        process.nextTick(() => getReq.onerror("not found"));
+                                    }
+
                                     return getReq;
                                 },
                                 delete(id) {

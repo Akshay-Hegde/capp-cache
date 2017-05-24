@@ -3,10 +3,11 @@ import { fetchResource } from "./network";
 
 const RESOURCE_FETCH_DELAY = 1000;
 let cachedFilesInSession = [];
+let _fetchResource = fetchResource;
 
 export const fetchAndSaveInCache = (url, indexedDBAccess) =>
     new Promise((resolve, reject) => {
-        fetchResource(url)
+        _fetchResource(url)
             .then(content => {
                 resolve(content);
                 indexedDBAccess.putResource(id(url), content);
@@ -45,3 +46,6 @@ export const loadResource = (indexedDBAccess, resourceUrl, immediate = false) =>
 };
 
 export const getCachedFiles = () => [...cachedFilesInSession];
+
+/** Testing only **/
+export const __injectNetworkMock__ = mockNetwork => _fetchResource = mockNetwork;
