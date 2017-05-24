@@ -28,6 +28,7 @@ url       | mandatory. The url of the resource from which it is fetched | URL   
 loadAsync | add "async" property to script elements                     | bool                 | false
 type      | type of resource                                            | "script","link","img"| "script"
 target    | parent element of the resource                              | "head", "body"       | "head"
+attributes| A key / value list of attributes to set on the tag element  | Object               |
 cacheOnly | sync the script to the database, but don't append it to the DOM. Use to ensure a resource is in the cache for future use | manifest |
 
 You will need to have your `index.html` file and this library cached in order to allow it to work offline and get optimal performance. The recommended way is to create a tiny App Cache manifest to store those just those two files.
@@ -36,38 +37,53 @@ You can override this behavior by setting an object property on the `window` obj
 To specify a **custom URL** from which cappCache loads the manifest, set `window.cappCacheManifest.manifestUrl` to that URL.
 To **inline the manifest**, so that no additional request is triggered, sepcify the `window.cappCacheManifest.resources` array, without specifying `window.cappCacheManifest.manifestUrl`.
 
-#### Example
+---
+
+### Basic Example 
+#### index.html
+```html
+<html manifest="manifest.appcache">
+  <head>
+    <script src="dist/capp-cache.js"/>
+  </head>
+  <body>
+     ...
+  <body/>
+</html>
+```
+
+#### cappCacheManifest.json   
+```html
+{
+  "version": "1a",
+  "resources": [
+    {
+      "url": "index.css",
+      "type": "css"
+    },
+    {
+      "url": "https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.0/moment.min.js",
+      "loadAsync": false,
+      "attributes": {
+        "onload": "console.log('DONE')"
+      }
+    }
+  ]
+}
+```
+
+#### manifest.appcache  
 Create a file called `manifest.appcache` with the following content
+
 ```
 CACHE MANIFEST
 _dist/bundle.js
 index.html
 ```
-In your `index.html` file add a reference to that file
-```html
-<html manifest="manifest.appcache">
-...
-</html>
-```
-#### Example
-```html
-<html manifest="manifest.appcache">
-<script>
- window.cappCacheManifest = {
-        resources: [
-            {
-                url: "https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js",
-                loadAsync: false,
-            },
-            {
-                url: "https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/locale/ar-ma.js",
-            },
-        ],
-    };
-</script>
-<script src="dist/capp-cache.js"/>
-</html>
-```
+In your `index.html` file add a reference to that file: `<html manifest="manifest.appcache">`
+
+-----
+
 
 ### Programmatic access
 ### `window.cappCache.loadResources(manifest, syncCacheOnly = false)`
@@ -94,6 +110,8 @@ The library keeps track of all resources it has loaded in that session. When you
 ###`window.cappCache.on("manifestUpdated", callback)`
 The library caches the `cappCacheManifest.json` and loads all resources accordingly. This saves significant time on startup. However, it has the downside of loading outdated files after a change. If you want to be able to respond to such event, you can register to this event using this function. The callback function will be called with no arguments after the updated manifest is saved to the cache and all resources from that manifest were fetched. For example, you might want to suggest the user to reload the page to see the latest version of the page.  
 This feature should be used in conjunction with the `version` property of `cappCacheManifest.json` file. The library will consider an update only if the `version` property is different from the cached manifest. 
+
+---
 
 ### FAQ
 
@@ -131,7 +149,7 @@ before other resources and saved
 This library was developed in [Capriza](https://capriza.github.io/) to replace App Cache. Capriza+AppCache = CappCache. Clever, huh? :)
 
 #### You say tiny library. How tiny?
-Less than 2KB gzipped and minifed.
+Less than 4KB gzipped and minifed.
 
 #### Who designed the amazing Cupcake logo?
 [Nadav](https://github.com/fujifish). Thanks!
