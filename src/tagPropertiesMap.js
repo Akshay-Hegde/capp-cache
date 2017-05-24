@@ -10,10 +10,14 @@ export default {
         },
     },
     css: {
-        tagName: "link",
+        tagName: "style",
         contentFetchKey: "href",
         props: {
-            rel: "stylesheet",
+	        type: "text/css",
+        },
+	    tagNameWhenNotInline: "link",
+        propsWhenNotInline: {
+	        rel: "stylesheet",
         },
         appendTextContent(tag, documentTarget, content) {
             tag.innerHTML = content;

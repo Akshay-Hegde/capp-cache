@@ -32,13 +32,17 @@ export function load({ resources = [], pageId = window.location.href, indexedDB 
         }) => {
             const tagProperties = tagPropertiesMap[type];
             const documentTarget = cacheOnly ? MOCK_DOCUMENT : document;
-            const tag = documentTarget.createElement(tagProperties.tagName);
+            let tag = documentTarget.createElement(tagProperties.tagName);
             loadResource(db, url, false)
                 .then(resource => {
                     tagProperties.appendTextContent(tag, documentTarget, resource);
 	                tag.setAttribute("data-cappcache-src",url)
                 })
                 .catch(() => {
+	                if (tagProperties.tagNameWhenNotInline !== undefined) {
+		                tag = documentTarget.createElement(tagProperties.tagNameWhenNotInline);
+		                tagProperties.props = tagProperties.propsWhenNotInline;
+	                }
                     tag.setAttribute(tagProperties.contentFetchKey, url);
                 })
                 .then(() => {
