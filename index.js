@@ -17,11 +17,8 @@ import manifestManager from "./src/manifestManager";
         //inline manifest
         load({ manifest });
     }
-    const loadResources = () => {
-        load({ manifest });
-    };
     window.cappCache = {
-        loadResources,
+        loadResources: load,
         pruneDB,
         on,
     };

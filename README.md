@@ -16,7 +16,7 @@ Property  | description                                                         
 resources | An array of resources to be cached. See the following table for details. | array of resource entries   | []
 pageId    | An ID of the page under which all resources are cached.                  | string                      | Current page URL
 manifestUrl | A URL from which the manifest JSON is fetched.                         | URL
-version   | The library cache the manifest to save time on subsequent runs. After each load it fetches the manifest again in the background. If you want to be notified about new available version, you need to specify a different version. It is up to you how to handle this case. You can just reload the page, which is guaranteed  | string | 
+version   | An identifier for the version of the manifest. A change in this version will result in background syncing of the cache with the new manifest. See function on("manifestUpdated") for details.  | string |
 
 
 When the page loads, the library will add your resources to the DOM, according to the resources list.
@@ -70,11 +70,14 @@ In your `index.html` file add a reference to that file
 ```
 
 ### Programmatic access
-In case you need to dynamically load resources from your Javascript code, use the function `window.cappCache.load(manifest)`.
-The function expects a manifest in the same format described above.
+### `window.cappCache.loadResources(manifest, syncCacheOnly = false)`
+Loads resources according to a manifest object; use this function to load scripts dynamically. The function receives two arguments.  
+`manifest` - a manifest object with a `resources` property similar to the `cappCacheManifest.json` file. 
+`syncCacheOnly` - if set to `true` files are just cached, but not added to the DOM.
 For example:
+
 ```javascript
-setTimeout(() => window.cappCache.load({
+setTimeout(() => window.cappCache.loadResources({
 		    resources: [
 			    {
 				    url: "https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.4/lodash.min.js",
@@ -83,10 +86,14 @@ setTimeout(() => window.cappCache.load({
 		    ],
 	    }), 1000);
 ```
+###`window.cappCache.pruneDB()`
 
-It is recommended to remove from the database old scripts. You'll need to manually call `window.cappCache.pruneDB()` after
-all the resources were loaded, both at load time and dynamically throughout the life of the application.
-The library keeps track of all resources it loaded. When you call this function, all files on the page what were not loaded in this session are removed.
+From time to time, or after significant change, it is recommended to remove from the database old scripts. Call this function only after all the resources were loaded, both at load time and dynamically throughout the life cycle of the application.
+The library keeps track of all resources it has loaded in that session. When you call this function, all files in the cache that were not loaded in this session are removed.
+
+###`window.cappCache.on("manifestUpdated", callback)`
+The library caches the `cappCacheManifest.json` and loads all resources accordingly. This saves significant time on startup. However, it has the downside of loading outdated files after a change. If you want to be able to respond to such event, you can register to this event using this function. The callback function will be called with no arguments after the updated manifest is saved to the cache and all resources from that manifest were fetched. For example, you might want to suggest the user to reload the page to see the latest version of the page.  
+This feature should be used in conjunction with the `version` property of `cappCacheManifest.json` file. The library will consider an update only if the `version` property is different from the cached manifest. 
 
 ### FAQ
 
@@ -130,7 +137,6 @@ Less than 2KB gzipped and minifed.
 [Nadav](https://github.com/fujifish). Thanks!
 
 ## Todo
-- [ ] Better support for inline debug
 - [ ] Local storage fallback
 - [ ] Main index file is saved in regular app cache
 - [ ] If service worker exists - fallback to regular SW?
