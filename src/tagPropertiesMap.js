@@ -2,7 +2,7 @@ export default {
     script: {
         tagName: "script",
         contentFetchKey: "src",
-        props: {
+        attributes: {
             type: "text/javascript",
         },
         appendTextContent(tag, documentTarget, content) {
@@ -12,11 +12,11 @@ export default {
     css: {
         tagName: "style",
         contentFetchKey: "href",
-        props: {
+        attributes: {
             type: "text/css",
         },
         tagNameWhenNotInline: "link",
-        propsWhenNotInline: {
+        attributesWhenNotInline: {
             rel: "stylesheet",
         },
         appendTextContent(tag, documentTarget, content) {

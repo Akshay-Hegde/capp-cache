@@ -29,6 +29,7 @@ export function load(
                 url,
                 type = "script",
                 target = "head",
+                attributes = {},
                 loadAsync = false,
                 cacheOnly = false,
             }, index) => {
@@ -43,7 +44,7 @@ export function load(
                     .catch(() => {
                         if (tagProperties.tagNameWhenNotInline !== undefined) {
                             tag = documentTarget.createElement(tagProperties.tagNameWhenNotInline);
-                            tagProperties.props = tagProperties.propsWhenNotInline;
+                            tagProperties.attributes = tagProperties.attributesWhenNotInline;
                         }
                         tag.setAttribute(tagProperties.contentFetchKey, url);
                     })
@@ -51,8 +52,10 @@ export function load(
                         if (loadAsync && type === "script") {
                             tag.setAttribute("async", "async");
                         }
-                        Object.keys(tagProperties.props).forEach(prop =>
-                            tag.setAttribute(prop, tagProperties.props[prop]));
+                        Object.keys(attributes).forEach(attribute =>
+                            tag.setAttribute(attribute, attributes[attribute]));
+	                    Object.keys(tagProperties.attributes).forEach(attribute =>
+		                    tag.setAttribute(attribute, tagProperties.attributes[attribute]));
                         documentTarget[target].appendChild(tag);
                     })
                     .catch(err => {
