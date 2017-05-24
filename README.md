@@ -8,7 +8,7 @@ WIP warning - This libarary is being developed and the API is not stable yet
 
 ### Tiny library with zero external dependencies to persist resources (Javascript, css, etc.) for offline usage and optimal performance; supports all modern browsers, Safari included. Mobile optimized.
 
-#### "Offline First for all"
+#### _Offline First for all_ ™
 Progressive Web Apps (PWA) and offline first apps should be every app's default. It utlizes Service Worker APIs and it provides amazing experience. _Only_ that it leaves all your iOS users [out in the dark](https://jakearchibald.github.io/isserviceworkerready/). AppCache is depracated and limited. This library allows convinient Offline First apps for all mobile browsers.  
 **How does it work?** The library receives a manifest of resources urls (scripts, css), fetches it, add the appropriate DOM tag element, and eventually caches the script in IndexedDB (or fallbacks to localstorage on iOS < v10). On subsequent runs, it fetches those resources immediately, without ever hitting the network. This both significantly increases performance while allowing the app to work without connectivity.     
 
@@ -124,12 +124,13 @@ Currently SW are not supported on Safari browsers, which is a show stopper for m
 
 #### Why not just use App Cache?
 App Cache is considered [deprecated](https://developer.mozilla.org/en-US/docs/Web/HTML/Using_the_application_cache), and for good reasons!
-After using App Cache for years, we encountered multiple issues with this technology
-* If just one of then resources has changed, App Cache will download everything.
-* App Cache manifest has an awkward format with very little control.
-* It is very hard to debug and analyze issues with App Cache.
-* App Cache doesn't always work, especially on iOS, and you have virtually no way to figure out why. This is based on our extensive experience, with tens of thousands devices in production.
-* Whenever a resource is unfetchable, App Cache stops working. This is sometimes a desired behavior, to prevent mix between versions of the code.
+After using App Cache for years, we encountered multiple issues with this technology  
+* If just one of then resources has changed, App Cache will download everything.  
+* App Cache manifest has an awkward format with very little control.  
+* It is very hard to debug and analyze issues with App Cache.  
+* App Cache doesn't always work, especially on iOS, and you have virtually no way to figure out why. This is based on our extensive experience, with tens of thousands devices in production.  
+* App Cache only caches files from your domain. e.g. No way to cache Google Analytics script from Google's CDN.    
+* Whenever a resource is unfetchable, App Cache stops working. This is sometimes a desired behavior, to prevent mix between versions of the code.  
   However, in many scenarios there are optional resources (e.g. images), which shouldn't prevent critical resources from loading if they fail to download.
 
 #### Wait! You are recommending to use App Cache to cache index.html and this library, but claim that this library replace App Cache. What gives?
