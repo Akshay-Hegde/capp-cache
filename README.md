@@ -138,17 +138,13 @@ Less than 2KB gzipped and minifed.
 
 ## Todo
 - [ ] Local storage fallback
-- [ ] Main index file is saved in regular app cache
 - [ ] If service worker exists - fallback to regular SW?
-- [ ] Each page has page id
-- [ ] The library should sync the files from the list with the database, including deleting old files
-- [ ] File descriptor: {url, type (css, javascript for start)}
-- [ ] For starter, no support for versioning is required, we'll just use file names, like CDN
+- [ ] Allow to invalidate file
 - [ ] Optional resources
 
 ## Supported resource types
 - [x] Scripts
-- [ ] CSS
+- [x] CSS
 - [ ] Images
 
 ## Longer term todos
