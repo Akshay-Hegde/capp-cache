@@ -1,84 +1,45 @@
-import idbAccess from "./indexedDBAccess";
 import { id } from "./id";
-import { fetchImage } from "./network";
-import tagPropertiesMap from "./tagPropertiesMap";
+import { fetchResource } from "./network";
 
 const RESOURCE_FETCH_DELAY = 1000;
 let cachedFilesInSession = [];
 
-const scheduleResourceCache = (url, db) => {
-    fetchImage(url).then(content => {
-        db.putResource(id(url), content);
+const fetchAndSaveInCache = (url, indexedDBAccess) =>
+    new Promise((resolve, reject) => {
+        fetchResource(url)
+            .then(content => {
+                resolve(content);
+                indexedDBAccess.putResource(id(url), content);
+            })
+            .catch(e => {
+                reject(e);
+            });
     });
+
+export const loadResource = (indexedDBAccess, resourceUrl, immediate = false) => {
+	const promise = new Promise((resolve, reject) => {
+		indexedDBAccess
+			.getResource(id(resourceUrl))
+			.then(resource => {
+				console.log(`resource ${resourceUrl} was in cache`);
+				resolve(resource);
+			})
+			.catch(err => {
+				console.log(
+					err
+						? `failed to fetch resource from cache ${resourceUrl}. error: ${err}`
+						: `resource ${resourceUrl} was not in cache`
+				);
+				if (immediate) {
+					fetchAndSaveInCache(resourceUrl, indexedDBAccess).then(resolve).catch(err => reject(err));
+				} else {
+					setTimeout(() => fetchAndSaveInCache(resourceUrl, indexedDBAccess), RESOURCE_FETCH_DELAY);
+					reject(null);
+				}
+			});
+	});
+	cachedFilesInSession.push(id(resourceUrl));
+	return promise;
 };
 
-// We use this mock document when loading assets with "cacheOnly" property. this keeps code consistent (no "if cacheOnly... else... ),
-// while avoiding performance hit of adding unnecessary elements to the DOM when we just want to pre-cache the elements
-const MOCK_DOCUMENT = {
-    createElement: () => ({
-        appendChild: Function.prototype,
-        setAttribute: Function.prototype,
-    }),
-    head: { appendChild: Function.prototype },
-    body: { appendChild: Function.prototype },
-    createTextNode: Function.prototype,
-};
-
-/**
- * Loads a list of resources according to the manifest.
- * */
-export function load({ resources = [], pageId = window.location, indexedDB = window.indexedDB }) {
-    idbAccess(pageId, indexedDB).then(db => {
-        // resources.push({ url: "measure.js", loadAsync: true });
-
-        const orderedResources = resources.filter(r => !r.cacheOnly).concat(resources.filter(r => r.cacheOnly));
-
-        //todo: make async!
-        orderedResources.forEach(({
-            url,
-            type = "script",
-            target = "head",
-            loadAsync = false,
-            cacheOnly = false,
-        }) => {
-            const tagProperties = tagPropertiesMap[type];
-            const documentTarget = cacheOnly ? MOCK_DOCUMENT : document;
-            const tag = documentTarget.createElement(tagProperties.tagName);
-            db
-                .getResource(id(url))
-                .then(resource => {
-                    console.log(`resource ${url} was in cache`);
-                    tagProperties.appendTextContent(tag, documentTarget, resource);
-                })
-                .catch(err => {
-                    console.log(
-                        err
-                            ? `failed to fetch resource from cache ${url}. error: ${err}`
-                            : `resource ${url} was not in cache`
-                    );
-                    tag.setAttribute(tagProperties.contentFetchKey, url);
-                    setTimeout(() => scheduleResourceCache(url, db), RESOURCE_FETCH_DELAY);
-                })
-                .then(() => {
-                    if (loadAsync && type === "script") {
-                        tag.setAttribute("async", "async");
-                    }
-                    Object.keys(tagProperties.props).forEach(prop => tag.setAttribute(prop, tagProperties.props[prop]));
-                    documentTarget[target].appendChild(tag);
-                });
-        });
-
-        const cachedResources = resources.map(resource => id(resource.url));
-        cachedFilesInSession = cachedFilesInSession.concat(cachedResources);
-    });
-}
-
-/**
- * Clears indexedDB from any files on this page which were not loaded in this session by calling the load function.
- * Call this function to remove old obsolete files from the cache.
- */
-export function pruneDB(pageId = window.location, indexedDB = window.indexedDB) {
-    idbAccess(pageId, indexedDB).then(db => {
-        db.pruneDb(cachedFilesInSession);
-    });
-}
+export const getCachedFiles = ()=> [...cachedFilesInSession];

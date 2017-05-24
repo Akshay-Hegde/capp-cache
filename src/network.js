@@ -1,4 +1,4 @@
-export const fetchImage = (url, responseType = "text") => {
+export const fetchResource = (url, responseType = "text") => {
     return new Promise((resolve, reject) => {
         const xhr = new XMLHttpRequest();
         let content = null;

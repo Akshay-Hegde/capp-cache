@@ -8,7 +8,8 @@
 	    window.performance.mark('capp-cache-start');
     </script>
     <script>
-	    window.cappCacheResources = {
+/*
+	    window.cappCacheManifest = {
 		    resources: [
 			    {
 				    url: "https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js",
@@ -23,11 +24,13 @@
 				    type: "css"
 			    }
 		    ],
+		   manifestUrl : "cappCacheManifest.json"
 	    };
+*/
     </script>
-    <script src="./_dist/capp-cache.js"></script>
+    <script src="../_dist/capp-cache.js"></script>
     <script type="text/javascript">
-	    setTimeout(() => window.cappCache.load({
+	   /* setTimeout(() => window.cappCache.load({
 		    resources: [
 			    {
 				    url: "https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.4/lodash.min.js",
@@ -39,7 +42,7 @@
 			    },
 		    ],
 	    }), 1000);
-	    setTimeout(window.cappCache.pruneDB, 2000);
+	    setTimeout(window.cappCache.pruneDB, 2000);*/
     </script>
 <script>
 
@@ -47,7 +50,7 @@
 </head>
 <body>
 <div id="container">
-    <img src="resources/logos-cupcake.svg"/>
+    <img src="../resources/logos-cupcake.svg"/>
     <h1>Thanks for checking out CappCache!</h1>
     <p>Open your dev tools console to check what's happening under the hood.</p>
     <p>Take a look at the elements panel. All scripts and style tags are added by CappCache.

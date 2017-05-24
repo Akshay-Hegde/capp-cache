@@ -1,0 +1,16 @@
+{
+  "resources": [
+    {
+      "url": "https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js",
+      "loadAsync": false
+    },
+    {
+      "url": "https://cdnjs.cloudflare.com/ajax/libs/select2-bootstrap-css/1.4.6/select2-bootstrap.css",
+      "type": "css"
+    },
+    {
+      "url": "index.css",
+      "type": "css"
+    }
+  ]
+}
