@@ -14,6 +14,7 @@ Property  | description                                                         
 ----------|--------------------------------------------------------------------------|-----------------------------|-----------------------
 resources | An array of resources to be cached. See the following table for details. | array of resource entries   | []
 pageId    | An ID of the page under which all resources are cached.                  | string                      | Current page URL
+manifestUrl | A URL from which the manifest JSON is fetched.                         | URL
 
 When the page loads, the library will add your resources to the DOM, according to the resources list.
 The supported properties for each resource entry are:
@@ -27,6 +28,14 @@ target    | parent element of the resource                              | "head"
 cacheOnly | sync the script to the database, but don't append it to the DOM. Use to ensure a resource is in the cache for future use | manifest |
 
 You will need to have your `index.html` file and this library cached in order to allow it to work offline and get the best performance. The easiest way is to create a tiny App Cache manifest to store those two files.
+
+#### Capp Cache manifest
+Capp Cache uses manifest to determine which resources are required. By default, Capp Cache will try to fetch a file called `cappCacheManifest.json`.   
+You can override this behavior by setting an object property on the `window` object called `cappCacheManifest` before Capp Cache library is loaded.  
+To specify a **custom URL** from which cappCache loads the manifest, set `window.cappCacheManifest.manifestUrl` to that URL.
+To **inline the manifest**, so that no additional request is triggered, sepcify the `window.cappCacheManifest.resources` array, without specifying `window.cappCacheManifest.manifestUrl`.
+
+#### Example
 Create a file called `manifest.appcache` with the following content
 ```
 CACHE MANIFEST
@@ -43,7 +52,7 @@ In your `index.html` file add a reference to that file
 ```html
 <html manifest="manifest.appcache">
 <script>
- window.cappCacheResources = {
+ window.cappCacheManifest = {
         resources: [
             {
                 url: "https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js",
@@ -93,7 +102,7 @@ After using App Cache for years, we encountered multiple issues with this techno
 * Whenever a resource is unfetchable, App Cache stops working. This is sometimes a desired behavior, to prevent mix between versions of the code.
   However, in many scenarios there are optional resources (e.g. images), which shouldn't prevent critical resources from loading if they fail to download.
 
-#### Wait! You are recommending to use App Cache to cache index.html and this library, but claim that this library replacec App Cache. What gives?
+#### Wait! You are recommending to use App Cache to cache index.html and this library, but claim that this library replace App Cache. What gives?
 No. Based on our experience, the issues with App Cache are correlated with the size of App Cache and the frequency of changes.
 If you just cache just those two files, you shouldn't encounter the issues described above.
 
@@ -120,6 +129,7 @@ Less than 2KB gzipped and minifed.
 [Nadav](https://github.com/fujifish). Thanks!
 
 ## Todo
+- [ ] Local storage fallback
 - [ ] Main index file is saved in regular app cache
 - [ ] If service worker exists - fallback to regular SW?
 - [ ] Each page has page id
