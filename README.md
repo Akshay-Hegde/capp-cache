@@ -2,13 +2,14 @@
 
 # Cross Platform Offline Resource Persistency
 
+---
+WIP warning - This libarary is being developed and the API is not stable yet
+---
+
 ### Tiny library with zero external dependencies to persist resources (Javascript, css, etc.) for offline usage and optimal performance; supports all modern browsers, Safari included. Mobile optimized.
 
 ### Usage
-In your index.html file, include a script tag with an object describing your resources. 
-The script should add an object called `cappCacheManifest` to the window, see [example](#example). If you are using a bundler (Webpack, Rollup etc.) see [FAQ](#faq) about bundlers.
-
-The cappCacheManifest structure is:
+Capp Cache requires a manifest to load the resources. The cappCacheManifest structure is:
 
 Property  | description                                                              | type                        | default
 ----------|--------------------------------------------------------------------------|-----------------------------|-----------------------
@@ -27,10 +28,8 @@ type      | type of resource                                            | "scrip
 target    | parent element of the resource                              | "head", "body"       | "head"
 cacheOnly | sync the script to the database, but don't append it to the DOM. Use to ensure a resource is in the cache for future use | manifest |
 
-You will need to have your `index.html` file and this library cached in order to allow it to work offline and get the best performance. The easiest way is to create a tiny App Cache manifest to store those two files.
-
-#### Capp Cache manifest
-Capp Cache uses manifest to determine which resources are required. By default, Capp Cache will try to fetch a file called `cappCacheManifest.json`.   
+You will need to have your `index.html` file and this library cached in order to allow it to work offline and get optimal performance. The recommended way is to create a tiny App Cache manifest to store those just those two files.
+By default, Capp Cache will try to fetch a file called `cappCacheManifest.json`.
 You can override this behavior by setting an object property on the `window` object called `cappCacheManifest` before Capp Cache library is loaded.  
 To specify a **custom URL** from which cappCache loads the manifest, set `window.cappCacheManifest.manifestUrl` to that URL.
 To **inline the manifest**, so that no additional request is triggered, sepcify the `window.cappCacheManifest.resources` array, without specifying `window.cappCacheManifest.manifestUrl`.
