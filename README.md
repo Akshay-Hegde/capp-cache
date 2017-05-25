@@ -11,7 +11,8 @@ WIP warning - This library is being developed and the API is not stable yet
 ### Tiny library with zero external dependencies to persist resources (Javascript, css, etc.) for offline usage and optimal performance; supports all modern browsers, Safari included. Mobile optimized.
 
 #### _Offline First for all_ ™
-Progressive Web Apps (PWA) and offline first apps should be every app's default. It utlizes Service Worker APIs and it provides amazing experience. _Only_ that it leaves all your iOS users [out in the dark](https://jakearchibald.github.io/isserviceworkerready/). AppCache is deprecated and limited. This library allows convenient Offline First apps for all mobile browsers.
+Progressive Web Apps (PWA) and offline first apps should be every app's default. Those
+ technologies utilize Service Worker APIs and provide amazing experience. _Only_ that it leaves all your iOS users [out in the dark](https://jakearchibald.github.io/isserviceworkerready/). AppCache is deprecated and limited. This library allows convenient Offline First apps for all mobile browsers.
 **How does it work?** The library receives a manifest of resources urls (scripts, css), fetches it, add the appropriate DOM tag element, and eventually caches the script in IndexedDB (or fallbacks to localstorage on iOS < v10). On subsequent runs, it fetches those resources immediately, without ever hitting the network. This both significantly increases performance while allowing the app to work without connectivity.     
 
 ### Usage
