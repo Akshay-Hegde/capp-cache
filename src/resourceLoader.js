@@ -41,7 +41,7 @@ export const loadResource = (indexedDBAccess, resourceUrl, immediate = false) =>
                 }
             });
     });
-	cachedFilesInSession[id(resourceUrl)] = true;
+    cachedFilesInSession[id(resourceUrl)] = true;
     return promise;
 };
 

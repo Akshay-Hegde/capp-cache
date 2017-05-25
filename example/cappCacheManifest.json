@@ -7,7 +7,9 @@
     },
     {
       "url": "https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.0/moment.min.js",
-      "loadAsync": false
+      "attributes": {
+        "async" : true
+      }
     },
     {
       "url": "https://cdnjs.cloudflare.com/ajax/libs/select2-bootstrap-css/1.4.6/select2-bootstrap.css",

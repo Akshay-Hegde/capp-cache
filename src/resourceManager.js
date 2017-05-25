@@ -30,7 +30,6 @@ export function load(
                 type = "script",
                 target = "head",
                 attributes = {},
-                loadAsync = false,
                 cacheOnly = false,
             }, index) => {
                 const tagProperties = tagPropertiesMap[type];
@@ -52,9 +51,6 @@ export function load(
                         tag.setAttribute(tagProperties.contentFetchKey, url);
                     })
                     .then(() => {
-                        if (loadAsync && type === "script") {
-                            tag.setAttribute("async", "async");
-                        }
                         Object.keys(attributes).forEach(attribute =>
                             tag.setAttribute(attribute, attributes[attribute]));
                         Object.keys(tagProperties.attributes).forEach(attribute =>

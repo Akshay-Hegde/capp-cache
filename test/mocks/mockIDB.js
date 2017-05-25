@@ -76,9 +76,9 @@ export const mock = (function mock() {
     const req = {};
     return {
         open(dbName, dbVersion) {
-	        const mockDBInstance = mockIndexedDb();
-	        this.mockDBInstance = mockDBInstance;
-	        process.nextTick(() => req.onsuccess(mockDBInstance));
+            const mockDBInstance = mockIndexedDb();
+            this.mockDBInstance = mockDBInstance;
+            process.nextTick(() => req.onsuccess(mockDBInstance));
             return req;
         },
     };
