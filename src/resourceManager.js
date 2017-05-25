@@ -38,6 +38,9 @@ export function load(
                 let tag = documentTarget.createElement(tagProperties.tagName);
                 loadResource(db, url, false)
                     .then(({ resource }) => {
+                        if (type === "script") {
+                            resource = `//# sourceURL=${url}\n${resource}`;
+                        }
                         tagProperties.appendTextContent(tag, documentTarget, resource);
                         tag.setAttribute("data-cappcache-src", url);
                     })
