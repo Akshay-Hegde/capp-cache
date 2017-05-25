@@ -1,15 +1,17 @@
 <div align="center"><img src="https://capriza.github.io/images/logos/logos-cupcake.svg" height="128" /></div>
+<div align="center"><div>The sweetest cache library</div></div>
+
 
 # Cross Platform Offline Resource Persistency
 
 ---
-WIP warning - This libarary is being developed and the API is not stable yet
+WIP warning - This library is being developed and the API is not stable yet
 ---
 
 ### Tiny library with zero external dependencies to persist resources (Javascript, css, etc.) for offline usage and optimal performance; supports all modern browsers, Safari included. Mobile optimized.
 
 #### _Offline First for all_ ™
-Progressive Web Apps (PWA) and offline first apps should be every app's default. It utlizes Service Worker APIs and it provides amazing experience. _Only_ that it leaves all your iOS users [out in the dark](https://jakearchibald.github.io/isserviceworkerready/). AppCache is depracated and limited. This library allows convinient Offline First apps for all mobile browsers.  
+Progressive Web Apps (PWA) and offline first apps should be every app's default. It utlizes Service Worker APIs and it provides amazing experience. _Only_ that it leaves all your iOS users [out in the dark](https://jakearchibald.github.io/isserviceworkerready/). AppCache is deprecated and limited. This library allows convenient Offline First apps for all mobile browsers.
 **How does it work?** The library receives a manifest of resources urls (scripts, css), fetches it, add the appropriate DOM tag element, and eventually caches the script in IndexedDB (or fallbacks to localstorage on iOS < v10). On subsequent runs, it fetches those resources immediately, without ever hitting the network. This both significantly increases performance while allowing the app to work without connectivity.     
 
 ### Usage
@@ -29,7 +31,6 @@ The supported properties for each resource entry are:
 Property  | description                                                 | type                 | default
 ----------|-------------------------------------------------------------|----------------------|-----------
 url       | mandatory. The url of the resource from which it is fetched | URL                  |
-loadAsync | add "async" property to script elements                     | bool                 | false
 type      | type of resource                                            | "script","link","img"| "script"
 target    | parent element of the resource                              | "head", "body"       | "head"
 attributes| A key / value list of attributes to set on the tag element  | Object               |
@@ -67,9 +68,9 @@ To **inline the manifest**, so that no additional request is triggered, sepcify 
     },
     {
       "url": "https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.0/moment.min.js",
-      "loadAsync": false,
       "attributes": {
-        "onload": "console.log('DONE')"
+        "onload": "console.log('DONE')",
+        "async" : true
       }
     }
   ]
@@ -101,7 +102,9 @@ setTimeout(() => window.cappCache.loadResources({
 		    resources: [
 			    {
 				    url: "https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.4/lodash.min.js",
-				    loadAsync: false,
+				    "attributes": {
+				        "async": false
+				    }
 			    },
 		    ],
 	    }), 1000);
