@@ -1,6 +1,7 @@
 const mockIndexedDb = function() {
     const mockDB = {};
     return {
+        mockDB,
         target: {
             result: {
                 transaction(storeNames, type) {
@@ -75,7 +76,9 @@ export const mock = (function mock() {
     const req = {};
     return {
         open(dbName, dbVersion) {
-            process.nextTick(() => req.onsuccess(mockIndexedDb()));
+	        const mockDBInstance = mockIndexedDb();
+	        this.mockDBInstance = mockDBInstance;
+	        process.nextTick(() => req.onsuccess(mockDBInstance));
             return req;
         },
     };

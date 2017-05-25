@@ -1,7 +1,8 @@
+export const MOCK_RESP = "mock response";
+
 export const fetchResource = (url, responseType = "text") => {
     return new Promise((resolve, reject) => {
-        debugger;
         console.log(`fetch resource mock`);
-        resolve();
+        resolve(MOCK_RESP);
     });
 };

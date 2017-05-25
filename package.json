@@ -4,10 +4,11 @@
   "description": "The AppCache replacement that works for all browsers",
   "main": "index.js",
   "scripts": {
+    "test": "jest",
     "build": "webpack --env.prod index.js",
     "watch": "webpack --env.dev --watch index.js",
     "dev": "http-server -p 9999 .",
-    "prettier": "prettier --trailing-comma es5 --print-width 120 --write --tab-width 4 src/**/*.js test/**/*.js *.js"
+    "prettier": "prettier --trailing-comma es5 --print-width 120 --write --tab-width 4 src/**/*.js test/*.js test/**/*.js *.js"
   },
   "repository": {
     "type": "git",

@@ -1,8 +1,8 @@
 import { id } from "./id";
 import { fetchResource } from "./network";
 
-const RESOURCE_FETCH_DELAY = 1000;
-let cachedFilesInSession = [];
+let RESOURCE_FETCH_DELAY = 1000;
+let cachedFilesInSession = {};
 let _fetchResource = fetchResource;
 
 export const fetchAndSaveInCache = (url, indexedDBAccess) =>
@@ -41,11 +41,14 @@ export const loadResource = (indexedDBAccess, resourceUrl, immediate = false) =>
                 }
             });
     });
-    cachedFilesInSession.push(id(resourceUrl));
+	cachedFilesInSession[id(resourceUrl)] = true;
     return promise;
 };
 
-export const getCachedFiles = () => [...cachedFilesInSession];
+export const getCachedFiles = () => Object.keys(cachedFilesInSession);
 
 /** Testing only **/
-export const __injectNetworkMock__ = mockNetwork => _fetchResource = mockNetwork;
+export const __injectMockConfig__ = mockNetwork => {
+    _fetchResource = mockNetwork;
+    RESOURCE_FETCH_DELAY = 0;
+};
