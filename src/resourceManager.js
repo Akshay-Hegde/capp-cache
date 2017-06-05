@@ -31,7 +31,7 @@ export function load(
 
             orderedResources.forEach(({
                 url,
-                type = "script",
+                type = "js",
                 target = "head",
                 attributes = {},
                 cacheOnly = false,
@@ -40,7 +40,7 @@ export function load(
                 if (tagProperties === undefined) {
                     return console.error(`Unsupported tag ${type}`);
                 }
-                const documentTarget = cacheOnly || syncCacheOnly ? MOCK_DOCUMENT : document;
+                const documentTarget = (cacheOnly || syncCacheOnly || !tagProperties.canAddToDom) ? MOCK_DOCUMENT : document;
                 let tag = documentTarget.createElement(tagProperties.tagName);
                 loadResource(db, url, false)
                     .then(({ resource }) => {

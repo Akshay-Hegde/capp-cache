@@ -76,7 +76,7 @@ it("adds elements to head by default", async () => {
 it("applies the properties of a resource from the manifest", async () => {
     await load({
         resources: [
-            { url: DUMMY1, target: "head", type: "script" },
+            { url: DUMMY1, target: "head", type: "js" },
             { url: DUMMY2, target: "body", type: "css" },
             {
                 url: DUMMY3,
@@ -103,6 +103,12 @@ it("downloads to the cache cacheOnly resources", async () => {
 	await jest.runAllTimers();
 	expect(mockIDB.mockDBInstance.mockDB["about:blank"][DUMMY1]).toBeTruthy();
 });
+it("does not try to add blob to the DOM", async () => {
+	await load({ resources: [{ url: DUMMY1, type: "blob",}], indexedDB: mockIDB, document });
+	await jest.runAllTimers();
+	expect(mockIDB.mockDBInstance.mockDB["about:blank"][DUMMY1]).toBeTruthy();
+	expect(head.appendChild).not.toHaveBeenCalled();
+},999999);
 /*
 it("add attributes to tags according to manifest when files are not in cache", async () => {
     await load({

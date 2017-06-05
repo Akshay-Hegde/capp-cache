@@ -1,5 +1,5 @@
 export default {
-    script: {
+    js: {
         tagName: "script",
         contentFetchKey: "src",
         attributes: {
@@ -8,6 +8,7 @@ export default {
         appendTextContent(tag, documentTarget, content) {
             tag.appendChild(documentTarget.createTextNode(content));
         },
+	    canAddToDom: true,
     },
     css: {
         tagName: "style",
@@ -22,5 +23,10 @@ export default {
         appendTextContent(tag, documentTarget, content) {
             tag.innerHTML = content;
         },
+	    canAddToDom: true,
     },
+    blob: {
+        canAddToDom: false,
+	    attributes: {},
+    }
 };
