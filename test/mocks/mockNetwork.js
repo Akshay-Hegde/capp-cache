@@ -1,8 +1,11 @@
-export const MOCK_RESP = "mock response";
-
-export const fetchResource = (url, responseType = "text") => {
+const fetchResource = jest.fn((url, responseType = "text") => {
+    const MOCK_RESP = "mock response";
     return new Promise((resolve, reject) => {
         console.log(`fetch resource mock`);
         resolve(MOCK_RESP);
     });
+});
+
+module.exports = {
+    fetchResource,
 };

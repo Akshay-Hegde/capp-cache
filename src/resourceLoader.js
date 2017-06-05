@@ -3,11 +3,10 @@ import { fetchResource } from "./network";
 
 let RESOURCE_FETCH_DELAY = 1000;
 let cachedFilesInSession = {};
-let _fetchResource = fetchResource;
 
 export const fetchAndSaveInCache = (url, indexedDBAccess) =>
     new Promise((resolve, reject) => {
-        _fetchResource(url)
+        fetchResource(url)
             .then(content => {
                 resolve(content);
                 indexedDBAccess.putResource(id(url), content);
@@ -36,7 +35,7 @@ export const loadResource = (indexedDBAccess, resourceUrl, immediate = false) =>
                         .then(content => resolve({ resource: content, fromCache: false }))
                         .catch(err => reject(err));
                 } else {
-                    setTimeout(() => fetchAndSaveInCache(resourceUrl, indexedDBAccess), RESOURCE_FETCH_DELAY);
+                    window.setTimeout(() => fetchAndSaveInCache(resourceUrl, indexedDBAccess), RESOURCE_FETCH_DELAY);
                     reject(null);
                 }
             });
@@ -46,9 +45,3 @@ export const loadResource = (indexedDBAccess, resourceUrl, immediate = false) =>
 };
 
 export const getCachedFiles = () => Object.keys(cachedFilesInSession);
-
-/** Testing only **/
-export const __injectMockConfig__ = mockNetwork => {
-    _fetchResource = mockNetwork;
-    RESOURCE_FETCH_DELAY = 0;
-};

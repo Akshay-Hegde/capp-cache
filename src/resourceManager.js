@@ -18,13 +18,17 @@ const MOCK_DOCUMENT = {
  * Loads a list of resources according to the manifest.
  * */
 export function load(
-    { resources = [], pageId = window.location.href, indexedDB = window.indexedDB },
+    { resources = [], pageId = window.location.href, indexedDB = window.indexedDB, document = window.document },
     syncCacheOnly = false
 ) {
     return new Promise((resolve, reject) => {
+        if (resources.length === 0) {
+            return resolve();
+        }
         indexedDBAccess(pageId, indexedDB).then(db => {
             const orderedResources = resources.filter(r => !r.cacheOnly).concat(resources.filter(r => r.cacheOnly));
             let lastErr = undefined;
+
             orderedResources.forEach(({
                 url,
                 type = "script",
@@ -33,6 +37,9 @@ export function load(
                 cacheOnly = false,
             }, index) => {
                 const tagProperties = tagPropertiesMap[type];
+                if (tagProperties === undefined) {
+                    return console.error(`Unsupported tag ${type}`);
+                }
                 const documentTarget = cacheOnly || syncCacheOnly ? MOCK_DOCUMENT : document;
                 let tag = documentTarget.createElement(tagProperties.tagName);
                 loadResource(db, url, false)
@@ -43,7 +50,7 @@ export function load(
                         tagProperties.appendTextContent(tag, documentTarget, resource);
                         tag.setAttribute("data-cappcache-src", url);
                     })
-                    .catch(() => {
+                    .catch(e => {
                         if (tagProperties.tagNameWhenNotInline !== undefined) {
                             tag = documentTarget.createElement(tagProperties.tagNameWhenNotInline);
                             tagProperties.attributes = tagProperties.attributesWhenNotInline;
@@ -61,7 +68,7 @@ export function load(
                         lastErr = err;
                     })
                     .then(() => {
-                        if (index === orderedResources.length) {
+                        if (index === orderedResources.length - 1) {
                             lastErr === undefined ? resolve() : reject(lastErr);
                         }
                     });
