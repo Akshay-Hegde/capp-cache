@@ -4,7 +4,7 @@ const mockIDB = require("./mocks/mockIDB").mock;
 const ID1 = "id1";
 const ID2 = "id2";
 const CONTENT_VALUE = "some content";
-const NOT_FOUND = "not found";
+const NOT_FOUND = null;
 
 beforeEach(() => global.console.log = jest.fn());
 
