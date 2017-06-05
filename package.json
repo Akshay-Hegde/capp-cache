@@ -29,13 +29,13 @@
   "homepage": "https://github.com/eladmoshe/offline-cache#readme",
   "devDependencies": {
     "babel-core": "^6.24.1",
-    "babel-loader": "^7.0.0",
-    "webpack": "^2.5.1",
-    "webpack-dev-server": "^2.4.5",
     "babel-jest": "*",
+    "babel-loader": "^7.0.0",
     "babel-plugin-transform-runtime": "*",
     "babel-preset-env": "*",
+    "http-server": "*",
     "jest": "*",
-    "http-server": "*"
+    "webpack": "^2.5.1",
+    "webpack-dev-server": "^2.4.5"
   }
 }
