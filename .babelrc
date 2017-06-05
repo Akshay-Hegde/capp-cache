@@ -1,11 +1,11 @@
 {
-  /*
-  *** Enable this section for node.js < v7.8  ***
-  "presets": [
+  /*"presets": [
     ["env"]
   ],
+*/
+  "sourceMaps":"inline",
 
-  "plugins": [
+  /*"plugins": [
     ["transform-runtime", {
       "polyfill": false,
       "regenerator": true
