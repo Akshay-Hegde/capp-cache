@@ -21,8 +21,8 @@ it("saves resource", async () => {
 it("fetches previously saved resource", async () => {
     const db = await idbAccess("root", mockIDB);
     await db.putResource(ID1, CONTENT_VALUE);
-    const result = await db.getResource(ID1, CONTENT_VALUE);
-    expect(result).toEqual(CONTENT_VALUE);
+    const {content} = await db.getResource(ID1, CONTENT_VALUE);
+    expect(content).toEqual(CONTENT_VALUE);
 });
 
 it("removes previously saved resource", async () => {
@@ -45,7 +45,7 @@ it("doesn`t prune resources that are in the id list", async () => {
     await db.putResource(ID1, CONTENT_VALUE);
     await db.putResource(ID2, CONTENT_VALUE);
     await db.pruneDb([ID1]);
-    await expect(db.getResource(ID1)).resolves.toEqual(CONTENT_VALUE);
+    await expect(db.getResource(ID1)).resolves.toEqual({content: CONTENT_VALUE});
     await expect(db.getResource(ID2)).rejects.toEqual(NOT_FOUND);
 });
 

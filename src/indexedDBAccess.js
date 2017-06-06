@@ -19,7 +19,7 @@ export default function(storeName, indexedDB) {
             const request = store("readonly").get(id);
             request.onsuccess = event => {
                 if (event.target.result) {
-                    resolve(event.target.result.content);
+                    resolve({content: event.target.result.content});
                 } else {
                     console.log(`resource with id ${id} is not in the cache`);
                     reject(null);

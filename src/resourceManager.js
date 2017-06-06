@@ -29,51 +29,83 @@ export function load(
             const orderedResources = resources.filter(r => !r.cacheOnly).concat(resources.filter(r => r.cacheOnly));
             let lastErr = undefined;
 
-            orderedResources.forEach(({
-                url,
-                type = "js",
-                target = "head",
-                attributes = {},
-                cacheOnly = false,
-            }, index) => {
-                const tagProperties = tagPropertiesMap[type];
-                if (tagProperties === undefined) {
-                    return console.error(`Unsupported tag ${type}`);
+            orderedResources.forEach(
+                ({ url, type = "js", target = "head", attributes = {}, cacheOnly = false }, index) => {
+                    const tagProperties = tagPropertiesMap[type];
+                    if (tagProperties === undefined) {
+                        return console.error(`Unsupported tag ${type}`);
+                    }
+                    const documentTarget = cacheOnly || syncCacheOnly || !tagProperties.canAddToDom
+                        ? MOCK_DOCUMENT
+                        : document;
+                    let tag = documentTarget.createElement(tagProperties.tagName);
+                    loadResource(db, url, false)
+                        .then(({ resource }) => {
+                            if (type === "script") {
+                                resource = `//# sourceURL=${url}\n${resource}`;
+                            }
+                            tagProperties.appendTextContent(tag, documentTarget, resource);
+                            tag.setAttribute("data-cappcache-src", url);
+                        })
+                        .catch(e => {
+                            if (tagProperties.tagNameWhenNotInline !== undefined) {
+                                tag = documentTarget.createElement(tagProperties.tagNameWhenNotInline);
+                                tagProperties.attributes = tagProperties.attributesWhenNotInline;
+                            }
+                            tag.setAttribute(tagProperties.contentFetchKey, url);
+                        })
+                        .then(() => {
+                            Object.keys(attributes).forEach(attribute =>
+                                tag.setAttribute(attribute, attributes[attribute])
+                            );
+                            Object.keys(tagProperties.attributes).forEach(attribute =>
+                                tag.setAttribute(attribute, tagProperties.attributes[attribute])
+                            );
+                            documentTarget[target].appendChild(tag);
+                        })
+                        .catch(err => {
+                            lastErr = err;
+                        })
+                        .then(() => {
+                            if (index === orderedResources.length - 1) {
+                                lastErr === undefined ? resolve() : reject(lastErr);
+                            }
+                        });
                 }
-                const documentTarget = (cacheOnly || syncCacheOnly || !tagProperties.canAddToDom) ? MOCK_DOCUMENT : document;
-                let tag = documentTarget.createElement(tagProperties.tagName);
-                loadResource(db, url, false)
-                    .then(({ resource }) => {
-                        if (type === "script") {
-                            resource = `//# sourceURL=${url}\n${resource}`;
-                        }
-                        tagProperties.appendTextContent(tag, documentTarget, resource);
-                        tag.setAttribute("data-cappcache-src", url);
-                    })
-                    .catch(e => {
-                        if (tagProperties.tagNameWhenNotInline !== undefined) {
-                            tag = documentTarget.createElement(tagProperties.tagNameWhenNotInline);
-                            tagProperties.attributes = tagProperties.attributesWhenNotInline;
-                        }
-                        tag.setAttribute(tagProperties.contentFetchKey, url);
-                    })
-                    .then(() => {
-                        Object.keys(attributes).forEach(attribute =>
-                            tag.setAttribute(attribute, attributes[attribute]));
-                        Object.keys(tagProperties.attributes).forEach(attribute =>
-                            tag.setAttribute(attribute, tagProperties.attributes[attribute]));
-                        documentTarget[target].appendChild(tag);
-                    })
-                    .catch(err => {
-                        lastErr = err;
-                    })
-                    .then(() => {
-                        if (index === orderedResources.length - 1) {
-                            lastErr === undefined ? resolve() : reject(lastErr);
-                        }
-                    });
-            });
+            );
         });
+    });
+}
+
+export function getBlob(
+    pageId,
+    url,
+    mediaType = "image/jpeg",
+    isBase64 = true,
+    isBinary = true,
+    indexedDB = window.indexedDB
+) {
+    return new Promise((resolve, reject) => {
+        indexedDBAccess(pageId, indexedDB)
+            .then(db => {
+                return loadResource(db, url, true);
+            })
+            .then(result => {
+                if (isBinary) {
+                    debugger;
+                    const blob = new Blob([result.resource], { type: mediaType });
+                    return URL.createObjectURL(blob);
+                } else {
+                    return `data:${mediaType}${isBase64 ? ";base64" : ""},${isBase64 ? btoa(resource) : resource}`;
+                }
+            })
+            .then(dataUrl => {
+                resolve(dataUrl);
+            })
+            .catch(e => {
+                console.error(`failed to fetch image ${e}`);
+                reject(null);
+            });
     });
 }
 

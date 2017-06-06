@@ -46,7 +46,19 @@
 </head>
 <body>
 <div id="container">
-    <img src="../resources/logos-cupcake.svg"/>
+    <img id="capp-cache-img"/>
+    <img id="capp-cache-img2"/>
+    <script>
+	    cappCache
+//            .getBlob(window.location, "../resources/logos-cupcake.svg", "image/svg+xml", false)
+            .getBlob(window.location, "https://pbs.twimg.com/media/DBiSlwrXUAA4Ko4.jpg", "image/jpeg", true)
+            .then(dataUri => {document.getElementById("capp-cache-img").setAttribute("src", dataUri)});
+
+        cappCache
+            .getBlob(window.location, "../resources/logos-cupcake.svg", "image/svg+xml", false, false)
+            .then(dataUri => {document.getElementById("capp-cache-img2").setAttribute("src", dataUri)});
+
+    </script>
     <h1>Thanks for checking out CappCache!</h1>
     <p>Open your dev tools console to check what's happening under the hood.</p>
     <p>Take a look at the elements panel. All scripts and style tags are added by CappCache.

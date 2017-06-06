@@ -8,7 +8,7 @@ export default {
         appendTextContent(tag, documentTarget, content) {
             tag.appendChild(documentTarget.createTextNode(content));
         },
-	    canAddToDom: true,
+        canAddToDom: true,
     },
     css: {
         tagName: "style",
@@ -23,10 +23,10 @@ export default {
         appendTextContent(tag, documentTarget, content) {
             tag.innerHTML = content;
         },
-	    canAddToDom: true,
+        canAddToDom: true,
     },
     blob: {
         canAddToDom: false,
-	    attributes: {},
-    }
+        attributes: {},
+    },
 };

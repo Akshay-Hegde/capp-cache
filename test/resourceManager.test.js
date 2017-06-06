@@ -19,9 +19,8 @@ const cssTag = {
     setAttribute: jest.fn(),
 };
 const linkTag = {
-	setAttribute: jest.fn(),
+    setAttribute: jest.fn(),
 };
-
 
 const getTag = type => {
     switch (type) {
@@ -30,9 +29,9 @@ const getTag = type => {
         case "style":
             return cssTag;
         case "link":
-	        return linkTag;
+            return linkTag;
         default:
-	        console.error(`unable to find type ${type}`);
+            console.error(`unable to find type ${type}`);
             return null;
     }
 };
@@ -46,7 +45,7 @@ const document = {
 beforeEach(() => {
     global.console.log = jest.fn();
     jest.clearAllMocks();
-	jest.useFakeTimers();
+    jest.useFakeTimers();
 });
 
 it("handles manifest with empty array resources", async () => {
@@ -65,9 +64,9 @@ it("handles manifest with no resources ", async () => {
 
 it("fetches files to cache according to manifest", async () => {
     await load({ resources: [{ url: DUMMY1 }, { url: DUMMY2 }], indexedDB: mockIDB, document });
-	await jest.runAllTimers();
-	expect(mockIDB.mockDBInstance.mockDB["about:blank"][DUMMY1]).toBeTruthy();
-	expect(mockIDB.mockDBInstance.mockDB["about:blank"][DUMMY2]).toBeTruthy();
+    await jest.runAllTimers();
+    expect(mockIDB.mockDBInstance.mockDB["about:blank"][DUMMY1]).toBeTruthy();
+    expect(mockIDB.mockDBInstance.mockDB["about:blank"][DUMMY2]).toBeTruthy();
 });
 it("adds elements to head by default", async () => {
     await load({ resources: [{ url: DUMMY1 }, { url: DUMMY2 }], indexedDB: mockIDB, document });
@@ -89,7 +88,7 @@ it("applies the properties of a resource from the manifest", async () => {
         indexedDB: mockIDB,
         document,
     });
-	await jest.runAllTimers();
+    await jest.runAllTimers();
     expect(document.head.appendChild).toHaveBeenCalledTimes(2);
     expect(document.body.appendChild).toHaveBeenCalledTimes(1);
     expect(cssTag.setAttribute);
@@ -100,15 +99,19 @@ it("does not append to the dom cacheOnly resources", async () => {
 });
 it("downloads to the cache cacheOnly resources", async () => {
     await load({ resources: [{ url: DUMMY1, cacheOnly: true }], indexedDB: mockIDB, document });
-	await jest.runAllTimers();
-	expect(mockIDB.mockDBInstance.mockDB["about:blank"][DUMMY1]).toBeTruthy();
+    await jest.runAllTimers();
+    expect(mockIDB.mockDBInstance.mockDB["about:blank"][DUMMY1]).toBeTruthy();
 });
-it("does not try to add blob to the DOM", async () => {
-	await load({ resources: [{ url: DUMMY1, type: "blob",}], indexedDB: mockIDB, document });
-	await jest.runAllTimers();
-	expect(mockIDB.mockDBInstance.mockDB["about:blank"][DUMMY1]).toBeTruthy();
-	expect(head.appendChild).not.toHaveBeenCalled();
-},999999);
+it(
+    "does not try to add blob to the DOM",
+    async () => {
+        await load({ resources: [{ url: DUMMY1, type: "blob" }], indexedDB: mockIDB, document });
+        await jest.runAllTimers();
+        expect(mockIDB.mockDBInstance.mockDB["about:blank"][DUMMY1]).toBeTruthy();
+        expect(head.appendChild).not.toHaveBeenCalled();
+    },
+    999999
+);
 /*
 it("add attributes to tags according to manifest when files are not in cache", async () => {
     await load({

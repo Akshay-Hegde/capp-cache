@@ -11,7 +11,10 @@ const mockIndexedDb = function() {
                                 mockDB[storeName] = {};
                             }
                             const store = mockDB[storeName];
-                            const putReq = {}, getReq = {}, deleteReq = {}, openCursorReq = {};
+                            const putReq = {},
+                                getReq = {},
+                                deleteReq = {},
+                                openCursorReq = {};
                             return {
                                 put({ id, content }) {
                                     if (type !== "readwrite") {

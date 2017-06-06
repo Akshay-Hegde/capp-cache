@@ -1,4 +1,4 @@
-import { load, pruneDB } from "./src/resourceManager";
+import { load, pruneDB, getBlob } from "./src/resourceManager";
 import { on, trigger } from "./src/eventBus";
 import manifestManager from "./src/manifestManager";
 
@@ -19,6 +19,7 @@ import manifestManager from "./src/manifestManager";
     }
     window.cappCache = {
         loadResources: load,
+        getBlob,
         pruneDB,
         on,
     };

@@ -20,9 +20,9 @@ export const loadResource = (indexedDBAccess, resourceUrl, immediate = false) =>
     const promise = new Promise((resolve, reject) => {
         indexedDBAccess
             .getResource(id(resourceUrl))
-            .then(resource => {
+            .then((result) => {
                 console.log(`resource ${resourceUrl} was in cache`);
-                resolve({ resource, fromCache: true });
+                resolve({ ...result, fromCache: true });
             })
             .catch(err => {
                 console.log(
