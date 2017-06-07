@@ -16,35 +16,35 @@ beforeEach(() => {
 
 it("rejects when a resource is not in the database", async () => {
     const idbAccess = await indexedDBAccess(STORE_NAME, mockIDB.mock);
-    await expect(loadResource(idbAccess, RESOURCE_URL)).rejects.toBeNull();
+    await expect(loadResource({ indexedDBAccess: idbAccess, url: RESOURCE_URL })).rejects.toBeNull();
 });
 
 it("on the second time a resource is requested, it should be fetched from cache", async () => {
     const idbAccess = await indexedDBAccess(STORE_NAME, mockIDB.mock);
-    await expect(loadResource(idbAccess, RESOURCE_URL)).rejects.toBeNull();
+    await expect(loadResource({ indexedDBAccess: idbAccess, url: RESOURCE_URL })).rejects.toBeNull();
     await jest.runAllTimers();
-    const resource = await loadResource(idbAccess, RESOURCE_URL);
+    const resource = await loadResource({ indexedDBAccess: idbAccess, url: RESOURCE_URL });
     await expect(resource.resource.content).toBe(MOCK_RESP);
 });
 
 it("gets the cached files in this session, without duplications", async () => {
     const idbAccess = await indexedDBAccess(STORE_NAME, mockIDB.mock);
-    await expect(loadResource(idbAccess, RESOURCE_URL)).rejects.toBeFalsy();
-    await expect(loadResource(idbAccess, RESOURCE_URL2)).rejects.toBeFalsy();
+    await expect(loadResource({ indexedDBAccess: idbAccess, url: RESOURCE_URL })).rejects.toBeFalsy();
+    await expect(loadResource({ indexedDBAccess: idbAccess, url: RESOURCE_URL2 })).rejects.toBeFalsy();
     await jest.runAllTimers();
-    await expect(loadResource(idbAccess, RESOURCE_URL)).resolves.toBeTruthy();
+    await expect(loadResource({ indexedDBAccess: idbAccess, url: RESOURCE_URL })).resolves.toBeTruthy();
     const cachedFiles = await getCachedFiles();
     await expect(cachedFiles.length).toBe(2);
 });
 
 it("with immediate flag, it fetches a resource from the web and caches the result", async () => {
     const idbAccess = await indexedDBAccess(STORE_NAME, mockIDB.mock);
-    const { resource } = await loadResource(idbAccess, RESOURCE_URL, true);
+    const { resource } = await loadResource({ indexedDBAccess: idbAccess, url: RESOURCE_URL, immediate: true });
     expect(resource.content).toBe(MOCK_RESP);
 });
 it("saves the file in cache after fetching from the web", async () => {
     const idbAccess = await indexedDBAccess(STORE_NAME, mockIDB.mock);
-    await expect(loadResource(idbAccess, RESOURCE_URL)).rejects.toBeFalsy();
+    await expect(loadResource({ indexedDBAccess: idbAccess, url: RESOURCE_URL })).rejects.toBeFalsy();
     await jest.runAllTimers();
     expect(mockIDB.mock.mockDBInstance.mockDB.store[RESOURCE_URL]).toBeTruthy();
 });

@@ -34,8 +34,8 @@ it("removes previously saved resource", async () => {
 });
 it("prunes resources that are not in the id list", async () => {
     const db = await idbAccess("root", mockIDB);
-    await db.putResource(ID1, {content: CONTENT_VALUE, contentType: DUMMY_TYPE});
-    await db.putResource(ID2, {content: CONTENT_VALUE, contentType: DUMMY_TYPE});
+    await db.putResource(ID1, { content: CONTENT_VALUE, contentType: DUMMY_TYPE });
+    await db.putResource(ID2, { content: CONTENT_VALUE, contentType: DUMMY_TYPE });
     await db.pruneDb([]);
 
     expect(db.getResource(ID1)).rejects.toEqual(NOT_FOUND);
@@ -43,11 +43,11 @@ it("prunes resources that are not in the id list", async () => {
 });
 it("doesn`t prune resources that are in the id list", async () => {
     const db = await idbAccess("root", mockIDB);
-    await db.putResource(ID1, {content: CONTENT_VALUE, contentType: DUMMY_TYPE});
-    await db.putResource(ID2, {content: CONTENT_VALUE, contentType: DUMMY_TYPE});
+    await db.putResource(ID1, { content: CONTENT_VALUE, contentType: DUMMY_TYPE });
+    await db.putResource(ID2, { content: CONTENT_VALUE, contentType: DUMMY_TYPE });
     await db.pruneDb([ID1]);
-	const resource1 = await db.getResource(ID1);
-	await expect(resource1.content).toBe(CONTENT_VALUE);
+    const resource1 = await db.getResource(ID1);
+    await expect(resource1.content).toBe(CONTENT_VALUE);
     await expect(db.getResource(ID2)).rejects.toBeDefined();
 });
 

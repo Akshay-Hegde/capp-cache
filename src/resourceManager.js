@@ -30,7 +30,10 @@ export function load(
             let lastErr = undefined;
 
             orderedResources.forEach(
-                ({ url, type = "js", target = "head", attributes = {}, cacheOnly = false }, index) => {
+                (
+                    { url, type = "js", target = "head", attributes = {}, cacheOnly = false, isBinary = false },
+                    index
+                ) => {
                     const tagProperties = tagPropertiesMap[type];
                     if (tagProperties === undefined) {
                         return console.error(`Unsupported tag ${type}`);
@@ -39,7 +42,7 @@ export function load(
                         ? MOCK_DOCUMENT
                         : document;
                     let tag = documentTarget.createElement(tagProperties.tagName);
-                    loadResource(db, url, false)
+                    loadResource({ indexedDBAccess: db, url, immediate: false, isBinary })
                         .then(({ resource }) => {
                             let { content } = resource;
                             if (type === "script") {
@@ -78,11 +81,17 @@ export function load(
     });
 }
 
-export function getBlob(pageId, url, isBase64 = true, isBinary = true, indexedDB = window.indexedDB) {
+export function getBlob({
+    pageId = window.location,
+    url,
+    isBase64Text = false,
+    isBinary = true,
+    indexedDB = window.indexedDB,
+}) {
     return new Promise((resolve, reject) => {
         indexedDBAccess(pageId, indexedDB)
             .then(db => {
-                return loadResource(db, url, true);
+                return loadResource({ indexedDBAccess: db, url, immediate: true, isBinary });
             })
             .then(({ resource }) => {
                 const { content, contentType } = resource;
@@ -90,7 +99,9 @@ export function getBlob(pageId, url, isBase64 = true, isBinary = true, indexedDB
                     const blob = new Blob([content], { type: contentType });
                     return URL.createObjectURL(blob);
                 } else {
-                    return `data:${contentType}${isBase64 ? ";base64" : ""},${isBase64 ? btoa(content) : content}`;
+                    return `data:${contentType}${isBase64Text ? ";base64" : ""},${isBase64Text
+                        ? btoa(content)
+                        : content}`;
                 }
             })
             .then(dataUrl => {

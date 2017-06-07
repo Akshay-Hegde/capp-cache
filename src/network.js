@@ -1,3 +1,5 @@
+const NO_CONTENT_TYPE = "";
+
 export const fetchResource = (url, responseType = "text") => {
     return new Promise((resolve, reject) => {
         const xhr = new XMLHttpRequest();
@@ -8,7 +10,10 @@ export const fetchResource = (url, responseType = "text") => {
             function() {
                 if (xhr.status === 200) {
                     const { response } = xhr;
-                    resolve({ content: response, contentType: xhr.getResponseHeader("content-type") });
+                    resolve({
+                        content: response,
+                        contentType: xhr.getResponseHeader("content-type") || NO_CONTENT_TYPE,
+                    });
                 } else {
                     reject(xhr);
                 }

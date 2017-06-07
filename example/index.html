@@ -51,11 +51,11 @@
     <script>
 	    cappCache
 //            .getBlob(window.location, "../resources/logos-cupcake.svg", "image/svg+xml", false)
-            .getBlob(window.location, "DBiSlwrXUAA4Ko4.jpg", true)
+            .getBlob({url: "https://pbs.twimg.com/media/DBiSlwrXUAA4Ko4.jpg" , isBinary: true})
             .then(dataUri => {document.getElementById("capp-cache-img").setAttribute("src", dataUri)});
 
         cappCache
-            .getBlob(window.location, "../resources/logos-cupcake.svg", false, false)
+            .getBlob({url: "../resources/logos-cupcake.svg", isBinary: false})
             .then(dataUri => {document.getElementById("capp-cache-img2").setAttribute("src", dataUri)});
 
     </script>

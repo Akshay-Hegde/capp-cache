@@ -4,9 +4,9 @@ import { fetchResource } from "./network";
 let RESOURCE_FETCH_DELAY = 1000;
 let cachedFilesInSession = {};
 
-export const fetchAndSaveInCache = (url, indexedDBAccess) =>
+export const fetchAndSaveInCache = ({ url, indexedDBAccess, isBinary }) =>
     new Promise((resolve, reject) => {
-        fetchResource(url)
+        fetchResource(url, isBinary ? "blob" : undefined)
             .then(result => {
                 resolve(result);
                 indexedDBAccess.putResource(id(url), result);
@@ -16,31 +16,34 @@ export const fetchAndSaveInCache = (url, indexedDBAccess) =>
             });
     });
 
-export const loadResource = (indexedDBAccess, resourceUrl, immediate = false) => {
+export const loadResource = ({ indexedDBAccess, url, immediate = false, isBinary = false }) => {
     const promise = new Promise((resolve, reject) => {
         indexedDBAccess
-            .getResource(id(resourceUrl))
+            .getResource(id(url))
             .then(resource => {
-                console.log(`resource ${resourceUrl} was in cache`);
+                console.log(`resource ${url} was in cache`);
                 resolve({ resource, fromCache: true });
             })
             .catch(err => {
                 console.log(
                     err
-                        ? `failed to fetch resource from cache ${resourceUrl}. error: ${err}`
-                        : `resource ${resourceUrl} was not in cache`
+                        ? `failed to fetch resource from cache ${url}. error: ${err}`
+                        : `resource ${url} was not in cache`
                 );
                 if (immediate) {
-                    fetchAndSaveInCache(resourceUrl, indexedDBAccess)
+                    fetchAndSaveInCache({ url, indexedDBAccess, isBinary })
                         .then(resource => resolve({ resource, fromCache: false }))
                         .catch(err => reject(err));
                 } else {
-                    window.setTimeout(() => fetchAndSaveInCache(resourceUrl, indexedDBAccess), RESOURCE_FETCH_DELAY);
+                    window.setTimeout(
+                        () => fetchAndSaveInCache({ url, indexedDBAccess, isBinary }),
+                        RESOURCE_FETCH_DELAY
+                    );
                     reject(null);
                 }
             });
     });
-    cachedFilesInSession[id(resourceUrl)] = true;
+    cachedFilesInSession[id(url)] = true;
     return promise;
 };
 

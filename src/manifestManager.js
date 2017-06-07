@@ -6,14 +6,14 @@ export default {
     fetchManifest(manifestUrl, pageId = window.location.href, indexedDB = window.indexedDB) {
         return new Promise((resolve, reject) => {
             indexedDBAccess(pageId, indexedDB).then(db => {
-                loadResource(db, manifestUrl, true)
+                loadResource({ indexedDBAccess: db, url: manifestUrl, immediate: true })
                     .then(({ fromCache, resource }) => {
                         const manifestContent = resource.content;
                         const manifest = JSON.parse(manifestContent);
                         load(manifest);
                         let wasModified = false;
                         if (fromCache) {
-                            fetchAndSaveInCache(manifestUrl, db).then(newManifestContent => {
+                            fetchAndSaveInCache({ url: manifestUrl, indexedDBAccess: db }).then(newManifestContent => {
                                 const newManifest = JSON.parse(newManifestContent.content);
                                 if (newManifest.version !== manifest.version) {
                                     console.log(
