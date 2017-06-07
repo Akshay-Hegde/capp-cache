@@ -94,8 +94,8 @@ In your `index.html` file add a reference to that file: `<html manifest="manifes
 -----
 
 
-### Programmatic access
-### `window.cappCache.loadResources(manifest, syncCacheOnly = false)`
+## API
+### `window.cappCache.loadResources(manifest, {syncCacheOnly = false})`
 Loads resources according to a manifest object; use this function to load scripts dynamically. The function receives two arguments.  
 `manifest` - a manifest object with a `resources` property similar to the `cappCacheManifest.json` file. 
 `syncCacheOnly` - if set to `true` files are just cached, but not added to the DOM.
@@ -121,6 +121,25 @@ The library keeps track of all resources it has loaded in that session. When you
 ###`window.cappCache.on("manifestUpdated", callback)`
 The library caches the `cappCacheManifest.json` and loads all resources accordingly. This saves significant time on startup. However, it has the downside of loading outdated files after a change. If you want to be able to respond to such event, you can register to this event using this function. The callback function will be called with no arguments after the updated manifest is saved to the cache and all resources from that manifest were fetched. For example, you might want to suggest the user to reload the page to see the latest version of the page.  
 This feature should be used in conjunction with the `version` property of `cappCacheManifest.json` file. The library will consider an update only if the `version` property is different from the cached manifest. 
+
+###`window.cappCache.getResourceUri({url, isBinary = true})`
+Fetches a resource (commonly images and fonts) and returns an object URL. You can use this URI as the source of your resource. For example:
+
+```html
+<img id="myImage"/>
+<script>
+   var uri = window.cappCache.getResourceUri({url: "myImage.png"});
+   document.getElementById("myImage").setAttribute("src",uri);
+</script>
+```
+If the resource is textual, set `isBinary` to false. In this case you will receive a [data URI](https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/Data_URIs) that you can use in a similar way.
+```html
+<img id="myImage"/>
+<script>
+   var uri = window.cappCache.getResourceUri({url: "mySVGImage.svg", isBinary: false});
+   document.getElementById("myImage").setAttribute("src",uri);
+</script>
+```
 
 ---
 

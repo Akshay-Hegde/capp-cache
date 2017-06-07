@@ -19,7 +19,7 @@ const MOCK_DOCUMENT = {
  * */
 export function load(
     { resources = [], pageId = window.location.href, indexedDB = window.indexedDB, document = window.document },
-    syncCacheOnly = false
+    { syncCacheOnly = false } = {}
 ) {
     return new Promise((resolve, reject) => {
         if (resources.length === 0) {
@@ -81,7 +81,7 @@ export function load(
     });
 }
 
-export function getResourceUrl({
+export function getResourceUri({
     pageId = window.location,
     url,
     isBase64Text = false,

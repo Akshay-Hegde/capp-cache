@@ -50,11 +50,11 @@
     <img id="capp-cache-img2"/>
     <script>
 	    cappCache
-            .getResourceUrl({url: "https://pbs.twimg.com/media/DBiSlwrXUAA4Ko4.jpg" , isBinary: true})
+            .getResourceUri({url: "https://pbs.twimg.com/media/DBiSlwrXUAA4Ko4.jpg" , isBinary: true})
             .then(dataUri => {document.getElementById("capp-cache-img").setAttribute("src", dataUri)});
 
         cappCache
-            .getResourceUrl({url: "../resources/logos-cupcake.svg", isBinary: false})
+            .getResourceUri({url: "../resources/logos-cupcake.svg", isBinary: false})
             .then(dataUri => {document.getElementById("capp-cache-img2").setAttribute("src", dataUri)});
 
     </script>
