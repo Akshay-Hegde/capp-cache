@@ -81,7 +81,7 @@ export function load(
     });
 }
 
-export function getBlob({
+export function getResourceUrl({
     pageId = window.location,
     url,
     isBase64Text = false,
