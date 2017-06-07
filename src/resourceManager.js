@@ -41,10 +41,11 @@ export function load(
                     let tag = documentTarget.createElement(tagProperties.tagName);
                     loadResource(db, url, false)
                         .then(({ resource }) => {
+                            let { content } = resource;
                             if (type === "script") {
-                                resource = `//# sourceURL=${url}\n${resource}`;
+                                content = `//# sourceURL=${url}\n${content}`;
                             }
-                            tagProperties.appendTextContent(tag, documentTarget, resource);
+                            tagProperties.appendTextContent(tag, documentTarget, content);
                             tag.setAttribute("data-cappcache-src", url);
                         })
                         .catch(e => {
@@ -77,26 +78,19 @@ export function load(
     });
 }
 
-export function getBlob(
-    pageId,
-    url,
-    mediaType = "image/jpeg",
-    isBase64 = true,
-    isBinary = true,
-    indexedDB = window.indexedDB
-) {
+export function getBlob(pageId, url, isBase64 = true, isBinary = true, indexedDB = window.indexedDB) {
     return new Promise((resolve, reject) => {
         indexedDBAccess(pageId, indexedDB)
             .then(db => {
                 return loadResource(db, url, true);
             })
-            .then(result => {
+            .then(({ resource }) => {
+                const { content, contentType } = resource;
                 if (isBinary) {
-                    debugger;
-                    const blob = new Blob([result.resource], { type: mediaType });
+                    const blob = new Blob([content], { type: contentType });
                     return URL.createObjectURL(blob);
                 } else {
-                    return `data:${mediaType}${isBase64 ? ";base64" : ""},${isBase64 ? btoa(resource) : resource}`;
+                    return `data:${contentType}${isBase64 ? ";base64" : ""},${isBase64 ? btoa(content) : content}`;
                 }
             })
             .then(dataUrl => {

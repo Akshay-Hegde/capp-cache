@@ -19,7 +19,7 @@ export default function(storeName, indexedDB) {
             const request = store("readonly").get(id);
             request.onsuccess = event => {
                 if (event.target.result) {
-                    resolve({content: event.target.result.content});
+                    resolve(event.target.result);
                 } else {
                     console.log(`resource with id ${id} is not in the cache`);
                     reject(null);
@@ -44,12 +44,13 @@ export default function(storeName, indexedDB) {
             };
         });
 
-    idbWrapper.putResource = (id, content) =>
+    idbWrapper.putResource = (id, { content, contentType }) =>
         new Promise((resolve, reject) => {
             const objectStore = store();
             const putRequest = objectStore.put({
                 id,
                 content,
+                contentType,
             });
 
             putRequest.onsuccess = () => {

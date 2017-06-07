@@ -7,29 +7,30 @@ export default {
         return new Promise((resolve, reject) => {
             indexedDBAccess(pageId, indexedDB).then(db => {
                 loadResource(db, manifestUrl, true)
-                    .then(opts => {
-                        const manifestContent = opts.resource;
+                    .then(({ fromCache, resource }) => {
+                        const manifestContent = resource.content;
                         const manifest = JSON.parse(manifestContent);
                         load(manifest);
-                        if (opts.fromCache) {
+                        let wasModified = false;
+                        if (fromCache) {
                             fetchAndSaveInCache(manifestUrl, db).then(newManifestContent => {
-                                const newManifest = JSON.parse(newManifestContent);
+                                const newManifest = JSON.parse(newManifestContent.content);
                                 if (newManifest.version !== manifest.version) {
                                     console.log(
                                         `new app cache version has changed from "${manifest.version}" to "${newManifest.version}"`
                                     );
-                                    resolve({ manifest: newManifest, wasModified: true });
-                                } else {
-                                    resolve({ manifest: newManifest, wasModified: false });
+                                    wasModified = true;
                                 }
+                                resolve({ manifest: newManifest, wasModified });
                             });
                         } else {
                             //from network
-                            resolve({ manifest: manifest, wasModified: false });
+                            resolve({ manifest: manifest, wasModified });
                         }
                     })
                     .catch(err => {
                         console.error(`failed to fetch manifest ${err}`);
+                        reject(err);
                     });
             });
         });

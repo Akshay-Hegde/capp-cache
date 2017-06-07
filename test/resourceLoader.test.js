@@ -23,10 +23,8 @@ it("on the second time a resource is requested, it should be fetched from cache"
     const idbAccess = await indexedDBAccess(STORE_NAME, mockIDB.mock);
     await expect(loadResource(idbAccess, RESOURCE_URL)).rejects.toBeNull();
     await jest.runAllTimers();
-    await expect(loadResource(idbAccess, RESOURCE_URL)).resolves.toMatchObject({
-        content: MOCK_RESP,
-        fromCache: true,
-    });
+    const resource = await loadResource(idbAccess, RESOURCE_URL);
+    await expect(resource.resource.content).toBe(MOCK_RESP);
 });
 
 it("gets the cached files in this session, without duplications", async () => {
@@ -41,10 +39,8 @@ it("gets the cached files in this session, without duplications", async () => {
 
 it("with immediate flag, it fetches a resource from the web and caches the result", async () => {
     const idbAccess = await indexedDBAccess(STORE_NAME, mockIDB.mock);
-    await expect(loadResource(idbAccess, RESOURCE_URL, true)).resolves.toMatchObject({
-        resource: MOCK_RESP,
-        fromCache: false,
-    });
+    const { resource } = await loadResource(idbAccess, RESOURCE_URL, true);
+    expect(resource.content).toBe(MOCK_RESP);
 });
 it("saves the file in cache after fetching from the web", async () => {
     const idbAccess = await indexedDBAccess(STORE_NAME, mockIDB.mock);

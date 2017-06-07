@@ -7,9 +7,9 @@ let cachedFilesInSession = {};
 export const fetchAndSaveInCache = (url, indexedDBAccess) =>
     new Promise((resolve, reject) => {
         fetchResource(url)
-            .then(content => {
-                resolve(content);
-                indexedDBAccess.putResource(id(url), content);
+            .then(result => {
+                resolve(result);
+                indexedDBAccess.putResource(id(url), result);
             })
             .catch(e => {
                 reject(e);
@@ -20,9 +20,9 @@ export const loadResource = (indexedDBAccess, resourceUrl, immediate = false) =>
     const promise = new Promise((resolve, reject) => {
         indexedDBAccess
             .getResource(id(resourceUrl))
-            .then((result) => {
+            .then(resource => {
                 console.log(`resource ${resourceUrl} was in cache`);
-                resolve({ ...result, fromCache: true });
+                resolve({ resource, fromCache: true });
             })
             .catch(err => {
                 console.log(
@@ -32,7 +32,7 @@ export const loadResource = (indexedDBAccess, resourceUrl, immediate = false) =>
                 );
                 if (immediate) {
                     fetchAndSaveInCache(resourceUrl, indexedDBAccess)
-                        .then(content => resolve({ resource: content, fromCache: false }))
+                        .then(resource => resolve({ resource, fromCache: false }))
                         .catch(err => reject(err));
                 } else {
                     window.setTimeout(() => fetchAndSaveInCache(resourceUrl, indexedDBAccess), RESOURCE_FETCH_DELAY);
