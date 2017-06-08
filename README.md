@@ -3,10 +3,7 @@
 
 
 # Cross Platform Offline Resource Persistency
-
----
-WIP warning - This library is being developed and the API is not stable yet
----
+![Travis Status](https://travis-ci.org/capriza/capp-cache.svg?branch=master)
 
 ### Tiny library with zero external dependencies to persist resources (Javascript, css, etc.) for offline usage and optimal performance; supports all modern browsers, Safari included. Mobile optimized.
 
