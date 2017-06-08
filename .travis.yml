@@ -2,7 +2,7 @@ language: node_js
 node_js:
 - '7'
 cache: yarn
-script: yarn run build
+script: mkdir dist && yarn run build
 deploy:
   provider: releases
   api_key:
