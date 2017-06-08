@@ -139,6 +139,9 @@ If the resource is textual, set `isBinary` to false. In this case you will recei
 
 ---
 
+###`window.cappCache.revokeResourceUriForUrl(url)`
+[Releases](https://developer.mozilla.org/en-US/docs/Web/API/URL/revokeObjectURL) the memory allocated for a resource that was previously assigned using `getResourceUri`. Note that this is only applicable for *binary* resources, that were create the `isBinary : true` flag. While not required, you can use this method to free the memory that was reserved for a resource. Also, note that you need to provide the original url that was used in `getResourceUri`.
+
 ### FAQ
 
 #### Why not just use Service Worker?
@@ -176,7 +179,7 @@ before other resources and saved
 This library was developed in [Capriza](https://capriza.github.io/) to replace App Cache. Capriza+AppCache = CappCache. Clever, huh? :)
 
 #### You say tiny library. How tiny?
-Less than 4KB gzipped and minifed.
+![bundle size](http://img.badgesize.io/https://github.com/capriza/capp-cache/releases/download/test-tag/capp-cache.js?compression=gzip)
 
 #### Who designed the amazing Cupcake logo?
 [Nadav](https://github.com/fujifish). Thanks!

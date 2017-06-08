@@ -81,6 +81,8 @@ export function load(
     });
 }
 
+const resourceUriHistory = {};
+
 export function getResourceUri({
     pageId = window.location,
     url,
@@ -89,6 +91,9 @@ export function getResourceUri({
     indexedDB = window.indexedDB,
 }) {
     return new Promise((resolve, reject) => {
+        if (isBinary && resourceUriHistory[url]) {
+	        return resolve(resourceUriHistory[url]);
+        }
         indexedDBAccess(pageId, indexedDB)
             .then(db => {
                 return loadResource({ indexedDBAccess: db, url, immediate: true, isBinary });
@@ -105,6 +110,9 @@ export function getResourceUri({
                 }
             })
             .then(dataUrl => {
+                if (isBinary) {
+	                resourceUriHistory[url] = dataUrl;
+                }
                 resolve(dataUrl);
             })
             .catch(e => {
@@ -113,6 +121,16 @@ export function getResourceUri({
             });
     });
 }
+
+export function revokeResourceUriForUrl(url) {
+	const resourceUri = resourceUriHistory[url];
+	if (resourceUri) {
+	    resourceUriHistory[url] = null;
+		URL.revokeObjectURL(url);
+    }
+}
+
+
 
 /**
  * Clears indexedDB from any files on this page which were not loaded in this session by calling the load function.

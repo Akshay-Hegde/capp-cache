@@ -1,4 +1,4 @@
-import { load, pruneDB, getResourceUri } from "./src/resourceManager";
+import { load, pruneDB, getResourceUri, revokeResourceUriForUrl } from "./src/resourceManager";
 import { on, trigger } from "./src/eventBus";
 import manifestManager from "./src/manifestManager";
 
@@ -18,8 +18,11 @@ import manifestManager from "./src/manifestManager";
         load({ manifest });
     }
     window.cappCache = {
-        loadResources: load,
+        loadResources(manifest, opts) {
+	        load(manifest, opts);
+        },
         getResourceUri,
+	    revokeResourceUriForUrl,
         pruneDB,
         on,
     };
