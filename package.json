@@ -1,6 +1,6 @@
 {
   "name": "capp-cache",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "The AppCache replacement that works for all browsers",
   "main": "index.js",
   "scripts": {
@@ -24,9 +24,9 @@
   "author": "Elad Moshe",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/eladmoshe/offline-cache/issues"
+    "url": "https://github.com/capriza/capp-cache/issues"
   },
-  "homepage": "https://github.com/eladmoshe/offline-cache#readme",
+  "homepage": "https://github.com/capriza/capp-cache",
   "devDependencies": {
     "babel-core": "^6.24.1",
     "babel-jest": "*",
