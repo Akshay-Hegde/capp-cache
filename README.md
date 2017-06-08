@@ -1,5 +1,5 @@
 <div align="center"><img src="https://capriza.github.io/images/logos/logos-cupcake.svg" height="128" /></div>
-<div align="center"><div>The sweetest cache library</div></div>
+<div align="center"><div style="font-style: oblique;font-weight: bold; font-size:larger;">The Sweetest Cache Library</div></div>
 
 
 # Cross Platform Offline Resource Persistency
@@ -7,7 +7,6 @@
 ![bundle size](http://img.badgesize.io/https://github.com/capriza/capp-cache/releases/download/test-tag/capp-cache.js?compression=gzip)
 ### Tiny library with zero external dependencies to persist resources (Javascript, css, etc.) for offline usage and optimal performance; supports all modern browsers, Safari included. Mobile optimized.
 
-#### _Offline First for all_ ™
 Progressive Web Apps (PWA) and offline first apps should be every app's default. Those
  technologies utilize Service Worker APIs and provide amazing experience. _Only_ that it
  leaves all your iOS users [out in the dark](https://jakearchibald.github.io/isserviceworkerready/).
