@@ -109,16 +109,16 @@ setTimeout(() => window.cappCache.loadResources({
 		    ],
 	    }), 1000);
 ```
-###`window.cappCache.pruneDB()`
+### `window.cappCache.pruneDB()`
 
 From time to time, or after significant change, it is recommended to remove from the database old scripts. Call this function only after all the resources were loaded, both at load time and dynamically throughout the life cycle of the application.
 The library keeps track of all resources it has loaded in that session. When you call this function, all files in the cache that were not loaded in this session are removed.
 
-###`window.cappCache.on("manifestUpdated", callback)`
+### `window.cappCache.on("manifestUpdated", callback)`
 The library caches the `cappCacheManifest.json` and loads all resources accordingly. This saves significant time on startup. However, it has the downside of loading outdated files after a change. If you want to be able to respond to such event, you can register to this event using this function. The callback function will be called with no arguments after the updated manifest is saved to the cache and all resources from that manifest were fetched. For example, you might want to suggest the user to reload the page to see the latest version of the page.  
 This feature should be used in conjunction with the `version` property of `cappCacheManifest.json` file. The library will consider an update only if the `version` property is different from the cached manifest. 
 
-###`window.cappCache.getResourceUri({url, isBinary = true})`
+### `window.cappCache.getResourceUri({url, isBinary = true})`
 Fetches a resource (commonly images and fonts) and returns an object URL. You can use this URI as the source of your resource. For example:
 
 ```html
@@ -139,7 +139,7 @@ If the resource is textual, set `isBinary` to false. In this case you will recei
 
 ---
 
-###`window.cappCache.revokeResourceUriForUrl(url)`
+### `window.cappCache.revokeResourceUriForUrl(url)`
 [Releases](https://developer.mozilla.org/en-US/docs/Web/API/URL/revokeObjectURL) the memory allocated for a resource that was previously assigned using `getResourceUri`. Note that this is only applicable for *binary* resources, that were create the `isBinary : true` flag. While not required, you can use this method to free the memory that was reserved for a resource. Also, note that you need to provide the original url that was used in `getResourceUri`.
 
 ### FAQ
