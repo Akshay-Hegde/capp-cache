@@ -9,5 +9,7 @@ deploy:
   api_key:
     secure: Sr1w1mpuFo/2uXa6DfA1zesRV1yEEQS/qqTXrgNu/6sczagMKx9S/XO/5L9zmmfQ/ibWT/PirensUc7eDYXlHZZD28RJ9LMVSK1a0Up3DMjVpaj3y9KFnbUKNTBe1gtOM3NABB4qy9O//F8PgJXFXjSSkzuAtPNlcu3p+QUmeHxONcIf5FTHYBj2Orcrdg8Y4krVCghjPXyiKm7K5sRR89qSFllduvsB9RBrcTa9i0wjFNZJ+mQKgIk9EppQrnOyfTwbADqn3XD2T/EOUqvmGAuN++xVhQzyLv1mUIW0BDGQZPB6VKkqIRwkcYHascKPD4iXoLwLOrYDEFlOntJb0fNWwX0AOPLRGRI4LxChx/kLwt7YluHPPjwEWCEz/Q7QYnTuN7+2iTeGNPdc24OjdUttunIGIGCofMcIXd7cIeXDo2stiCueVEqWPEml08+bXIpD5V/gZ45uFYbfuax2/yImJvN1O0iF3ymRpYk8b342zkJV5PUnPCxDjlCI0HTOqXsvEPVkuMub+4DRdXSnOQnHpdwAaUuyCx1cnfVXv/Inst+WyBNPfU2ZCLraukW5W82AAk8UnibU6GCX9TByzEMr/+f39vuZNwJUOYPlLfpvkRWmiKC4Sw4kV+p6EDtJEuhi9kf6tm533Tall8FA+vtVFf9qHW/FtZt/nlv7r5w=
   file: dist/capp-cache.js
+  overwrite: true
   on:
     repo: capriza/capp-cache
+    tags: true

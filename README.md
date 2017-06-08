@@ -86,7 +86,7 @@ Create a file called `manifest.appcache` with the following content
 
 ```
 CACHE MANIFEST
-_dist/bundle.js
+dist/bundle.js
 index.html
 ```
 In your `index.html` file add a reference to that file: `<html manifest="manifest.appcache">`

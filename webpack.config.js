@@ -3,7 +3,7 @@ const path = require("path");
 
 module.exports = function(env = { dev: "true" }) {
     const buildForDev = env.dev;
-    const distFolder = path.join(__dirname, buildForDev ? "_dist" : "dist");
+    const distFolder = path.join(__dirname, "dist");
     console.log(`Building webpack with env ${JSON.stringify(env)}. buildForDev = ${env.dev}`);
     const config = {
         entry: "./index.js",
