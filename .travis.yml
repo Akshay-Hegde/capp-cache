@@ -13,3 +13,4 @@ deploy:
   on:
     repo: capriza/capp-cache
     tags: true
+    condition: "$TRAVIS_TAG =~ ^release.*$"
