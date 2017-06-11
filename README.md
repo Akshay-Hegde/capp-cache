@@ -39,7 +39,7 @@ The supported properties for each resource entry are:
 Property  | description                                                 | type                 | default
 ----------|-------------------------------------------------------------|----------------------|-----------
 url       | mandatory. The url of the resource from which it is fetched | URL                  |
-type      | type of resource. js and css will be added to the DOM unless you specify the cacheOnly flag. blob will only be cached and available in the cache.                                            | "js","css","blob"    | "script"
+type      | type of resource. js and css will be added to the DOM unless you specify the cacheOnly flag. blob will only be cached and available in the cache.                                            | "js","css","blob"    | "js"
 target    | parent element of the resource                              | "head", "body"       | "head"
 attributes| A key / value list of attributes to set on the tag element  | Object               |
 cacheOnly | sync the script to the database, but don't append it to the DOM. Use to ensure a resource is in the cache for future use | manifest |
