@@ -3,24 +3,24 @@ import { on, trigger } from "./src/eventBus";
 import manifestManager from "./src/manifestManager";
 
 (function init() {
-	const manifestUrl = document.getElementsByTagName("html")[0].dataset.ccManifest;
+    const manifestUrl = document.getElementsByTagName("html")[0].dataset.ccManifest;
     if (manifestUrl !== undefined) {
         manifestManager.fetchManifest(manifestUrl).then(({ manifest, wasModified }) => {
             if (wasModified) {
-                load(manifest, {syncCacheOnly: true}).then(() => trigger("manifestUpdated"));
+                load(manifest, { syncCacheOnly: true }).then(() => trigger("manifestUpdated"));
             }
         });
     } else {
-	    console.error(`Unable to find attribute "data-cc-manifest" on the HTML tag, CappCache will not work`);
+        console.error(`Unable to find attribute "data-cc-manifest" on the HTML tag, CappCache will not work`);
     }
     window.cappCache = {
         loadResources(manifest, opts) {
-	        load(manifest, opts);
+            load(manifest, opts);
         },
         getResourceUri,
-	    revokeResourceUriForUrl,
+        revokeResourceUriForUrl,
         pruneDB,
         on,
-        getLoadedResources
+        getLoadedResources,
     };
 })();

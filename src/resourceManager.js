@@ -60,7 +60,7 @@ export function load(
                             tag.setAttribute(tagProperties.contentFetchKey, url);
                         })
                         .then(() => {
-                            loadedResources.push({url: url});
+                            loadedResources.push({ url });
                             Object.keys(attributes).forEach(attribute =>
                                 tag.setAttribute(attribute, attributes[attribute])
                             );
@@ -82,10 +82,8 @@ export function load(
         });
     });
 }
-export function getLoadedResources(){
- return loadedResources.map(i=>{
-     return {url: i.url};
- });
+export function getLoadedResources() {
+    return loadedResources.map(i => ({ url: i.url }));
 }
 const resourceUriHistory = {};
 
@@ -98,7 +96,7 @@ export function getResourceUri({
 }) {
     return new Promise((resolve, reject) => {
         if (isBinary && resourceUriHistory[url]) {
-	        return resolve(resourceUriHistory[url]);
+            return resolve(resourceUriHistory[url]);
         }
         indexedDBAccess(pageId, indexedDB)
             .then(db => {
@@ -117,7 +115,7 @@ export function getResourceUri({
             })
             .then(dataUrl => {
                 if (isBinary) {
-	                resourceUriHistory[url] = dataUrl;
+                    resourceUriHistory[url] = dataUrl;
                 }
                 resolve(dataUrl);
             })
@@ -129,14 +127,12 @@ export function getResourceUri({
 }
 
 export function revokeResourceUriForUrl(url) {
-	const resourceUri = resourceUriHistory[url];
-	if (resourceUri) {
-	    resourceUriHistory[url] = null;
-		URL.revokeObjectURL(url);
+    const resourceUri = resourceUriHistory[url];
+    if (resourceUri) {
+        resourceUriHistory[url] = null;
+        URL.revokeObjectURL(url);
     }
 }
-
-
 
 /**
  * Clears indexedDB from any files on this page which were not loaded in this session by calling the load function.
