@@ -1,6 +1,6 @@
 {
   "name": "capp-cache",
-  "version": "0.0.2",
+  "version": "0.0.6",
   "description": "The AppCache replacement that works for all browsers",
   "main": "index.js",
   "scripts": {
@@ -36,6 +36,7 @@
     "babel-preset-env": "*",
     "http-server": "*",
     "jest": "*",
+    "npm-bump": "^0.0.20",
     "prettier": "^1.4.2",
     "webpack": "^2.5.1",
     "webpack-dev-server": "^2.4.5"
