@@ -42,12 +42,6 @@ const document = {
     body,
 };
 
-beforeEach(() => {
-    global.console.log = jest.fn();
-    jest.clearAllMocks();
-    jest.useFakeTimers();
-});
-
 it("handles manifest with empty array resources", async () => {
     return await load({
         resources: [],

@@ -7,8 +7,6 @@ const CONTENT_VALUE = "some content";
 const DUMMY_TYPE = "dummy";
 const NOT_FOUND = null;
 
-beforeEach(() => (global.console.log = jest.fn()));
-
 it("opens indexeddb connection", async () => {
     const db = await idbAccess("root", mockIDB);
     expect(db).toBeTruthy();
