@@ -15,7 +15,15 @@ Progressive Web Apps (PWA) and offline first apps should be every app's default.
 **How does it work?** The library receives a manifest of resources urls (scripts, css), fetches it, add the appropriate DOM tag element, and eventually caches the script in IndexedDB (or fallbacks to localstorage on iOS < v10). On subsequent runs, it fetches those resources immediately, without ever hitting the network. This both significantly increases performance while allowing the app to work without connectivity.     
 
 ### Usage
-Capp Cache requires a manifest to load the resources. The cappCacheManifest structure is:
+Capp Cache requires a manifest url to load the resources. Add an attribute `data-cc-manifest=<manifest url>` on the HTML tag of your page, referencing your manifest file.
+For example: 
+
+```html 
+<html data-cc-manifest="capp-cache-manifest.json">
+...
+</html>
+```
+The manifest structure is:
 
 Property  | description                                                              | type                        | default
 ----------|--------------------------------------------------------------------------|-----------------------------|-----------------------
@@ -189,11 +197,6 @@ This library was developed in [Capriza](https://capriza.github.io/) to replace A
 - [ ] If service worker exists - fallback to regular SW?
 - [ ] Allow to invalidate file
 - [ ] Optional resources
-
-## Supported resource types
-- [x] Scripts
-- [x] CSS
-- [ ] Images
 
 ## Longer term todos
 - [ ] Use Web Workers for downloading?
