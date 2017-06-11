@@ -1,4 +1,4 @@
-import { load, pruneDB, getResourceUri, revokeResourceUriForUrl } from "./src/resourceManager";
+import { load, pruneDB, getResourceUri, revokeResourceUriForUrl, getLoadedResources } from "./src/resourceManager";
 import { on, trigger } from "./src/eventBus";
 import manifestManager from "./src/manifestManager";
 
@@ -21,5 +21,6 @@ import manifestManager from "./src/manifestManager";
 	    revokeResourceUriForUrl,
         pruneDB,
         on,
+        getLoadedResources
     };
 })();

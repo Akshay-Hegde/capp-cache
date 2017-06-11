@@ -13,6 +13,7 @@ const MOCK_DOCUMENT = {
     body: { appendChild: Function.prototype },
     createTextNode: Function.prototype,
 };
+const loadedResources = [];
 
 /**
  * Loads a list of resources according to the manifest.
@@ -59,6 +60,7 @@ export function load(
                             tag.setAttribute(tagProperties.contentFetchKey, url);
                         })
                         .then(() => {
+                            loadedResources.push({url: url});
                             Object.keys(attributes).forEach(attribute =>
                                 tag.setAttribute(attribute, attributes[attribute])
                             );
@@ -80,7 +82,11 @@ export function load(
         });
     });
 }
-
+export function getLoadedResources(){
+ return loadedResources.map(i=>{
+     return {url: i.url};
+ });
+}
 const resourceUriHistory = {};
 
 export function getResourceUri({
