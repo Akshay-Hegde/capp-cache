@@ -150,6 +150,9 @@ If the resource is textual, set `isBinary` to false. In this case you will recei
 ### `window.cappCache.revokeResourceUriForUrl(url)`
 [Releases](https://developer.mozilla.org/en-US/docs/Web/API/URL/revokeObjectURL) the memory allocated for a resource that was previously assigned using `getResourceUri`. Note that this is only applicable for *binary* resources, that were create the `isBinary : true` flag. While not required, you can use this method to free the memory that was reserved for a resource. Also, note that you need to provide the original url that was used in `getResourceUri`.
 
+### `window.cappCache.setLogLevel(window.cappCache.LOG_LEVELS)`
+Sets the console output log level of the library. By default set to warn. 
+
 ### FAQ
 
 #### Why not just use Service Worker?

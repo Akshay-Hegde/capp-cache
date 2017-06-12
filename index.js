@@ -1,3 +1,4 @@
+import { LOG_LEVELS, setLogLevel } from "./src/logger";
 import { load, pruneDB, getResourceUri, revokeResourceUriForUrl, getLoadedResources } from "./src/resourceManager";
 import { on, trigger } from "./src/eventBus";
 import manifestManager from "./src/manifestManager";
@@ -22,5 +23,7 @@ import manifestManager from "./src/manifestManager";
         pruneDB,
         on,
         getLoadedResources,
+        setLogLevel,
+        LOG_LEVELS,
     };
 })();

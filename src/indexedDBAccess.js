@@ -1,7 +1,7 @@
+import { log, error } from "./logger";
+
 const DB_NAME = "RESOURCE_CACHE";
 const DB_VERSION = 3;
-
-const verboseOutput = false;
 
 export default function(storeName, indexedDB) {
     const idbWrapper = Object.create(null);
@@ -21,7 +21,7 @@ export default function(storeName, indexedDB) {
                 if (event.target.result) {
                     resolve(event.target.result);
                 } else {
-                    console.log(`resource with id ${id} is not in the cache`);
+                    log(`resource with id ${id} is not in the cache`);
                     reject(null);
                 }
             };
@@ -35,11 +35,11 @@ export default function(storeName, indexedDB) {
             const objectStore = store();
             const request = objectStore.delete(id);
             request.onsuccess = () => {
-                console.log(`removed resource ${id}`);
+                log(`removed resource ${id}`);
                 resolve();
             };
             request.onerror = e => {
-                console.error(`failed to remove resource ${id}. error: ${e}`);
+                error(`failed to remove resource ${id}. error: ${e}`);
                 reject(e);
             };
         });
@@ -53,14 +53,9 @@ export default function(storeName, indexedDB) {
                 contentType,
             });
 
-            putRequest.onsuccess = () => {
-                if (verboseOutput) {
-                    console.log(`successfully saved item id ${id} in cache`);
-                }
-                resolve();
-            };
+            putRequest.onsuccess = resolve;
             putRequest.onerror = e => {
-                console.error(`failed to save item with id ${id} in cache due to error ${e}`);
+                error(`failed to save item with id ${id} in cache due to error ${e}`);
                 reject();
             };
         });
@@ -74,7 +69,7 @@ export default function(storeName, indexedDB) {
                 if (cursor) {
                     if (!knownIds.includes(cursor.key)) {
                         idbWrapper.removeResource(cursor.key);
-                        console.log(`pruned ${cursor.key}`);
+                        log(`pruned ${cursor.key}`);
                     }
                     cursor.continue();
                 } else {
@@ -82,7 +77,7 @@ export default function(storeName, indexedDB) {
                 }
             };
             request.onerror = e => {
-                console.error(`failed to get all keys while pruning cache. error`);
+                error(`failed to get all keys while pruning cache. error`);
                 reject(e);
             };
         });
@@ -98,15 +93,13 @@ export default function(storeName, indexedDB) {
                 try {
                     db.deleteObjectStore(storeName);
                 } catch (e) {
-                    console.log(
-                        `exception when trying to delete object store during onupgradeneeded. ${JSON.stringify(e)}`
-                    );
+                    log(`exception when trying to delete object store during onupgradeneeded. ${JSON.stringify(e)}`);
                 }
             }
             db.createObjectStore(storeName, { keyPath: "id" });
         };
         req.onerror = e => {
-            console.error("failed to open indexedDB " + JSON.stringify(e));
+            error("failed to open indexedDB " + JSON.stringify(e));
             reject(e);
         };
     });

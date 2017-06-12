@@ -59,8 +59,8 @@ it("handles manifest with no resources ", async () => {
 it("fetches files to cache according to manifest", async () => {
     await load({ resources: [{ url: DUMMY1 }, { url: DUMMY2 }], indexedDB: mockIDB, document });
     await jest.runAllTimers();
-    expect(mockIDB.mockDBInstance.mockDB["about:blank"][DUMMY1]).toBeTruthy();
-    expect(mockIDB.mockDBInstance.mockDB["about:blank"][DUMMY2]).toBeTruthy();
+    expect(mockIDB.dbData["about:blank"][DUMMY1]).toBeTruthy();
+    expect(mockIDB.dbData["about:blank"][DUMMY2]).toBeTruthy();
 });
 it("adds elements to head by default", async () => {
     await load({ resources: [{ url: DUMMY1 }, { url: DUMMY2 }], indexedDB: mockIDB, document });
@@ -94,14 +94,14 @@ it("does not append to the dom cacheOnly resources", async () => {
 it("downloads to the cache cacheOnly resources", async () => {
     await load({ resources: [{ url: DUMMY1, cacheOnly: true }], indexedDB: mockIDB, document });
     await jest.runAllTimers();
-    expect(mockIDB.mockDBInstance.mockDB["about:blank"][DUMMY1]).toBeTruthy();
+    expect(mockIDB.dbData["about:blank"][DUMMY1]).toBeTruthy();
 });
 it(
     "does not try to add blob to the DOM",
     async () => {
         await load({ resources: [{ url: DUMMY1, type: "blob" }], indexedDB: mockIDB, document });
         await jest.runAllTimers();
-        expect(mockIDB.mockDBInstance.mockDB["about:blank"][DUMMY1]).toBeTruthy();
+        expect(mockIDB.dbData["about:blank"][DUMMY1]).toBeTruthy();
         expect(head.appendChild).not.toHaveBeenCalled();
     },
     999999

@@ -1,3 +1,4 @@
+import { log, error } from "./logger";
 import { loadResource, fetchAndSaveInCache } from "./resourceLoader";
 import { load } from "./resourceManager";
 import indexedDBAccess from "./indexedDBAccess";
@@ -16,7 +17,7 @@ export default {
                             fetchAndSaveInCache({ url: manifestUrl, indexedDBAccess: db }).then(newManifestContent => {
                                 const newManifest = JSON.parse(newManifestContent.content);
                                 if (newManifest.version !== manifest.version) {
-                                    console.log(
+                                    log(
                                         `new app cache version has changed from "${manifest.version}" to "${newManifest.version}"`
                                     );
                                     wasModified = true;
@@ -29,7 +30,7 @@ export default {
                         }
                     })
                     .catch(err => {
-                        console.error(`failed to fetch manifest ${err}`);
+                        error(`failed to fetch manifest ${err}`);
                         reject(err);
                     });
             });

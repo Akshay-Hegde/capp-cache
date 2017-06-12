@@ -1,3 +1,4 @@
+import { log, error } from "./logger";
 import { id } from "./id";
 import { fetchResource } from "./network";
 
@@ -6,8 +7,10 @@ let cachedFilesInSession = {};
 
 export const fetchAndSaveInCache = ({ url, indexedDBAccess, isBinary }) =>
     new Promise((resolve, reject) => {
+        log(`fetching resource ${url} to cache`);
         fetchResource(url, isBinary ? "blob" : undefined)
             .then(result => {
+                log(`successfully fetched resource ${url} to cache`);
                 resolve(result);
                 indexedDBAccess.putResource(id(url), result);
             })
@@ -21,11 +24,11 @@ export const loadResource = ({ indexedDBAccess, url, immediate = false, isBinary
         indexedDBAccess
             .getResource(id(url))
             .then(resource => {
-                console.log(`resource ${url} was in cache`);
+                log(`resource ${url} was in cache`);
                 resolve({ resource, fromCache: true });
             })
             .catch(err => {
-                console.log(
+                log(
                     err
                         ? `failed to fetch resource from cache ${url}. error: ${err}`
                         : `resource ${url} was not in cache`
