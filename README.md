@@ -66,7 +66,7 @@ To **inline the manifest**, so that no additional request is triggered, sepcify 
 ```
 
 #### cappCacheManifest.json   
-```html
+```json
 {
   "version": "1a",
   "resources": [
