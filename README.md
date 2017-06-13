@@ -4,7 +4,7 @@
 
 # Cross Platform Offline Resource Persistency
 [<img src="https://travis-ci.org/capriza/capp-cache.svg?branch=master">](https://travis-ci.org/capriza/capp-cache)
-![bundle size](http://img.badgesize.io/https://github.com/capriza/capp-cache/releases/download/test-tag/capp-cache.js?compression=gzip)
+![bundle size](http://img.badgesize.io/https://raw.githubusercontent.com/capriza/capp-cache/gh-pages/capp-cache.js?compression=gzip)
 ### Tiny library with zero external dependencies to persist resources (Javascript, css, etc.) for offline usage and optimal performance; supports all modern browsers, Safari included. Mobile optimized.
 
 Progressive Web Apps (PWA) and offline first apps should be every app's default. Those
@@ -190,7 +190,7 @@ before other resources and saved
 This library was developed in [Capriza](https://capriza.github.io/) to replace App Cache. Capriza+AppCache = CappCache. Clever, huh? :)
 
 #### You say tiny library. How tiny?
-![bundle size](http://img.badgesize.io/https://github.com/capriza/capp-cache/releases/download/test-tag/capp-cache.js?compression=gzip)
+![bundle size](http://img.badgesize.io/https://raw.githubusercontent.com/capriza/capp-cache/gh-pages/capp-cache.js?compression=gzip)
 
 #### Who designed the amazing Cupcake logo?
 [Nadav](https://github.com/fujifish). Thanks!
