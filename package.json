@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "jest",
+    "jest-debug": "node  --debug-brk --inspect ./node_modules/.bin/jest --runInBand",
     "build": "webpack --env.prod index.js",
     "watch": "webpack --env.dev --watch index.js",
     "dev": "http-server -p 9999 .",
