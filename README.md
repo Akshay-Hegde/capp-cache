@@ -178,6 +178,7 @@ Yes, but in the naive implementation, this means that the library is added as pa
 If it is part of the code bundle, it can't load that bundle. You can declare a separate entry point for Capp Cache which would result in a separate file.
 Then, make sure to load that file first.
 For example, in Webpack:
+
 ```javascript
 entry: {
 	CappCache: "capp-cache",
@@ -185,6 +186,27 @@ entry: {
 }
 ``` 
 before other resources and saved
+
+#### What are some of the issues and caveats with this approach?
+The root issue is that since the library does not enjoy and special capabilities (unlike Service Worker and App Cache), there are some limitations
+
+- You can't just append script elements in your DOM.   
+**Workaround**: you must declare it in a manifest and let CappCache append it to the DOM.
+- [DomContentLoaded](https://developer.mozilla.org/en/docs/Web/Events/DOMContentLoaded) is fired before synchronous scripts are loaded.   
+**Workaround**: register to the script's `onload` event in the cappCacheManifest. For example:_
+
+```javascript
+{
+  "url": "my-script.js",
+  "attributes": {
+    "onload": "console.log('script loaded')"
+   }
+}
+``` 
+- Secondary resources that are declared by your app need to use CappCache as well. For example, font `src` declared in your CSS file.   
+**Workaround**: one option is to inline the resource as base64 encoded [data URL](https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/Data_URIs). There are [online](https://dopiaza.org/tools/datauri/index.php) tools for that, or you can use a bundler such as Webpack [url-loader](https://github.com/webpack-contrib/url-loader)
+- [Code splitting](https://webpack.js.org/guides/code-splitting-async/) does not take advantage of caching and offline.   
+**workaround**: in your bundler configuration, define a separate entry point for the code that should be loaded later. When the application needs to load that chunk, use CappCache `loadResource` function. 
 
 #### What's the deal with the name?
 This library was developed in [Capriza](https://capriza.github.io/) to replace App Cache. Capriza+AppCache = CappCache. Clever, huh? :)

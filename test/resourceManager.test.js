@@ -107,16 +107,6 @@ it("does not try to add blob to the DOM", async () => {
   expect(mockIDB.dbData["about:blank"][DUMMY1]).toBeTruthy();
   expect(head.appendChild).not.toHaveBeenCalled();
 });
-/*
-it("add attributes to tags according to manifest when files are not in cache", async () => {
-    await load({
-        resources: [{ url: DUMMY1 }, { url: DUMMY2 }],
-        indexedDB: mockIDB,
-        document,
-    });
-	expect(scriptTag.setAttribute).toHaveBeenCalledWith(null);
-});
-*/
 it("adds the script inline when the script is in the cache", async () => {
   scriptTag.appendChild.mockClear();
   await load({
@@ -185,3 +175,6 @@ it("adds the tags to the appropriate target");
 it("appends the correct tag type");
 it("prunes the DB from all files not loaded in that session");
 it("respects pageId");
+it("add attributes to tags according to manifest when files are not in cache");
+
+describe("get resource URI");
