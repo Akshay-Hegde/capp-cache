@@ -61,5 +61,3 @@ it("returns an appropriate response when the manifest was NOT updated", async ()
     const { wasModified } = await manifestManager.fetchManifest(MOCK_URL, ABOUT_BLANK, mockIDB);
     expect(wasModified).toBe(false);
 });
-it("fetches the manifest from network if there is none in cache");
-it("notifies when the cache manifest was updated");
