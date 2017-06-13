@@ -1,3 +1,4 @@
+import { error } from "./logger";
 import indexedDBAccess from "./indexedDBAccess";
 import tagPropertiesMap from "./tagPropertiesMap";
 import { loadResource, getCachedFiles } from "./resourceLoader";
@@ -37,7 +38,7 @@ export function load(
                 ) => {
                     const tagProperties = tagPropertiesMap[type];
                     if (tagProperties === undefined) {
-                        return console.error(`Unsupported tag ${type}`);
+                        return error(`Unsupported tag ${type}`);
                     }
                     const documentTarget = cacheOnly || syncCacheOnly || !tagProperties.canAddToDom
                         ? MOCK_DOCUMENT
@@ -120,7 +121,7 @@ export function getResourceUri({
                 resolve(dataUrl);
             })
             .catch(e => {
-                console.error(`failed to fetch image ${e}`);
+                error(`failed to fetch image ${e}`);
                 reject(null);
             });
     });
