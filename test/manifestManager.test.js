@@ -1,7 +1,8 @@
 const mockNetwork = require("./mocks/mockNetwork");
 jest.mock("../src/network", () => mockNetwork);
-const mockResourceManager = { load: jest.fn() };
+jest.mock("../src/id", () => ({ id: id => id }));
 jest.mock("../src/resourceManager", () => mockResourceManager);
+const mockResourceManager = { load: jest.fn() };
 
 const manifestManager = require("../src/manifestManager").default;
 const mockIDB = require("./mocks/mockIDB").mock;

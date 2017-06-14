@@ -1,4 +1,5 @@
 jest.mock("../src/network", () => require("./mocks/mockNetwork"));
+jest.mock("../src/id", () => ({ id: id => id }));
 const { load } = require("../src/resourceManager");
 const mockIDB = require("./mocks/mockIDB").mock;
 

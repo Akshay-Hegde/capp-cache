@@ -20,26 +20,32 @@ export const fetchAndSaveInCache = ({ url, indexedDBAccess, isBinary }) =>
   });
 
 export const loadResource = ({ indexedDBAccess, url, immediate = false, isBinary = false }) => {
+  const fullUrl = id(url);
   const promise = new Promise((resolve, reject) => {
     indexedDBAccess
-      .getResource(id(url))
+      .getResource(fullUrl)
       .then(resource => {
-        log(`resource ${url} was in cache`);
+        log(`resource ${fullUrl} was in cache`);
         resolve({ resource, fromCache: true });
       })
       .catch(err => {
-        log(err ? `failed to fetch resource from cache ${url}. error: ${err}` : `resource ${url} was not in cache`);
+        log(
+          err ? `failed to fetch resource from cache ${fullUrl}. error: ${err}` : `resource ${fullUrl} was not in cache`
+        );
         if (immediate) {
-          fetchAndSaveInCache({ url, indexedDBAccess, isBinary })
+          fetchAndSaveInCache({ url: fullUrl, indexedDBAccess, isBinary })
             .then(resource => resolve({ resource, fromCache: false }))
             .catch(err => reject(err));
         } else {
-          window.setTimeout(() => fetchAndSaveInCache({ url, indexedDBAccess, isBinary }), RESOURCE_FETCH_DELAY);
+          window.setTimeout(
+            () => fetchAndSaveInCache({ url: fullUrl, indexedDBAccess, isBinary }),
+            RESOURCE_FETCH_DELAY
+          );
           reject(null);
         }
       });
   });
-  cachedFilesInSession[id(url)] = true;
+  cachedFilesInSession[fullUrl] = true;
   return promise;
 };
 

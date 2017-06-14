@@ -106,7 +106,7 @@ export function getResourceUri({ url, isBase64Text = false, isBinary = true, ind
         resolve(dataUrl);
       })
       .catch(e => {
-        error(`failed to fetch image ${e}`);
+        error(`failed to fetch resource ${e}`);
         reject(null);
       });
   });

@@ -1,7 +1,8 @@
+jest.mock("../src/network", () => require("./mocks/mockNetwork"));
+jest.mock("../src/id", () => ({ id: id => id }));
 const resourceLoader = require("../src/resourceLoader");
 const mockIDB = require("./mocks/mockIDB").mock;
 const indexedDBAccess = require("../src/indexedDBAccess").default;
-jest.mock("../src/network", () => require("./mocks/mockNetwork"));
 const { loadResource, getCachedFiles } = resourceLoader;
 const MOCK_RESP = "mock response";
 
