@@ -4,9 +4,9 @@ import { load } from "./resourceManager";
 import indexedDBAccess from "./indexedDBAccess";
 
 export default {
-  fetchManifest(manifestUrl, pageId = window.location.href, indexedDB = window.indexedDB) {
+  fetchManifest(manifestUrl, indexedDB = window.indexedDB) {
     return new Promise((resolve, reject) => {
-      indexedDBAccess(pageId, indexedDB).then(db => {
+      indexedDBAccess(indexedDB).then(db => {
         loadResource({ indexedDBAccess: db, url: manifestUrl, immediate: true })
           .then(({ fromCache, resource }) => {
             const manifestContent = resource.content;

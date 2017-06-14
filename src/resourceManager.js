@@ -20,14 +20,14 @@ const loadedResources = [];
  * Loads a list of resources according to the manifest.
  * */
 export function load(
-  { resources = [], pageId = window.location.href, indexedDB = window.indexedDB, document = window.document },
+  { resources = [], indexedDB = window.indexedDB, document = window.document },
   { syncCacheOnly = false } = {}
 ) {
   return new Promise((resolve, reject) => {
     if (resources.length === 0) {
       return resolve();
     }
-    indexedDBAccess(pageId, indexedDB).then(db => {
+    indexedDBAccess(indexedDB).then(db => {
       const orderedResources = resources.filter(r => !r.cacheOnly).concat(resources.filter(r => r.cacheOnly));
       let lastErr = undefined;
 
@@ -81,18 +81,12 @@ export function getLoadedResources() {
 }
 const resourceUriHistory = {};
 
-export function getResourceUri({
-  pageId = window.location,
-  url,
-  isBase64Text = false,
-  isBinary = true,
-  indexedDB = window.indexedDB,
-}) {
+export function getResourceUri({ url, isBase64Text = false, isBinary = true, indexedDB = window.indexedDB }) {
   return new Promise((resolve, reject) => {
     if (isBinary && resourceUriHistory[url]) {
       return resolve(resourceUriHistory[url]);
     }
-    indexedDBAccess(pageId, indexedDB)
+    indexedDBAccess(indexedDB)
       .then(db => {
         return loadResource({ indexedDBAccess: db, url, immediate: true, isBinary });
       })
@@ -130,8 +124,8 @@ export function revokeResourceUriForUrl(url) {
  * Clears indexedDB from any files on this page which were not loaded in this session by calling the load function.
  * Call this function to remove old obsolete files from the cache.
  */
-export function pruneDB(pageId = window.location.href, indexedDB = window.indexedDB) {
-  indexedDBAccess(pageId, indexedDB).then(db => {
+export function pruneDB(indexedDB = window.indexedDB) {
+  indexedDBAccess(indexedDB).then(db => {
     db.pruneDb(getCachedFiles());
   });
 }

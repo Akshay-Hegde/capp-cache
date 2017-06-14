@@ -28,7 +28,6 @@ The manifest structure is:
 Property  | description                                                              | type                        | default
 ----------|--------------------------------------------------------------------------|-----------------------------|-----------------------
 resources | An array of resources to be cached. See the following table for details. | array of resource entries   | []
-pageId    | An ID of the page under which all resources are cached.                  | string                      | Current page URL
 manifestUrl | A URL from which the manifest JSON is fetched.                         | URL
 version   | An identifier for the version of the manifest. A change in this version will result in background syncing of the cache with the new manifest. See function on("manifestUpdated") for details.  | string |
 

@@ -5,7 +5,6 @@ const resetDB = () => {
 const db = { uid: `${Math.random().toString().substr(2, 6)}` };
 
 const mockIndexedDb = {
-  db,
   target: {
     result: {
       transaction(storeNames, type) {
@@ -86,10 +85,11 @@ const req = {};
 export const mock = {
   open(dbName, dbVersion) {
     const mockDBInstance = mockIndexedDb;
-    this.mockDBInstance = mockDBInstance;
     process.nextTick(() => req.onsuccess(mockDBInstance));
     return req;
   },
-  dbData: db,
+  get dbData() {
+    return db["RESOURCES"];
+  },
   resetDB,
 };

@@ -8,30 +8,30 @@ const DUMMY_TYPE = "dummy";
 const NOT_FOUND = null;
 
 it("opens indexeddb connection", async () => {
-  const db = await idbAccess("root", mockIDB);
+  const db = await idbAccess(mockIDB);
   expect(db).toBeTruthy();
 });
 
 it("saves resource", async () => {
-  const db = await idbAccess("root", mockIDB);
+  const db = await idbAccess(mockIDB);
   await db.putResource("a", "mock content");
 });
 
 it("fetches previously saved resource", async () => {
-  const db = await idbAccess("root", mockIDB);
+  const db = await idbAccess(mockIDB);
   await db.putResource(ID1, { content: CONTENT_VALUE, contentType: "dummy" });
   const { content } = await db.getResource(ID1);
   expect(content).toEqual(CONTENT_VALUE);
 });
 
 it("removes previously saved resource", async () => {
-  const db = await idbAccess("root", mockIDB);
+  const db = await idbAccess(mockIDB);
   await db.putResource(ID1, CONTENT_VALUE);
   await db.removeResource(ID1);
   await expect(db.getResource(ID1)).rejects.toEqual(NOT_FOUND);
 });
 it("prunes resources that are not in the id list", async () => {
-  const db = await idbAccess("root", mockIDB);
+  const db = await idbAccess(mockIDB);
   await db.putResource(ID1, { content: CONTENT_VALUE, contentType: DUMMY_TYPE });
   await db.putResource(ID2, { content: CONTENT_VALUE, contentType: DUMMY_TYPE });
   await db.pruneDb([]);
@@ -40,7 +40,7 @@ it("prunes resources that are not in the id list", async () => {
   expect(db.getResource(ID2)).rejects.toEqual(NOT_FOUND);
 });
 it("doesn`t prune resources that are in the id list", async () => {
-  const db = await idbAccess("root", mockIDB);
+  const db = await idbAccess(mockIDB);
   await db.putResource(ID1, { content: CONTENT_VALUE, contentType: DUMMY_TYPE });
   await db.putResource(ID2, { content: CONTENT_VALUE, contentType: DUMMY_TYPE });
   await db.pruneDb([ID1]);
@@ -50,7 +50,7 @@ it("doesn`t prune resources that are in the id list", async () => {
 });
 
 it(`prunes all resources when pruneDB called without any parameter`, async () => {
-  const db = await idbAccess("root", mockIDB);
+  const db = await idbAccess(mockIDB);
   await db.putResource(ID1, CONTENT_VALUE);
   await db.putResource(ID2, CONTENT_VALUE);
   await db.pruneDb();

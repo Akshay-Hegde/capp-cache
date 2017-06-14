@@ -1,17 +1,18 @@
 import { log, error } from "./logger";
 
 const DB_NAME = "RESOURCE_CACHE";
-const DB_VERSION = 3;
+const STORE_NAME = "RESOURCES";
+const DB_VERSION = 4;
 
-export default function(storeName, indexedDB) {
+export default function(indexedDB) {
   const idbWrapper = Object.create(null);
   let _db = null;
   const req = indexedDB.open(DB_NAME, DB_VERSION);
 
   const store = (type = "readwrite") => {
     //todo: create object store when first in the page?
-    const transaction = _db.transaction([storeName], type);
-    return transaction.objectStore(storeName);
+    const transaction = _db.transaction([STORE_NAME], type);
+    return transaction.objectStore(STORE_NAME);
   };
 
   idbWrapper.getResource = id =>
@@ -89,14 +90,7 @@ export default function(storeName, indexedDB) {
     };
     req.onupgradeneeded = e => {
       const db = e.target.result;
-      if (e.oldVersion > 0) {
-        try {
-          db.deleteObjectStore(storeName);
-        } catch (e) {
-          log(`exception when trying to delete object store during onupgradeneeded. ${JSON.stringify(e)}`);
-        }
-      }
-      db.createObjectStore(storeName, { keyPath: "id" });
+      db.createObjectStore(STORE_NAME, { keyPath: "id" });
     };
     req.onerror = e => {
       error("failed to open indexedDB " + JSON.stringify(e));
