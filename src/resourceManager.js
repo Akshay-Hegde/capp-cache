@@ -42,7 +42,7 @@ export function load(
           loadResource({ indexedDBAccess: db, url, immediate: false, isBinary })
             .then(({ resource }) => {
               let { content } = resource;
-              if (type === "script") {
+              if (type === "js") {
                 content = `//# sourceURL=${url}\n${content}`;
               }
               tagProperties.appendTextContent(tag, documentTarget, content);

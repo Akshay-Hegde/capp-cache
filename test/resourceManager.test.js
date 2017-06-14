@@ -121,7 +121,7 @@ it("adds the script inline when the script is in the cache", async () => {
     document,
   });
   await jest.runAllTimers();
-  expect(scriptTag.appendChild).toHaveBeenCalledWith("mock script: mock response");
+  expect(scriptTag.appendChild).toHaveBeenCalledWith(expect.stringMatching(/mock response/));
 });
 it("adds an src to the script when the script is not in the cache", async () => {
   scriptTag.appendChild.mockClear();
@@ -139,7 +139,6 @@ it("add attributes to tags according to manifest when files are in cache", async
   scriptTag.setAttribute.mockClear();
   await load({
     resources: [{ url: DUMMY1, attributes: { attr1: true, attr2: "attr2 value" }, cacheOnly: true }],
-
     indexedDB: mockIDB,
     document,
   });
@@ -159,6 +158,22 @@ it("add attributes to tags according to manifest when files are in cache", async
     ].sort()
   );
 });
+it("adds sourceURL to scripts to allow debugging", async () => {
+	scriptTag.setAttribute.mockClear();
+	await load({
+		resources: [{ url: DUMMY1, attributes: { attr1: true, attr2: "attr2 value" }, cacheOnly: true }],
+		indexedDB: mockIDB,
+		document,
+	});
+	await jest.runAllTimers();
+	await load({
+		resources: [{ url: DUMMY1, attributes: { attr1: true, attr2: "attr2 value" } }],
+		indexedDB: mockIDB,
+		document,
+	});
+	await jest.runAllTimers();
+	expect(scriptTag.appendChild).toHaveBeenCalledWith(expect.stringMatching(/sourceURL/));
+});
 it("add attributes to tags according to manifest when files are NOT in cache", async () => {
   scriptTag.setAttribute.mockClear();
   await load({
@@ -177,4 +192,4 @@ it("prunes the DB from all files not loaded in that session");
 it("respects pageId");
 it("add attributes to tags according to manifest when files are not in cache");
 
-describe("get resource URI");
+// describe("get resource URI");

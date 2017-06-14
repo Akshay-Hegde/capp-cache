@@ -193,7 +193,7 @@ The root issue is that since the library does not enjoy and special capabilities
 - You can't just append script elements in your DOM.   
 **Workaround**: you must declare it in a manifest and let CappCache append it to the DOM.
 - [DomContentLoaded](https://developer.mozilla.org/en/docs/Web/Events/DOMContentLoaded) is fired before synchronous scripts are loaded.   
-**Workaround**: register to the script's `onload` event in the cappCacheManifest. For example:_
+**Workaround**: register to the script's `onload` event in the cappCacheManifest. For example:
 
 ```javascript
 {
