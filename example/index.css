@@ -6,6 +6,10 @@ body {
     font-family: "Lucida Console", Monaco, monospace;
 }
 
+body.capp-cache {
+    display: initial;
+}
+
 #container {
     text-align: center;
     width: 80vw;

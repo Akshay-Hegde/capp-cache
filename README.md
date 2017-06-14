@@ -206,6 +206,31 @@ The root issue is that since the library does not enjoy and special capabilities
 **Workaround**: one option is to inline the resource as base64 encoded [data URL](https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/Data_URIs). There are [online](https://dopiaza.org/tools/datauri/index.php) tools for that, or you can use a bundler such as Webpack [url-loader](https://github.com/webpack-contrib/url-loader)
 - [Code splitting](https://webpack.js.org/guides/code-splitting-async/) does not take advantage of caching and offline.   
 **workaround**: in your bundler configuration, define a separate entry point for the code that should be loaded later. When the application needs to load that chunk, use CappCache `loadResource` function. 
+- Flash of unstyled content ([FOUC](https://en.wikipedia.org/wiki/Flash_of_unstyled_content)) - When the page loads, you see unstyled HTML elements. This happens because the CSS is loaded dynamically using Javascript. The browser thinks that there is no CSS for the elements and displays the elements without styling.   
+**workaround**:
+Hide the 
+
+```html
+<head>
+   <style>
+   .capp-cache {
+      display: none;
+   }
+   </style>
+...
+</head>
+<body class="capp-cache">
+...
+</body>
+```
+Then, include in your CSS file an override:
+
+```css
+body.capp-cache {
+   display: initial;
+}
+```
+Another option is to include the critical CSS inline as `<style>` element in the HTML file.
 
 #### What's the deal with the name?
 This library was developed in [Capriza](https://capriza.github.io/) to replace App Cache. Capriza+AppCache = CappCache. Clever, huh? :)
