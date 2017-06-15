@@ -2,14 +2,16 @@ jest.mock("../src/resourceManager", () => ({
   load: jest.fn(() => Promise.resolve()),
 }));
 jest.mock("../src/eventBus", () => ({
-  trigger: jest.fn(() => {
-    debugger;
-  }),
+  trigger: jest.fn(),
 }));
 
 global.document.getElementsByTagName = () => {
   return [{ dataset: { ccManifest: "mockManifestUrl" } }];
 };
+
+beforeEach(() => {
+	jest.resetModules();
+});
 
 it("triggers an event when there is a newer manifest available", async () => {
   jest.mock("../src/manifestManager", () => {

@@ -1,3 +1,4 @@
+jest.mock("../src/indexedDB", () => require("./mocks/mockIDB").mock);
 const idbAccess = require("../src/indexedDBAccess").default;
 const mockIDB = require("./mocks/mockIDB").mock;
 

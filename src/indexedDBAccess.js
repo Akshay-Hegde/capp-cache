@@ -1,4 +1,5 @@
 import { log, error } from "./logger";
+import indexedDB from "./indexedDB";
 
 const DB_NAME = "RESOURCE_CACHE";
 const STORE_NAME = "RESOURCES";
@@ -6,10 +7,10 @@ const DB_VERSION = 4;
 
 let resolvedPromise = null;
 
-export default function(indexedDB) {
-	if (resolvedPromise) {
-		return resolvedPromise;
-	}
+export default function() {
+  if (resolvedPromise) {
+    return resolvedPromise;
+  }
   const idbWrapper = Object.create(null);
   let _db = null;
   const req = indexedDB.open(DB_NAME, DB_VERSION);
@@ -87,19 +88,23 @@ export default function(indexedDB) {
       };
     });
 
-	resolvedPromise = new Promise((resolve, reject) => {
-		req.onsuccess = e => {
-			_db = e.target.result;
-			resolve(idbWrapper);
-		};
-		req.onupgradeneeded = e => {
-			const db = e.target.result;
-			db.createObjectStore(STORE_NAME, { keyPath: "id" });
-		};
-		req.onerror = e => {
-			error("failed to open indexedDB " + JSON.stringify(e));
-			reject(e);
-		};
-	});
-	return resolvedPromise;
+  resolvedPromise = new Promise((resolve, reject) => {
+    req.onsuccess = e => {
+      _db = e.target.result;
+      resolve(idbWrapper);
+    };
+    req.onupgradeneeded = e => {
+      const db = e.target.result;
+      db.createObjectStore(STORE_NAME, { keyPath: "id" });
+    };
+    req.onerror = e => {
+      error("failed to open indexedDB " + JSON.stringify(e));
+      reject(e);
+    };
+  });
+  return resolvedPromise;
 }
+
+export const closeConnection = () => {
+  resolvedPromise = null;
+};

@@ -1,3 +1,4 @@
+jest.mock("../src/indexedDB", () => require("./mocks/mockIDB").mock);
 import { log, error } from "./logger";
 import { loadResource, fetchAndSaveInCache } from "./resourceLoader";
 import { load } from "./resourceManager";
@@ -5,10 +6,10 @@ import { id } from "./id";
 import indexedDBAccess from "./indexedDBAccess";
 
 export default {
-  fetchManifest(manifestUrl, indexedDB = window.indexedDB) {
+  fetchManifest(manifestUrl) {
     const fullManifestUrl = id(manifestUrl);
     return new Promise((resolve, reject) => {
-      indexedDBAccess(indexedDB).then(db => {
+      indexedDBAccess().then(db => {
         loadResource({ indexedDBAccess: db, url: fullManifestUrl, immediate: true })
           .then(({ fromCache, resource }) => {
             const manifestContent = resource.content;
