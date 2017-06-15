@@ -4,13 +4,17 @@ const DB_NAME = "RESOURCE_CACHE";
 const STORE_NAME = "RESOURCES";
 const DB_VERSION = 4;
 
+let resolvedPromise = null;
+
 export default function(indexedDB) {
+	if (resolvedPromise) {
+		return resolvedPromise;
+	}
   const idbWrapper = Object.create(null);
   let _db = null;
   const req = indexedDB.open(DB_NAME, DB_VERSION);
 
   const store = (type = "readwrite") => {
-    //todo: create object store when first in the page?
     const transaction = _db.transaction([STORE_NAME], type);
     return transaction.objectStore(STORE_NAME);
   };
@@ -83,18 +87,19 @@ export default function(indexedDB) {
       };
     });
 
-  return new Promise((resolve, reject) => {
-    req.onsuccess = e => {
-      _db = e.target.result;
-      resolve(idbWrapper);
-    };
-    req.onupgradeneeded = e => {
-      const db = e.target.result;
-      db.createObjectStore(STORE_NAME, { keyPath: "id" });
-    };
-    req.onerror = e => {
-      error("failed to open indexedDB " + JSON.stringify(e));
-      reject(e);
-    };
-  });
+	resolvedPromise = new Promise((resolve, reject) => {
+		req.onsuccess = e => {
+			_db = e.target.result;
+			resolve(idbWrapper);
+		};
+		req.onupgradeneeded = e => {
+			const db = e.target.result;
+			db.createObjectStore(STORE_NAME, { keyPath: "id" });
+		};
+		req.onerror = e => {
+			error("failed to open indexedDB " + JSON.stringify(e));
+			reject(e);
+		};
+	});
+	return resolvedPromise;
 }
