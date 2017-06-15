@@ -37,15 +37,17 @@ export function load({ resources = [], document = window.document }, { syncCache
           const documentTarget = cacheOnly || syncCacheOnly || !tagProperties.canAddToDom ? MOCK_DOCUMENT : document;
           let tag = documentTarget.createElement(tagProperties.tagName);
           loadResource({ indexedDBAccess: db, url, immediate: false, isBinary })
-            .then(({ resource }) => {
+            .then(({ resource }) => { /* resource already cached */
               let { content } = resource;
               if (type === "js") {
                 content = `//# sourceURL=${url}\n${content}`;
               }
+
               tagProperties.appendTextContent(tag, documentTarget, content);
               tag.setAttribute("data-cappcache-src", url);
+
             })
-            .catch(e => {
+            .catch(e => { /* resource is not in cache */
               if (tagProperties.tagNameWhenNotInline !== undefined) {
                 tag = documentTarget.createElement(tagProperties.tagNameWhenNotInline);
                 tagProperties.attributes = tagProperties.attributesWhenNotInline;
