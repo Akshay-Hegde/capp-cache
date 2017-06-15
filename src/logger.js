@@ -7,20 +7,20 @@ export const LOG_LEVELS = {
 let _logLevel = LOG_LEVELS.warn;
 
 const logCommand = (level, idx, args) => {
-  if (level <= _logLevel) {
+  if (idx >= _logLevel) {
     console[level].apply(console, args);
   }
 };
 
-export const log = () => {
+export function log() {
   logCommand("log", 1, arguments);
-};
-export const warn = () => {
+}
+export function warn() {
   logCommand("warn", 2, arguments);
-};
-export const error = () => {
+}
+export function error() {
   logCommand("error", 3, arguments);
-};
+}
 
 export const setLogLevel = logLevel => {
   _logLevel = logLevel;
