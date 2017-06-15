@@ -30,26 +30,30 @@ export function load({ resources = [], document = window.document }, { syncCache
 
       orderedResources.forEach(
         ({ url, type = "js", target = "head", attributes = {}, cacheOnly = false, isBinary = false }, index) => {
+	        let isInlineJSScript = false;
           const tagProperties = tagPropertiesMap[type];
           if (tagProperties === undefined) {
             return error(`Unsupported tag ${type}`);
           }
           const documentTarget = cacheOnly || syncCacheOnly || !tagProperties.canAddToDom ? MOCK_DOCUMENT : document;
           let tag = documentTarget.createElement(tagProperties.tagName);
-	        Object.keys(attributes).forEach(attribute => tag.setAttribute(attribute, attributes[attribute]));
-	        Object.keys(tagProperties.attributes).forEach(attribute =>
-		        tag.setAttribute(attribute, tagProperties.attributes[attribute])
-	        );
+          Object.keys(attributes).forEach(attribute => tag.setAttribute(attribute, attributes[attribute]));
+          Object.keys(tagProperties.attributes).forEach(attribute =>
+            tag.setAttribute(attribute, tagProperties.attributes[attribute])
+          );
           loadResource({ indexedDBAccess: db, url, immediate: false, isBinary })
-            .then(({ resource }) => { /* resource already cached */
+            .then(({ resource }) => {
+              /* resource already cached */
               let { content } = resource;
               if (type === "js") {
+	              isInlineJSScript = true;
                 content = `//# sourceURL=${url}\n${content}`;
               }
               tagProperties.appendTextContent(tag, documentTarget, content);
               tag.setAttribute("data-cappcache-src", url);
             })
-            .catch(e => { /* resource is not in cache */
+            .catch(e => {
+              /* resource is not in cache */
               if (tagProperties.tagNameWhenNotInline !== undefined) {
                 tag = documentTarget.createElement(tagProperties.tagNameWhenNotInline);
                 tagProperties.attributes = tagProperties.attributesWhenNotInline;
@@ -59,6 +63,9 @@ export function load({ resources = [], document = window.document }, { syncCache
             .then(() => {
               loadedResources.push({ url });
               documentTarget[target].appendChild(tag);
+	            if (isInlineJSScript && attributes["onload"]) {
+		            setTimeout(Function(attributes["onload"]));
+	            }
             })
             .catch(err => {
               lastErr = err;
