@@ -1,4 +1,3 @@
-jest.mock("../src/indexedDB", () => require("./mocks/mockIDB").mock);
 import { log, error } from "./logger";
 import { loadResource, fetchAndSaveInCache } from "./resourceLoader";
 import { load } from "./resourceManager";
