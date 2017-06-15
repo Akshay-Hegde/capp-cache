@@ -36,16 +36,18 @@ export function load({ resources = [], document = window.document }, { syncCache
           }
           const documentTarget = cacheOnly || syncCacheOnly || !tagProperties.canAddToDom ? MOCK_DOCUMENT : document;
           let tag = documentTarget.createElement(tagProperties.tagName);
+	        Object.keys(attributes).forEach(attribute => tag.setAttribute(attribute, attributes[attribute]));
+	        Object.keys(tagProperties.attributes).forEach(attribute =>
+		        tag.setAttribute(attribute, tagProperties.attributes[attribute])
+	        );
           loadResource({ indexedDBAccess: db, url, immediate: false, isBinary })
             .then(({ resource }) => { /* resource already cached */
               let { content } = resource;
               if (type === "js") {
                 content = `//# sourceURL=${url}\n${content}`;
               }
-
               tagProperties.appendTextContent(tag, documentTarget, content);
               tag.setAttribute("data-cappcache-src", url);
-
             })
             .catch(e => { /* resource is not in cache */
               if (tagProperties.tagNameWhenNotInline !== undefined) {
@@ -56,10 +58,6 @@ export function load({ resources = [], document = window.document }, { syncCache
             })
             .then(() => {
               loadedResources.push({ url });
-              Object.keys(attributes).forEach(attribute => tag.setAttribute(attribute, attributes[attribute]));
-              Object.keys(tagProperties.attributes).forEach(attribute =>
-                tag.setAttribute(attribute, tagProperties.attributes[attribute])
-              );
               documentTarget[target].appendChild(tag);
             })
             .catch(err => {
