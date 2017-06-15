@@ -17,6 +17,9 @@
       "attributes": {
         "onload": "console.log('DONE')"
       }
+    },
+    {
+      "url": "measure.js"
     }
   ]
 }
