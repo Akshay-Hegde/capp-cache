@@ -178,6 +178,15 @@ it("add attributes to tags according to manifest when files are NOT in cache", a
     [["attr1", true], ["attr2", "attr2 value"], ["src", "dummy.url1"], ["type", "text/javascript"]].sort()
   );
 });
+it("adds tagNameWhenNotInline attributes when the element is not inline", async () => {
+  scriptTag.setAttribute.mockClear();
+  await load({
+    resources: [{ url: DUMMY1, type: "css" }],
+    document,
+  });
+  await jest.runAllTimers();
+  expect(linkTag.setAttribute.mock.calls.sort()).toMatchObject([["href", "dummy.url1"], ["rel", "stylesheet"]].sort());
+});
 it("adds the tags to the appropriate target");
 it("appends the correct tag type");
 it("prunes the DB from all files not loaded in that session");

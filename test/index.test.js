@@ -10,7 +10,7 @@ global.document.getElementsByTagName = () => {
 };
 
 beforeEach(() => {
-	jest.resetModules();
+  jest.resetModules();
 });
 
 it("triggers an event when there is a newer manifest available", async () => {

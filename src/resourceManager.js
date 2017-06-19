@@ -30,7 +30,7 @@ export function load({ resources = [], document = window.document }, { syncCache
 
       orderedResources.forEach(
         ({ url, type = "js", target = "head", attributes = {}, cacheOnly = false, isBinary = false }, index) => {
-	        let isInlineJSScript = false;
+          let isInlineJSScript = false;
           const tagProperties = tagPropertiesMap[type];
           if (tagProperties === undefined) {
             return error(`Unsupported tag ${type}`);
@@ -38,15 +38,12 @@ export function load({ resources = [], document = window.document }, { syncCache
           const documentTarget = cacheOnly || syncCacheOnly || !tagProperties.canAddToDom ? MOCK_DOCUMENT : document;
           let tag = documentTarget.createElement(tagProperties.tagName);
           Object.keys(attributes).forEach(attribute => tag.setAttribute(attribute, attributes[attribute]));
-          Object.keys(tagProperties.attributes).forEach(attribute =>
-            tag.setAttribute(attribute, tagProperties.attributes[attribute])
-          );
           loadResource({ indexedDBAccess: db, url, immediate: false, isBinary })
             .then(({ resource }) => {
               /* resource already cached */
               let { content } = resource;
               if (type === "js") {
-	              isInlineJSScript = true;
+                isInlineJSScript = true;
                 content = `//# sourceURL=${url}\n${content}`;
               }
               tagProperties.appendTextContent(tag, documentTarget, content);
@@ -62,10 +59,13 @@ export function load({ resources = [], document = window.document }, { syncCache
             })
             .then(() => {
               loadedResources.push({ url });
+              Object.keys(tagProperties.attributes).forEach(attribute => {
+                tag.setAttribute(attribute, tagProperties.attributes[attribute]);
+              });
               documentTarget[target].appendChild(tag);
-	            if (isInlineJSScript && attributes["onload"]) {
-		            setTimeout(Function(attributes["onload"]));
-	            }
+              if (isInlineJSScript && attributes["onload"]) {
+                setTimeout(Function(attributes["onload"]));
+              }
             })
             .catch(err => {
               lastErr = err;

@@ -15,7 +15,7 @@ export const fetchAndSaveInCache = ({ url, indexedDBAccess, isBinary }) =>
         indexedDBAccess.putResource(id(url), result);
       })
       .catch(e => {
-	      error(`failed to fetch resource ${url} from the web with error ${e.status}: ${e.statusText}`);
+        error(`failed to fetch resource ${url} from the web with error ${e.status}: ${e.statusText}`);
         reject(e);
       });
   });
@@ -40,8 +40,9 @@ export const loadResource = ({ indexedDBAccess, url, immediate = false, isBinary
         } else {
           window.setTimeout(
             () =>
-	            fetchAndSaveInCache({ url: fullUrl, indexedDBAccess, isBinary })
-		            .catch(err=>{/*do nothing*/}),
+              fetchAndSaveInCache({ url: fullUrl, indexedDBAccess, isBinary }).catch(err => {
+                /*do nothing*/
+              }),
             RESOURCE_FETCH_DELAY
           );
           reject(null);
