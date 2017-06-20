@@ -30,49 +30,67 @@ export function load({ resources = [], document = window.document }, { syncCache
 
       orderedResources.forEach(
         ({ url, type = "js", target = "head", attributes = {}, cacheOnly = false, isBinary = false }, index) => {
-          let isInlineJSScript = false;
-          const tagProperties = tagPropertiesMap[type];
-          if (tagProperties === undefined) {
+          const userAttributes = attributes;
+          const staticAttributes = tagPropertiesMap[type];
+          if (staticAttributes === undefined) {
             return error(`Unsupported tag ${type}`);
           }
-          const documentTarget = cacheOnly || syncCacheOnly || !tagProperties.canAddToDom ? MOCK_DOCUMENT : document;
-          let tag = documentTarget.createElement(tagProperties.tagName);
-          Object.keys(attributes).forEach(attribute => tag.setAttribute(attribute, attributes[attribute]));
+          const documentTarget = cacheOnly || syncCacheOnly || !staticAttributes.canAddToDom
+            ? MOCK_DOCUMENT
+            : document;
+          let tag;
+
           loadResource({ indexedDBAccess: db, url, immediate: false, isBinary })
             .then(({ resource }) => {
               /* resource already cached */
+              tag = documentTarget.createElement(staticAttributes.tagName);
+
               let { content } = resource;
               if (type === "js") {
-                isInlineJSScript = true;
-                content = `//# sourceURL=${url}\n${content}`;
+	              let onLoadScript = "";
+              	if (userAttributes["onload"]) {
+		              onLoadScript = `/*--- capp-cache onload handler---*/\n${userAttributes["onload"]}`;
+	              }
+	              content = `//# sourceURL=${url}\n${content}\n${onLoadScript}`;
               }
-              tagProperties.appendTextContent(tag, documentTarget, content);
+              staticAttributes.appendTextContent(tag, documentTarget, content);
               tag.setAttribute("data-cappcache-src", url);
             })
             .catch(e => {
               /* resource is not in cache */
-              if (tagProperties.tagNameWhenNotInline !== undefined) {
-                tag = documentTarget.createElement(tagProperties.tagNameWhenNotInline);
-                tagProperties.attributes = tagProperties.attributesWhenNotInline;
+              let tagType = staticAttributes.tagName;
+              if (staticAttributes.tagNameWhenNotInline !== undefined) {
+                tagType = staticAttributes.tagNameWhenNotInline;
+                staticAttributes.attributes = staticAttributes.attributesWhenNotInline;
               }
-              tag.setAttribute(tagProperties.contentFetchKey, url);
+              tag = documentTarget.createElement(tagType);
+              tag.setAttribute(staticAttributes.contentFetchKey, url);
+              tag.async = !!userAttributes["async"];
             })
             .then(() => {
-              loadedResources.push({ url });
-              Object.keys(tagProperties.attributes).forEach(attribute => {
-                tag.setAttribute(attribute, tagProperties.attributes[attribute]);
+              /* All types of tags, inline and non inline */
+              Object.keys(userAttributes).forEach(attribute => {
+              	if (attribute!== "async") {
+		              tag.setAttribute(attribute, userAttributes[attribute]);
+	              }
               });
+              Object.keys(staticAttributes.attributes).forEach(attribute => {
+                tag.setAttribute(attribute, staticAttributes.attributes[attribute]);
+              });
+	            loadedResources.push({ url });
               documentTarget[target].appendChild(tag);
-              if (isInlineJSScript && attributes["onload"]) {
-                setTimeout(Function(attributes["onload"]));
-              }
             })
             .catch(err => {
               lastErr = err;
             })
             .then(() => {
               if (index === orderedResources.length - 1) {
-                lastErr === undefined ? resolve() : reject(lastErr);
+                if (lastErr !== undefined) {
+                  error(`Error while loading resources ${lastErr}`);
+                  reject(lastErr);
+                } else {
+                  resolve();
+                }
               }
             });
         }

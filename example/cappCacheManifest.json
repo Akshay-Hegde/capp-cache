@@ -3,7 +3,10 @@
   "resources": [
     {
       "url": "index.css",
-      "type": "css"
+      "type": "css",
+      "attributes": {
+        "onload": "console.log('index.css done from manifest')"
+      }
     },
     {
       "url": "https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.0/moment.min.js",
@@ -19,7 +22,10 @@
       }
     },
     {
-      "url": "measure.js"
+      "url": "measure.js",
+      "attributes": {
+        "onload": "console.log('measure.js done from manifest')"
+      }
     }
   ]
 }
