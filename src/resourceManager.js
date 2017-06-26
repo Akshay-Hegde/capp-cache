@@ -29,13 +29,18 @@ export function load({ resources = [], document = window.document }, { syncCache
       let lastErr = undefined;
 
       orderedResources.forEach(
-        ({ url, type = "js", target = "head", attributes = {}, cacheOnly = false, isBinary = false }, index) => {
+        ({ url, type = "js", target = "head", attributes = {}, cacheOnly = false, isBinary}, index) => {
           const userAttributes = attributes;
           const staticAttributes = tagPropertiesMap[type];
           if (staticAttributes === undefined) {
             return error(`Unsupported tag ${type}`);
           }
-          const documentTarget = cacheOnly || syncCacheOnly || !staticAttributes.canAddToDom
+          if (staticAttributes.defaultToBinary !== undefined){
+	          isBinary = staticAttributes.defaultToBinary;
+          } else {
+	          isBinary = true;
+          }
+	        const documentTarget = cacheOnly || syncCacheOnly || !staticAttributes.canAddToDom
             ? MOCK_DOCUMENT
             : document;
           let tag;
@@ -53,7 +58,7 @@ export function load({ resources = [], document = window.document }, { syncCache
 	              }
 	              content = `//# sourceURL=${url}\n${content}\n${onLoadScript}`;
               }
-              staticAttributes.appendTextContent(tag, documentTarget, content);
+              staticAttributes.setElementContentFunc(tag, documentTarget, content);
               tag.setAttribute("data-cappcache-src", url);
             })
             .catch(e => {
@@ -115,10 +120,9 @@ export function getResourceUri({ url, isBase64Text = false, isBinary = true }) {
       .then(({ resource }) => {
         const { content, contentType } = resource;
         if (isBinary) {
-          const blob = new Blob([content], { type: contentType });
-          return URL.createObjectURL(blob);
+          return URL.createObjectURL(content);
         } else {
-          return `data:${contentType}${isBase64Text ? ";base64" : ""},${isBase64Text ? btoa(content) : content}`;
+          return `data:${contentType}${isBase64Text ? ";base64" :  ""},${isBase64Text ? btoa(content) : content}`;
         }
       })
       .then(dataUrl => {

@@ -26,6 +26,16 @@
       "attributes": {
         "onload": "console.log('measure.js done from manifest')"
       }
+    },
+    {
+      "url":"sign-check-icon.png",
+      "type":"link",
+      "attributes":{
+        "media":"(device-width: 320px) and (-webkit-device-pixel-ratio: 2)",
+        "rel":"apple-touch-startup-image"
+      },
+      "isBinary": true
     }
+
   ]
 }

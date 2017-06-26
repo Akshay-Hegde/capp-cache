@@ -5,7 +5,7 @@ export default {
     attributes: {
       type: "text/javascript",
     },
-    appendTextContent(tag, documentTarget, content) {
+    setElementContentFunc(tag, documentTarget, content) {
       tag.appendChild(documentTarget.createTextNode(content));
     },
     canAddToDom: true,
@@ -20,7 +20,7 @@ export default {
     attributesWhenNotInline: {
       rel: "stylesheet",
     },
-    appendTextContent(tag, documentTarget, content) {
+    setElementContentFunc(tag, documentTarget, content) {
       tag.innerHTML = content;
     },
     canAddToDom: true,
@@ -29,4 +29,14 @@ export default {
     canAddToDom: false,
     attributes: {},
   },
+	link: {
+  	tagName: "link",
+		contentFetchKey: "href",
+		canAddToDom: true,
+		setElementContentFunc(tag, documentTarget, content) {
+			tag.href = URL.createObjectURL(content);
+		},
+		attributes: {},
+		defaultToBinary: true,
+	}
 };
