@@ -7,7 +7,7 @@ let cachedFilesInSession = {};
 
 export const fetchAndSaveInCache = ({ url, indexedDBAccess, isBinary }) =>
   new Promise((resolve, reject) => {
-    log(`fetching resource ${url} to cache`);
+    log(`fetching resource ${url} to cache ${isBinary ? "as binary" : ""}`);
     fetchResource(url, isBinary ? "blob" : undefined)
       .then(result => {
         log(`successfully fetched resource ${url} to cache`);

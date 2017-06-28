@@ -25,43 +25,58 @@ export function load({ resources = [], document = window.document }, { syncCache
       return resolve();
     }
     indexedDBAccess().then(db => {
-      const orderedResources = resources.filter(r => !r.cacheOnly).concat(resources.filter(r => r.cacheOnly));
+      resources.sort((r1, r2) => {
+        if (r1.type === "fontface" && r2.type !== "fontface") {
+          return -1;
+        }
+        if (r2.type === "fontface" && r1.type !== "fontface") {
+          return 1;
+        }
+        if (r1.cacheOnly && !r2.cacheOnly) {
+          return 1;
+        }
+        if (r2.cacheOnly && !r1.cacheOnly) {
+          return -1;
+        }
+        return 0;
+      });
+
       let lastErr = undefined;
 
-      orderedResources.forEach(
-        ({ url, type = "js", target = "head", attributes = {}, cacheOnly = false, isBinary}, index) => {
-          const userAttributes = attributes;
-          const staticAttributes = tagPropertiesMap[type];
-          if (staticAttributes === undefined) {
-            return error(`Unsupported tag ${type}`);
-          }
-          if (staticAttributes.defaultToBinary !== undefined){
-	          isBinary = staticAttributes.defaultToBinary;
-          } else {
-	          isBinary = true;
-          }
-	        const documentTarget = cacheOnly || syncCacheOnly || !staticAttributes.canAddToDom
-            ? MOCK_DOCUMENT
-            : document;
-          let tag;
+      resources.forEach((resourceManifestObj, index) => {
+        let { url, type = "js", target = "head", attributes = {}, cacheOnly = false, isBinary } = resourceManifestObj;
+        const userAttributes = attributes;
+        const staticAttributes = tagPropertiesMap[type];
+        if (staticAttributes === undefined) {
+          return error(`Unsupported tag ${type}`);
+        }
+        if (staticAttributes.defaultToBinary !== undefined) {
+          isBinary = staticAttributes.defaultToBinary;
+        } else {
+          isBinary = false;
+        }
+        const documentTarget = cacheOnly || syncCacheOnly || !staticAttributes.canAddToDom ? MOCK_DOCUMENT : document;
+        let tag;
 
-          loadResource({ indexedDBAccess: db, url, immediate: false, isBinary })
-            .then(({ resource }) => {
-              /* resource already cached */
-              tag = documentTarget.createElement(staticAttributes.tagName);
+        loadResource({ indexedDBAccess: db, url, immediate: false, isBinary })
+          .then(({ resource }) => {
+            /* resource already cached */
+            tag = documentTarget.createElement(staticAttributes.tagName);
 
-              let { content } = resource;
-              if (type === "js") {
-	              let onLoadScript = "";
-              	if (userAttributes["onload"]) {
-		              onLoadScript = `/*--- capp-cache onload handler---*/\n${userAttributes["onload"]}`;
-	              }
-	              content = `//# sourceURL=${url}\n${content}\n${onLoadScript}`;
+            let { content } = resource;
+            if (type === "js") {
+              let onLoadScript = "";
+              if (userAttributes["onload"]) {
+                onLoadScript = `/*--- capp-cache onload handler---*/\n${userAttributes["onload"]}`;
               }
-              staticAttributes.setElementContentFunc(tag, documentTarget, content);
-              tag.setAttribute("data-cappcache-src", url);
-            })
-            .catch(e => {
+              content = `//# sourceURL=${url}\n${content}\n${onLoadScript}`;
+            }
+            staticAttributes.setElementContentFunc(tag, documentTarget, content, resourceManifestObj);
+            tag.setAttribute("data-cappcache-src", url);
+          })
+          .catch(e => {
+            if (e === null) {
+              //there is no error, the resource is simply not in cache
               /* resource is not in cache */
               let tagType = staticAttributes.tagName;
               if (staticAttributes.tagNameWhenNotInline !== undefined) {
@@ -69,37 +84,45 @@ export function load({ resources = [], document = window.document }, { syncCache
                 staticAttributes.attributes = staticAttributes.attributesWhenNotInline;
               }
               tag = documentTarget.createElement(tagType);
-              tag.setAttribute(staticAttributes.contentFetchKey, url);
+              if (staticAttributes.alwaysCallSetContent) {
+                staticAttributes.setElementContentFunc(tag, documentTarget, undefined, resourceManifestObj);
+              }
+              if (staticAttributes.contentFetchKey) {
+                tag.setAttribute(staticAttributes.contentFetchKey, url);
+              }
               tag.async = !!userAttributes["async"];
-            })
-            .then(() => {
-              /* All types of tags, inline and non inline */
-              Object.keys(userAttributes).forEach(attribute => {
-              	if (attribute!== "async") {
-		              tag.setAttribute(attribute, userAttributes[attribute]);
-	              }
-              });
-              Object.keys(staticAttributes.attributes).forEach(attribute => {
-                tag.setAttribute(attribute, staticAttributes.attributes[attribute]);
-              });
-	            loadedResources.push({ url });
-              documentTarget[target].appendChild(tag);
-            })
-            .catch(err => {
-              lastErr = err;
-            })
-            .then(() => {
-              if (index === orderedResources.length - 1) {
-                if (lastErr !== undefined) {
-                  error(`Error while loading resources ${lastErr}`);
-                  reject(lastErr);
-                } else {
-                  resolve();
-                }
+            } else {
+              error(`error trying to lroad resource ${e}`);
+              return Promise.reject();
+            }
+          })
+          .then(() => {
+            /* All types of tags, inline and non inline */
+            Object.keys(userAttributes).forEach(attribute => {
+              if (attribute !== "async") {
+                tag.setAttribute(attribute, userAttributes[attribute]);
               }
             });
-        }
-      );
+            Object.keys(staticAttributes.attributes).forEach(attribute => {
+              tag.setAttribute(attribute, staticAttributes.attributes[attribute]);
+            });
+            loadedResources.push({ url });
+            documentTarget[target].appendChild(tag);
+          })
+          .catch(err => {
+            lastErr = err;
+          })
+          .then(() => {
+            if (index === resources.length - 1) {
+              if (lastErr !== undefined) {
+                error(`Error while loading resources ${lastErr}`);
+                reject(lastErr);
+              } else {
+                resolve();
+              }
+            }
+          });
+      });
     });
   });
 }
@@ -122,7 +145,7 @@ export function getResourceUri({ url, isBase64Text = false, isBinary = true }) {
         if (isBinary) {
           return URL.createObjectURL(content);
         } else {
-          return `data:${contentType}${isBase64Text ? ";base64" :  ""},${isBase64Text ? btoa(content) : content}`;
+          return `data:${contentType}${isBase64Text ? ";base64" : ""},${isBase64Text ? btoa(content) : content}`;
         }
       })
       .then(dataUrl => {

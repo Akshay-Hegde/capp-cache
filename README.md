@@ -38,10 +38,14 @@ The supported properties for each resource entry are:
 Property  | description                                                 | type                 | default
 ----------|-------------------------------------------------------------|----------------------|-----------
 url       | mandatory. The url of the resource from which it is fetched | URL                  |
-type      | type of resource. js and css will be added to the DOM unless you specify the cacheOnly flag. blob will only be cached and available in the cache.                                            | "js","css","blob"    | "js"
-target    | parent element of the resource                              | "head", "body"       | "head"
-attributes| A key / value list of attributes to set on the tag element  | Object               |
+type      | type of resource. js and css will be added to the DOM unless you specify the cacheOnly flag. blob will only be cached and available in the cache.                                            | js,css,link,blob,fontface    | js
+target    | parent element of the resource                              | head, body       | head
+attributes| A key / value list of attributes to set on the tag element  | object               |
 cacheOnly | sync the script to the database, but don't append it to the DOM. Use to ensure a resource is in the cache for future use | manifest |
+format    | **[fontface only]** the format of the font file that will be cached | string | woff2
+localFontFamily | **[fontface only]** a string of local font-family names that will be specified using `local(...)` before the cached url. | string | 
+fallbackUrls | **[fontface only]** a list of font file urls that will be used as fallback. Those urls will not be cached. | array of `{url, format}` | 
+fontAttributes | **[fontface only]** a list of key/value attributes that are applied to the generated `@font-face` string, such as `font-weight` | object
 
 You will need to have your `index.html` file and this library cached in order to allow it to work offline and get optimal performance. The recommended way is to create a tiny App Cache manifest to store those just those two files.
 By default, Capp Cache will try to fetch a file called `cappCacheManifest.json`.
@@ -95,6 +99,40 @@ index.html
 In your `index.html` file add a reference to that file: `<html manifest="manifest.appcache">`
 
 -----
+
+#### Working with web fonts (`@font-face`)
+Web fonts are usually loaded through css @font-face declaration. You will need to extract your font-face declaration from the css file, to capp-cache manifest. capp-cache will generate a `style` tag with a @font-face declaration. For example, the following manifest element:
+
+```json
+{
+      "type": "fontface",
+      "url": "https://fonts.gstatic.com/s/spectral/v1/He_vQncVabw6pF26p40JY3YhjbSpvc47ee6xR_80Hnw.woff2",
+      "format": "woff2",
+      "localFontFamily": [ "Spectral", "Spectral-Regular"],
+      "fallbackUrls": [{
+        "url":"https://fonts.gstatic.com/s/spectral/v1/56Lle1MfnFtd9zNafzmC3RkAz4rYn47Zy2rvigWQf6w.woff2",
+        "format":"woff2"
+      }],
+      "fontAttributes": {
+        "unicode-range": "U+0000-00FF, U+0131, U+0152-0153, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2212, U+2215",
+        "font-weight": "400",
+        "font-style": "normal",
+        "font-family": "'Spectral'"
+      }
+    }
+```
+will generate the following tag:
+
+```html
+@font-face {
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2212, U+2215;
+  font-weight: 400;
+  font-style: normal;
+  font-family: 'Spectral';
+  src: local('Spectral'), local('Spectral-Regular'), url(blob:http://localhost:9999/bfa7a806-9c87-4f03-93b8-11400e9a0764) format('woff2'),  url(https://fonts.gstatic.com/s/spectral/v1/56Lle1MfnFtd9zNafzmC3RkAz4rYn47Zy2rvigWQf6w.woff2) format('woff2');
+}
+```
+
 
 
 ## API

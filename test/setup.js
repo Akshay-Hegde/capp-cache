@@ -4,6 +4,9 @@ beforeEach(() => {
   global.console.log = jest.fn();
   global.console.warn = jest.fn();
   global.console.error = jest.fn();
+  global.URL = {
+    createObjectURL: jest.fn(() => "mock_object_url"),
+  };
   jest.clearAllMocks();
 });
 

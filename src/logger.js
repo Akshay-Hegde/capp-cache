@@ -4,11 +4,11 @@ export const LOG_LEVELS = {
   error: 3,
 };
 
-let _logLevel = LOG_LEVELS.warn;
+let _logLevelIndex = LOG_LEVELS.warn;
 
-const logCommand = (level, idx, args) => {
-  if (idx >= _logLevel) {
-    console[level].apply(console, args);
+const logCommand = (levelName, levelIndex, args) => {
+  if (levelIndex >= _logLevelIndex) {
+    console[levelName].apply(console, args);
   }
 };
 
@@ -23,5 +23,5 @@ export function error() {
 }
 
 export const setLogLevel = logLevel => {
-  _logLevel = logLevel;
+  _logLevelIndex = logLevel;
 };

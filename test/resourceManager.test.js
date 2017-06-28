@@ -33,6 +33,8 @@ const getTag = type => {
       return cssTag;
     case "link":
       return linkTag;
+    case "fontface":
+      return scriptTag;
     default:
       console.error(`unable to find type ${type}`);
       return null;
@@ -186,6 +188,69 @@ it("adds tagNameWhenNotInline attributes when the element is not inline", async 
   });
   await jest.runAllTimers();
   expect(linkTag.setAttribute.mock.calls.sort()).toMatchObject([["href", "dummy.url1"], ["rel", "stylesheet"]].sort());
+});
+it("adds fontface element when there is no cache", async () => {
+  scriptTag.setAttribute.mockClear();
+  await load({
+    document,
+    resources: [
+      {
+        type: "fontface",
+        url: "https://fonts.gstatic.com/s/spectral/v1/He_vQncVabw6pF26p40JY3YhjbSpvc47ee6xR_80Hnw.woff2",
+        format: "woff2",
+        localFontFamily: ["Spectral", "Spectral-Regular"],
+        fallbackUrls: [
+          {
+            url: "https://fonts.gstatic.com/s/spectral/v1/56Lle1MfnFtd9zNafzmC3RkAz4rYn47Zy2rvigWQf6w.woff2",
+            format: "woff2",
+          },
+        ],
+        fontAttributes: {
+          "unicode-range":
+            "U+0000-00FF, U+0131, U+0152-0153, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2212, U+2215",
+          "font-weight": "400",
+          "font-style": "normal",
+          "font-family": "'Spectral'",
+        },
+      },
+    ],
+  });
+  await jest.runAllTimers();
+  expect(cssTag.innerHTML).toContain("Spectral");
+  expect(document.head.appendChild).toHaveBeenCalledTimes(1);
+});
+it("adds fontface element when there is cache", async () => {
+  await scriptTag.setAttribute.mockClear();
+  const resource = {
+    type: "fontface",
+    url: "https://fonts.gstatic.com/s/spectral/v1/He_vQncVabw6pF26p40JY3YhjbSpvc47ee6xR_80Hnw.woff2",
+    format: "woff2",
+    localFontFamily: ["Spectral", "Spectral-Regular"],
+    fallbackUrls: [
+      {
+        url: "https://fonts.gstatic.com/s/spectral/v1/56Lle1MfnFtd9zNafzmC3RkAz4rYn47Zy2rvigWQf6w.woff2",
+        format: "woff2",
+      },
+    ],
+    fontAttributes: {
+      "unicode-range":
+        "U+0000-00FF, U+0131, U+0152-0153, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2212, U+2215",
+      "font-weight": "400",
+      "font-style": "normal",
+      "font-family": "'Spectral'",
+    },
+  };
+  await load({
+    document,
+    resources: [{ ...resource, cacheOnly: true }],
+  });
+  await jest.runAllTimers();
+  await load({
+    document,
+    resources: [resource],
+  });
+  expect(cssTag.innerHTML).toContain("mock_object_url");
+  expect(document.head.appendChild).toHaveBeenCalledTimes(1);
 });
 it("adds the tags to the appropriate target");
 it("appends the correct tag type");

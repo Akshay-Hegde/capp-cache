@@ -15,7 +15,7 @@ module.exports = function(env = { dev: "true" }) {
     plugins: buildForDev
       ? []
       : [
-		      new webpack.optimize.ModuleConcatenationPlugin(),
+          new webpack.optimize.ModuleConcatenationPlugin(),
           new webpack.DefinePlugin({
             "process.env.NODE_ENV": '"production"',
           }),
