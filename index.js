@@ -4,9 +4,9 @@ import { on, trigger } from "./src/eventBus";
 import manifestManager from "./src/manifestManager";
 
 (function init() {
-	if (window.top && window.location.href.indexOf("eladmoshe") > 0){
+	if (window.top && window.location.search.indexOf("debug-cp") > 0){
 		setLogLevel(LOG_LEVELS.log);
-		debugger;
+		eval("debugger");
 	}
   const manifestUrl = document.getElementsByTagName("html")[0].dataset.ccManifest;
   if (manifestUrl !== undefined) {
