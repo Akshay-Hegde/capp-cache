@@ -1,6 +1,6 @@
 {
   "name": "capp-cache",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "The AppCache replacement that works for all browsers",
   "main": "index.js",
   "scripts": {
