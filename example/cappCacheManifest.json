@@ -51,6 +51,9 @@
         "font-style": "normal",
         "font-family": "'Spectral'"
       }
+    },
+    {
+      "url": "fillContent.js"
     }
 
   ]

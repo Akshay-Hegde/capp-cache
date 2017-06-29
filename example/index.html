@@ -58,22 +58,15 @@
 
 					},
 				],
-			}), 1000);
+			}), 0);
 			window.cappCache.on('manifestUpdated', window.location.reload);
 			window.cappCache.setLogLevel(window.cappCache.LOG_LEVELS.log);
     </script>
 </head>
 <body class="capp-cache">
 <div id="container">
-    <img id="capp-cache-img"/>
     <img id="capp-cache-img2"/>
     <script>
-			cappCache
-				.getResourceUri({ url: "https://pbs.twimg.com/media/DBiSlwrXUAA4Ko4.jpg", isBinary: true })
-				.then(dataUri => {
-					document.getElementById("capp-cache-img").setAttribute("src", dataUri)
-				});
-
 			cappCache
 				.getResourceUri({ url: "../resources/logos-cupcake.svg", isBinary: false })
 				.then(dataUri => {
@@ -81,11 +74,7 @@
 				});
 
     </script>
-    <h1>Thanks for checking out CappCache!</h1>
-    <p>Open your dev tools console to check what's happening under the hood.</p>
-    <p>Take a look at the elements panel. All scripts and style tags are added by CappCache.
-        After first load turn off your connectivity and reload, everything will still work.
-    </p>
+    <div id="content"></div>
 </div>
 </body>
 </html>

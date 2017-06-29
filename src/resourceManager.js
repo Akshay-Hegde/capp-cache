@@ -1,4 +1,4 @@
-import { error } from "./logger";
+import { error, log } from "./logger";
 import indexedDBAccess from "./indexedDBAccess";
 import tagPropertiesMap from "./tagPropertiesMap";
 import { loadResource, getCachedFiles } from "./resourceLoader";
@@ -112,14 +112,17 @@ export function load({ resources = [], document = window.document }, { syncCache
               tag.setAttribute(attribute, staticAttributes.attributes[attribute]);
             });
             loadedResources.push({ url });
-	          tagsReadyToBeAdded.push({ target, tag });
+	          tagsReadyToBeAdded.push({ target, tag, url });
           })
           .catch(err => {
             lastErr = err;
           })
           .then(() => {
             if (index === resources.length - 1) {
-	            tagsReadyToBeAdded.forEach(({ target, tag }) => documentTarget[target].appendChild(tag));
+	            tagsReadyToBeAdded.forEach(({ target, tag, url }) => {documentTarget[target].appendChild(tag)
+		            log(`%c added [${url}] to the ${target}`,"color: blue");
+	            });
+
               if (lastErr !== undefined) {
                 error(`Error while loading resources ${lastErr}`);
                 reject(lastErr);
