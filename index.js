@@ -4,9 +4,8 @@ import { on, trigger } from "./src/eventBus";
 import manifestManager from "./src/manifestManager";
 
 (function init() {
-	if (window.top && window.location.search.indexOf("debug-cp") > 0){
+	if (window.location.search.indexOf("debug-cp") || (window.top && window.top.location.search.indexOf("debug-cp") > 0)){
 		setLogLevel(LOG_LEVELS.log);
-		eval("debugger");
 	}
   const manifestUrl = document.getElementsByTagName("html")[0].dataset.ccManifest;
   if (manifestUrl !== undefined) {

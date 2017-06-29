@@ -47,6 +47,7 @@ export function load({ resources = [], document = window.document }, { syncCache
 	    sortResources(resources);
       let lastErr = undefined;
 
+	    const tagsReadyToBeAdded = [];
       resources.forEach((resourceManifestObj, index) => {
         let { url, type = "js", target = "head", attributes = {}, cacheOnly = false, isBinary } = resourceManifestObj;
         const userAttributes = attributes;
@@ -96,7 +97,7 @@ export function load({ resources = [], document = window.document }, { syncCache
               }
               tag.async = !!userAttributes["async"];
             } else {
-              error(`error trying to lroad resource ${e}`);
+              error(`error trying to load resource ${e}`);
               return Promise.reject();
             }
           })
@@ -111,13 +112,14 @@ export function load({ resources = [], document = window.document }, { syncCache
               tag.setAttribute(attribute, staticAttributes.attributes[attribute]);
             });
             loadedResources.push({ url });
-            documentTarget[target].appendChild(tag);
+	          tagsReadyToBeAdded.push({ target, tag });
           })
           .catch(err => {
             lastErr = err;
           })
           .then(() => {
             if (index === resources.length - 1) {
+	            tagsReadyToBeAdded.forEach(({ target, tag }) => documentTarget[target].appendChild(tag));
               if (lastErr !== undefined) {
                 error(`Error while loading resources ${lastErr}`);
                 reject(lastErr);
