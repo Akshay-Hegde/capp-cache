@@ -252,6 +252,40 @@ it("adds fontface element when there is cache", async () => {
   expect(cssTag.innerHTML).toContain("mock_object_url");
   expect(document.head.appendChild).toHaveBeenCalledTimes(1);
 });
+describe("sorts the manifest", () => {
+	const {sortResources} = require("../src/resourceManager");
+	const getIndexOf = name => resources.findIndex(r => r.name === name);
+	const resources = [
+		
+		//should move to the bottom since it has cache only
+		{ type: "js", name: "firstCacheOnly", cacheOnly: true },
+		{ type: "js", name: "secondCacheOnly", cacheOnly: true },
+
+		{ type: "js", name: "firstRegularScript", cacheOnly: false },
+		{ type: "js", name: "secondRegularScript", cacheOnly: false },
+		{ type: "js", name: "thirdRegularScript", cacheOnly: false },
+
+		//should move to the top since this is fontface
+		{ type: "fontface", name: "firstFontFace", cacheOnly: false },
+		{ type: "fontface", name: "secondFontFace", cacheOnly: false },
+	];
+	sortResources(resources);
+	it("sorts it using stable sort, so that the order of the manifest is maintained", () => {
+		expect(getIndexOf("firstCacheOnly")).toBeLessThan(getIndexOf("secondCacheOnly"));
+		expect(getIndexOf("firstRegularScript")).toBeLessThan(getIndexOf("secondRegularScript"));
+		expect(getIndexOf("secondRegularScript")).toBeLessThan(getIndexOf("thirdRegularScript"));
+		expect(getIndexOf("firstFontFace")).toBeLessThan(getIndexOf("secondFontFace"));
+
+	});
+	it("places fontface at the beginning of the list", () => {
+		expect(getIndexOf("firstFontFace")).toBe(0);
+		expect(getIndexOf("secondFontFace")).toBe(1);
+	});
+	it("places cacheOnly at the bottom of the list", () => {
+		expect(getIndexOf("firstCacheOnly")).toBe(resources.length - 2);
+		expect(getIndexOf("secondCacheOnly")).toBe(resources.length - 1);
+	});
+});
 it("adds the tags to the appropriate target");
 it("appends the correct tag type");
 it("prunes the DB from all files not loaded in that session");

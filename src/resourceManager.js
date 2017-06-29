@@ -16,6 +16,25 @@ const MOCK_DOCUMENT = {
 };
 const loadedResources = [];
 
+export function sortResources(resources){
+	resources.forEach((r, index) => r._index = index);
+	resources.sort((r1, r2) => {
+		if (r1.type === "fontface" && r2.type !== "fontface") {
+			return -1;
+		}
+		if (r2.type === "fontface" && r1.type !== "fontface") {
+			return 1;
+		}
+		if (r1.cacheOnly && !r2.cacheOnly) {
+			return 1;
+		}
+		if (r2.cacheOnly && !r1.cacheOnly) {
+			return -1;
+		}
+		return r1._index - r2._index;
+	});
+}
+
 /**
  * Loads a list of resources according to the manifest.
  * */
@@ -25,23 +44,7 @@ export function load({ resources = [], document = window.document }, { syncCache
       return resolve();
     }
     indexedDBAccess().then(db => {
-	    resources.forEach((r, index) => r._index = index);
-      resources.sort((r1, r2) => {
-        if (r1.type === "fontface" && r2.type !== "fontface") {
-          return -1;
-        }
-        if (r2.type === "fontface" && r1.type !== "fontface") {
-          return 1;
-        }
-        if (r1.cacheOnly && !r2.cacheOnly) {
-          return 1;
-        }
-        if (r2.cacheOnly && !r1.cacheOnly) {
-          return -1;
-        }
-        return r1._index - r2._index;
-      });
-	    console.log(`resources: ${JSON.stringify(resources,null, 4)}`);
+	    sortResources(resources);
       let lastErr = undefined;
 
       resources.forEach((resourceManifestObj, index) => {
