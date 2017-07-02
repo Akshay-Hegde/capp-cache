@@ -33,6 +33,7 @@ export function sortResources(resources) {
     }
     return r1._index - r2._index;
   });
+	resources.forEach((r, index) => (r._index = index));
 }
 
 /**
@@ -114,18 +115,21 @@ export function load({ resources = [], document = window.document }, { syncCache
             });
             loadedResources.push({ url });
             if (!cacheOnly) {
-	            tagsReadyToBeAdded.push({ target, tag, url });
+              tagsReadyToBeAdded[resourceManifestObj._index] = { domTarget: documentTarget[target], tag, url };
             }
           })
           .catch(err => {
             lastErr = err;
           })
           .then(() => {
-	          ++parsedTagsCount;
+            ++parsedTagsCount;
             if (parsedTagsCount === resources.length) {
-              tagsReadyToBeAdded.forEach(({ target, tag, url }) => {
-                documentTarget[target].appendChild(tag);
-                log(`%c added [${url}] to the ${target}`, "color: blue");
+              tagsReadyToBeAdded.forEach(tagData => {
+              	if (tagData){
+		              const { domTarget, tag, url } = tagData;
+		              domTarget.appendChild(tag);
+		              log(`%c added [${url}] to the ${target}`, "color: blue");
+	              }
               });
 
               if (lastErr !== undefined) {
