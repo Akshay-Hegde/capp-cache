@@ -113,7 +113,9 @@ export function load({ resources = [], document = window.document }, { syncCache
               tag.setAttribute(attribute, staticAttributes.attributes[attribute]);
             });
             loadedResources.push({ url });
-            tagsReadyToBeAdded.push({ target, tag, url });
+            if (!cacheOnly) {
+	            tagsReadyToBeAdded.push({ target, tag, url });
+            }
           })
           .catch(err => {
             lastErr = err;
