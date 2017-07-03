@@ -43,7 +43,7 @@ target    | parent element of the resource                              | head, 
 attributes| A key / value list of attributes to set on the tag element  | object               |
 cacheOnly | sync the script to the database, but don't append it to the DOM. Use to ensure a resource is in the cache for future use | manifest |
 format    | **[fontface only]** the format of the font file that will be cached | string | woff2
-localFontFamily | **[fontface only]** a string of local font-family names that will be specified using `local(...)` before the cached url. | string | 
+localFontFamily | **[fontface only]** a string array of local font-family names that will be specified using `local(...)` before the cached url. | [string] | 
 fallbackUrls | **[fontface only]** a list of font file urls that will be used as fallback. Those urls will not be cached. | array of `{url, format}` | 
 fontAttributes | **[fontface only]** a list of key/value attributes that are applied to the generated `@font-face` string, such as `font-weight` | object
 

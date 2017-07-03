@@ -57,9 +57,9 @@ export default {
       Object.keys(fontAttributes).forEach(attribute => {
         attributesString += `\n  ${attribute}: ${fontAttributes[attribute]};`;
       });
-      let urlString = "src: ";
+      let srcString = "src: ";
       if (localFontFamily) {
-        urlString = localFontFamily.reduce((str, url) => `${str}local('${url}'), `, urlString);
+        srcString = localFontFamily.reduce((str, url) => `${str}local('${url}'), `, srcString);
       }
       let actualUrl;
       if (content !== undefined) {
@@ -67,15 +67,17 @@ export default {
       } else {
         actualUrl = originalUrl;
       }
-      urlString += `url(${actualUrl}) format('${format}')`;
-      if (fallbackUrls) {
-        urlString = fallbackUrls.reduce(
-          (str, { url, format = "woff2" }) => `\n  ${str} url(${url}) format('${format}'), `,
-          `${urlString}, `
-        );
-        urlString = urlString.substring(0, urlString.length - 2); //remove last comma
+      if (srcString){
+	      srcString += `url(${actualUrl}) format('${format}')`;
       }
-      tag.innerHTML = "@font-face {" + `${attributesString}` + `${urlString};` + `\n}`;
+      if (fallbackUrls) {
+        srcString = fallbackUrls.reduce(
+          (str, { url, format = "woff2" }) => `\n  ${str} url(${url}) format('${format}'), `,
+          `${srcString}, `
+        );
+        srcString = srcString.substring(0, srcString.length - 2); //remove last comma
+      }
+      tag.innerHTML = "@font-face {" + `${attributesString}` + `${srcString};` + `\n}`;
     },
     canAddToDom: true,
     alwaysCallSetContent: true,

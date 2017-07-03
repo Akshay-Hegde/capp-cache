@@ -1,7 +1,12 @@
-import { error, log } from "./logger";
+import { error, log, perfMark, perfMarkEnd } from "./logger";
 import indexedDBAccess from "./indexedDBAccess";
 import tagPropertiesMap from "./tagPropertiesMap";
 import { loadResource, getCachedFiles } from "./resourceLoader";
+
+const SCRIPT_LOAD_START = "Script load start";
+const ADD_SCRIPT_START = "Add script start";
+const ADD_SCRIPT_END = "Add script end";
+
 
 // We use this mock document when loading assets with "cacheOnly" property. this keeps code consistent (no "if cacheOnly... else... ),
 // while avoiding performance hit of adding unnecessary elements to the DOM when we just want to pre-cache the elements
@@ -40,6 +45,7 @@ export function sortResources(resources) {
  * Loads a list of resources according to the manifest.
  * */
 export function load({ resources = [], document = window.document }, { syncCacheOnly = false } = {}) {
+	perfMark(SCRIPT_LOAD_START);
   return new Promise((resolve, reject) => {
     if (resources.length === 0) {
       return resolve();
@@ -52,6 +58,7 @@ export function load({ resources = [], document = window.document }, { syncCache
       let parsedTagsCount = 0;
       resources.forEach((resourceManifestObj, index) => {
         let { url, type = "js", target = "head", attributes = {}, cacheOnly = false, isBinary } = resourceManifestObj;
+	      perfMark(`load start ${url}`);
         const userAttributes = attributes;
         const staticAttributes = tagPropertiesMap[type];
         if (staticAttributes === undefined) {
@@ -117,6 +124,7 @@ export function load({ resources = [], document = window.document }, { syncCache
             if (!cacheOnly) {
               tagsReadyToBeAdded[resourceManifestObj._index] = { domTarget: documentTarget[target], tag, url };
             }
+	          perfMarkEnd(`load time ${url}`,`load start ${url}`, `load end ${url}`);
           })
           .catch(err => {
             lastErr = err;
@@ -124,6 +132,7 @@ export function load({ resources = [], document = window.document }, { syncCache
           .then(() => {
             ++parsedTagsCount;
             if (parsedTagsCount === resources.length) {
+	            perfMark(ADD_SCRIPT_START);
               tagsReadyToBeAdded.forEach(tagData => {
               	if (tagData){
 		              const { domTarget, tag, url } = tagData;
@@ -131,7 +140,7 @@ export function load({ resources = [], document = window.document }, { syncCache
 		              log(`%c added [${url}] to the ${target}`, "color: blue");
 	              }
               });
-
+	            perfMarkEnd(`Adding ${tagsReadyToBeAdded.length} resources to DOM`, ADD_SCRIPT_START, ADD_SCRIPT_END);
               if (lastErr !== undefined) {
                 error(`Error while loading resources ${lastErr}`);
                 reject(lastErr);
