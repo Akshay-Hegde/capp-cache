@@ -1,4 +1,4 @@
-import { log, error } from "./logger";
+import { log, error, perfMark, perfMarkEnd } from "./logger";
 import { id } from "./id";
 import { fetchResource } from "./network";
 
@@ -21,6 +21,7 @@ export const fetchAndSaveInCache = ({ url, indexedDBAccess, isBinary }) =>
   });
 
 export const loadResource = ({ indexedDBAccess, url, immediate = false, isBinary = false }) => {
+  perfMark(`loadResource ${url} start`);
   const fullUrl = id(url);
   const promise = new Promise((resolve, reject) => {
     indexedDBAccess
@@ -28,6 +29,7 @@ export const loadResource = ({ indexedDBAccess, url, immediate = false, isBinary
       .then(resource => {
         log(`resource ${fullUrl} was in cache`);
         resolve({ resource, fromCache: true });
+        perfMarkEnd(`loadResource ${url}`, `loadResource ${url} start`);
       })
       .catch(err => {
         log(

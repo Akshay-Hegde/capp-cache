@@ -23,26 +23,36 @@ export function error() {
   logCommand("error", 3, arguments);
 }
 
-const checkIfPerformanceAvailable = ()=> {perfAvailable = !!(LOG_LEVELS.log && window.performance && window.performance.measure)};
+const checkIfPerformanceAvailable = () => {
+  perfAvailable = !!(LOG_LEVELS.log && window.performance && window.performance.measure);
+};
 checkIfPerformanceAvailable();
 
-function perfMeasure(name, marker1, marker2){
-	_logLevelIndex === LOG_LEVELS.log && window.performance.measure(name, marker1, marker2);
+function perfMeasure(name, marker1, marker2) {
+  _logLevelIndex === LOG_LEVELS.log && window.performance.measure(name, marker1, marker2);
 }
 
 export function perfMark(marker) {
-	_logLevelIndex === LOG_LEVELS.log && window.performance.mark(marker);
+  _logLevelIndex === LOG_LEVELS.log && window.performance.mark(marker);
 }
 
-export function perfMarkEnd(name, marker1, marker2){
-	if (_logLevelIndex === LOG_LEVELS.log) {
-		const markerEnd = marker2 || (marker1 + " - end");
-		perfMark(markerEnd);
-		perfMeasure(name, marker1, markerEnd);
-	}
+export function perfMarkEnd(name, marker1, marker2) {
+  if (_logLevelIndex === LOG_LEVELS.log) {
+    const markerEnd = marker2 || marker1 + " - end";
+    perfMark(markerEnd);
+    perfMeasure(name, marker1, markerEnd);
+  }
 }
 
 export const setLogLevel = logLevel => {
   _logLevelIndex = logLevel;
-	checkIfPerformanceAvailable();
+  checkIfPerformanceAvailable();
 };
+
+const timers = {};
+export function logSince(timer, message) {
+  if (timers[timer] === undefined) {
+    timers[timer] = performance && performance.now();
+  }
+  log(`timing: (${performance.now() - timers[timer]}) ${message}`);
+}

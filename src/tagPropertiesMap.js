@@ -38,12 +38,14 @@ export default {
     },
     attributes: {},
     defaultToBinary: true,
+    allowLoadingOutOfOrder: true,
   },
   fontface: {
     tagName: "style",
     attributes: {
       type: "text/css",
     },
+    allowLoadingOutOfOrder: true,
     defaultToBinary: true,
     setElementContentFunc(tag, documentTarget, content, resourceManifestObj) {
       const {
@@ -67,8 +69,8 @@ export default {
       } else {
         actualUrl = originalUrl;
       }
-      if (srcString){
-	      srcString += `url(${actualUrl}) format('${format}')`;
+      if (srcString) {
+        srcString += `url(${actualUrl}) format('${format}')`;
       }
       if (fallbackUrls) {
         srcString = fallbackUrls.reduce(

@@ -1,12 +1,12 @@
-import { error, log, perfMark, perfMarkEnd } from "./logger";
+import { error, log, logSince, perfMark, perfMarkEnd } from "./logger";
 import indexedDBAccess from "./indexedDBAccess";
 import tagPropertiesMap from "./tagPropertiesMap";
 import { loadResource, getCachedFiles } from "./resourceLoader";
 
-const SCRIPT_LOAD_START = "Script load start";
-const ADD_SCRIPT_START = "Add script start";
-const ADD_SCRIPT_END = "Add script end";
+const RESOURCES_LOAD_START = "Resources load start";
 
+const WAITING = "waiting";
+const LOADED = "loaded";
 
 // We use this mock document when loading assets with "cacheOnly" property. this keeps code consistent (no "if cacheOnly... else... ),
 // while avoiding performance hit of adding unnecessary elements to the DOM when we just want to pre-cache the elements
@@ -38,14 +38,14 @@ export function sortResources(resources) {
     }
     return r1._index - r2._index;
   });
-	resources.forEach((r, index) => (r._index = index));
+  resources.forEach((r, index) => (r._index = index));
 }
 
 /**
  * Loads a list of resources according to the manifest.
  * */
 export function load({ resources = [], document = window.document }, { syncCacheOnly = false } = {}) {
-	perfMark(SCRIPT_LOAD_START);
+  perfMark(RESOURCES_LOAD_START);
   return new Promise((resolve, reject) => {
     if (resources.length === 0) {
       return resolve();
@@ -56,9 +56,9 @@ export function load({ resources = [], document = window.document }, { syncCache
 
       const tagsReadyToBeAdded = [];
       let parsedTagsCount = 0;
-      resources.forEach((resourceManifestObj, index) => {
+      resources.forEach(resourceManifestObj => {
         let { url, type = "js", target = "head", attributes = {}, cacheOnly = false, isBinary } = resourceManifestObj;
-	      perfMark(`load start ${url}`);
+        perfMark(`load start ${url}`);
         const userAttributes = attributes;
         const staticAttributes = tagPropertiesMap[type];
         if (staticAttributes === undefined) {
@@ -122,9 +122,31 @@ export function load({ resources = [], document = window.document }, { syncCache
             });
             loadedResources.push({ url });
             if (!cacheOnly) {
-              tagsReadyToBeAdded[resourceManifestObj._index] = { domTarget: documentTarget[target], tag, url };
+              let currPos = resourceManifestObj._index;
+              tagsReadyToBeAdded[currPos] = { state: WAITING, domTarget: documentTarget[target], tag, url };
+              if (
+                currPos === 0 ||
+                staticAttributes.allowLoadingOutOfOrder ||
+                userAttributes.async ||
+                (currPos > 0 &&
+                  tagsReadyToBeAdded[currPos - 1] !== undefined &&
+                  tagsReadyToBeAdded[currPos - 1].state === LOADED)
+              ) {
+                while (tagsReadyToBeAdded[currPos] !== undefined && tagsReadyToBeAdded[currPos].state === WAITING) {
+                  const { domTarget, tag, url } = tagsReadyToBeAdded[currPos];
+                  perfMark(url);
+                  setTimeout(() => {
+                    domTarget.appendChild(tag);
+                    log(`%c added [${url}] to the ${target}`, "color: blue");
+                    perfMarkEnd(`add to DOM ${url}`, url);
+                  });
+                  tagsReadyToBeAdded[currPos].state = LOADED;
+                  currPos++;
+                }
+              } else {
+                log(`skipping resource ${url} since the previous resource was not loaded yet`);
+              }
             }
-	          perfMarkEnd(`load time ${url}`,`load start ${url}`, `load end ${url}`);
           })
           .catch(err => {
             lastErr = err;
@@ -132,20 +154,12 @@ export function load({ resources = [], document = window.document }, { syncCache
           .then(() => {
             ++parsedTagsCount;
             if (parsedTagsCount === resources.length) {
-	            perfMark(ADD_SCRIPT_START);
-              tagsReadyToBeAdded.forEach(tagData => {
-              	if (tagData){
-		              const { domTarget, tag, url } = tagData;
-		              domTarget.appendChild(tag);
-		              log(`%c added [${url}] to the ${target}`, "color: blue");
-	              }
-              });
-	            perfMarkEnd(`Adding ${tagsReadyToBeAdded.length} resources to DOM`, ADD_SCRIPT_START, ADD_SCRIPT_END);
               if (lastErr !== undefined) {
                 error(`Error while loading resources ${lastErr}`);
                 reject(lastErr);
               } else {
                 resolve();
+	              perfMarkEnd("RESOURCES LOAD", RESOURCES_LOAD_START);
               }
             }
           });

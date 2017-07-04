@@ -9,24 +9,24 @@ const DUMMY2 = "dummy.url2";
 const DUMMY3 = "dummy.url3";
 
 const head = {
-	name: "HEAD",
+  name: "HEAD",
   appendChild: jest.fn(),
 };
 const body = {
-	name: "BODY",
+  name: "BODY",
   appendChild: jest.fn(),
 };
 const scriptTag = {
-	name: "SCRIPT",
+  name: "SCRIPT",
   setAttribute: jest.fn(),
   appendChild: jest.fn(),
 };
 const cssTag = {
-	name: "CSS",
+  name: "CSS",
   setAttribute: jest.fn(),
 };
 const linkTag = {
-	name: "LINK",
+  name: "LINK",
   setAttribute: jest.fn(),
 };
 
@@ -47,7 +47,7 @@ const getTag = type => {
 };
 
 const document = {
-	name: "mock testing document",
+  name: "mock testing document",
   createElement: jest.fn(type => getTag(type)),
   createTextNode: jest.fn(content => `mock script: ${content}`),
   head,
@@ -292,36 +292,38 @@ describe("sorts the manifest", () => {
 });
 
 it("handles complex script of both sync and async, with and without cache", async () => {
-	const manifestArgs = {
-		resources: [
-			{ url: DUMMY1, attributes: { attr1: true, attr2: "attr1 value" }, cacheOnly: true },
-			{ url: DUMMY2, attributes: { attr1: true, attr2: "attr2 value" } },
-			{ url: DUMMY3, attributes: { attr1: true, attr2: "attr2 value" } },
-		], document
-	};
-	await load(manifestArgs);
-	await jest.runAllTimers();
-	await load(manifestArgs);
+  const manifestArgs = {
+    resources: [
+      { url: DUMMY1, attributes: { attr1: true, attr2: "attr1 value" }, cacheOnly: true },
+      { url: DUMMY2, attributes: { attr1: true, attr2: "attr2 value" } },
+      { url: DUMMY3, attributes: { attr1: true, attr2: "attr2 value" } },
+    ],
+    document,
+  };
+  await load(manifestArgs);
   await jest.runAllTimers();
-	expect(head.appendChild).toHaveBeenCalledTimes(4);
+  await load(manifestArgs);
+  await jest.runAllTimers();
+  expect(head.appendChild).toHaveBeenCalledTimes(4);
 });
 it("adds the script in the correct order, according to the manifest", async () => {
-	const manifestArgs = {
-		resources: [
-			{ url: DUMMY1, attributes: { attr1: true, attr2: "attr1 value" }, cacheOnly: true },
-			{ url: DUMMY2, attributes: { attr1: true, attr2: "attr2 value" } },
-			{ url: DUMMY3, attributes: { attr1: true, attr2: "attr3 value" } },
-		], document
-	};
-	await load(manifestArgs);
-	await jest.runAllTimers();
-	await load(manifestArgs);
+  const manifestArgs = {
+    resources: [
+      { url: DUMMY1, attributes: { attr1: true, attr2: "attr1 value" }, cacheOnly: true },
+      { url: DUMMY2, attributes: { attr1: true, attr2: "attr2 value" } },
+      { url: DUMMY3, attributes: { attr1: true, attr2: "attr3 value" } },
+    ],
+    document,
+  };
+  await load(manifestArgs);
   await jest.runAllTimers();
-	const calls = scriptTag.setAttribute.mock.calls.filter(c=>(c[0]==="data-cappcache-src" || c[0]==="src"));
-	expect(calls[0][1] === DUMMY2);
-	expect(calls[1][1] === DUMMY3);
-	expect(calls[2][1] === DUMMY2);
-	expect(calls[3][1] === DUMMY3);
+  await load(manifestArgs);
+  await jest.runAllTimers();
+  const calls = scriptTag.setAttribute.mock.calls.filter(c => c[0] === "data-cappcache-src" || c[0] === "src");
+  expect(calls[0][1] === DUMMY2);
+  expect(calls[1][1] === DUMMY3);
+  expect(calls[2][1] === DUMMY2);
+  expect(calls[3][1] === DUMMY3);
 });
 it("adds the tags to the appropriate target");
 it("appends the correct tag type");
