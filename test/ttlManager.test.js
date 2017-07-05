@@ -5,8 +5,8 @@ jest.mock(
   "../src/indexedDBAccess",
   jest.fn(() => {
     const db = {
-      getResource: jest.fn(() => {}),
-      putResource: jest.fn(() => {}),
+      get: jest.fn(() => {}),
+      put: jest.fn(() => {}),
     };
     return Promise.resolve(db);
   })

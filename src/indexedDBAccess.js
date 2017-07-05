@@ -20,7 +20,7 @@ export default function() {
     return transaction.objectStore(STORE_NAME);
   };
 
-  idbWrapper.getResource = id =>
+  idbWrapper.get = id =>
     new Promise((resolve, reject) => {
       const request = store("readonly").get(id);
       request.onsuccess = event => {
@@ -29,6 +29,22 @@ export default function() {
         } else {
           log(`resource with id ${id} is not in the cache`);
           reject(null);
+        }
+      };
+      request.onerror = event => {
+        reject(event);
+      };
+    });
+
+  idbWrapper.exists = id =>
+    new Promise((resolve, reject) => {
+      const request = store("readonly").count(id);
+      request.onsuccess = e => {
+        const exists = e.target.result > 0;
+        if (exists) {
+          resolve({});
+        } else {
+          reject();
         }
       };
       request.onerror = event => {
@@ -50,7 +66,7 @@ export default function() {
       };
     });
 
-  idbWrapper.putResource = (id, { content, contentType }) =>
+  idbWrapper.put = (id, { content, contentType }) =>
     new Promise((resolve, reject) => {
       const objectStore = store();
       const putRequest = objectStore.put({

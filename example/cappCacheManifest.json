@@ -55,7 +55,14 @@
     },
     {
       "url": "fillContent.js"
+    },
+    {
+      "url": "favicon.ico",
+      "type":"link",
+      "attributes":{
+        "type":"image/png",
+        "rel":"shortcut icon"
+      }
     }
-
   ]
 }

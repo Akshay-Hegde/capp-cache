@@ -30,9 +30,7 @@ import manifestManager from "./src/manifestManager";
     error(`Unable to find attribute "data-cc-manifest" on the HTML tag, CappCache will not work`);
   }
   window.cappCache = {
-    loadResources(manifest, opts) {
-      load(manifest, opts);
-    },
+    loadResources : load,
     getResourceUri,
     revokeResourceUriForUrl,
     pruneDB,

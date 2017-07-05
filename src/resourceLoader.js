@@ -12,7 +12,7 @@ export const fetchAndSaveInCache = ({ url, indexedDBAccess, isBinary }) =>
       .then(result => {
         log(`successfully fetched resource ${url} to cache`);
         resolve(result);
-        indexedDBAccess.putResource(id(url), result);
+        indexedDBAccess.put(id(url), result);
       })
       .catch(e => {
         error(`failed to fetch resource ${url} from the web with error ${e.status}: ${e.statusText}`);
@@ -20,21 +20,25 @@ export const fetchAndSaveInCache = ({ url, indexedDBAccess, isBinary }) =>
       });
   });
 
-export const loadResource = ({ indexedDBAccess, url, immediate = false, isBinary = false }) => {
+export const loadResource = ({ indexedDBAccess, url, immediate = false, isBinary = false, cacheOnly = false }) => {
   perfMark(`loadResource ${url} start`);
   const fullUrl = id(url);
+  const method = cacheOnly ? "exists" : "get";
   const promise = new Promise((resolve, reject) => {
     indexedDBAccess
-      .getResource(fullUrl)
+      [method](fullUrl)
       .then(resource => {
         log(`resource ${fullUrl} was in cache`);
         resolve({ resource, fromCache: true });
-        perfMarkEnd(`loadResource ${url}`, `loadResource ${url} start`);
+        perfMarkEnd(`loadResource ${url}${cacheOnly ? " (cache only)" : ""}`, `loadResource ${url} start`);
       })
       .catch(err => {
-        log(
-          err ? `failed to fetch resource from cache ${fullUrl}. error: ${err}` : `resource ${fullUrl} was not in cache`
-        );
+      	if (err) {
+		      error(`failed to fetch resource from cache ${fullUrl}. error: ${err}`);
+		      return reject(err);
+	      } else {
+		      log(`resource ${fullUrl} was not in cache`);
+	      }
         if (immediate) {
           fetchAndSaveInCache({ url: fullUrl, indexedDBAccess, isBinary })
             .then(resource => resolve({ resource, fromCache: false }))

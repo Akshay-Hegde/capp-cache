@@ -3,6 +3,7 @@ const resetDB = () => {
 };
 
 const db = { uid: `${Math.random().toString().substr(2, 6)}` };
+const registerCall = jest.fn(funcName=>{});
 
 const mockIndexedDb = {
   target: {
@@ -30,8 +31,23 @@ const mockIndexedDb = {
                     putReq.onsuccess();
                   });
                 }
+	              registerCall("put");
                 return putReq;
               },
+	            count(id) {
+		            const content = db[storeName][id] ? { content: db[storeName][id] } : null;
+		            const result = {
+			            target: {
+				            result: content === null ? 0 : 1,
+			            },
+		            };
+		            console.log(`mockIDB: count resource "${id}", result "${content}"`);
+		            process.nextTick(() => {
+			            getReq.onsuccess(result);
+		            });
+		            registerCall("count");
+		            return getReq;
+	            },
               get(id) {
                 const content = db[storeName][id] ? { content: db[storeName][id] } : null;
                 const result = {
@@ -44,6 +60,7 @@ const mockIndexedDb = {
                   console.log(`mockIDB: get resource"${id}", content "${content}", calling on success `);
                   getReq.onsuccess(result);
                 });
+	              registerCall("get");
                 return getReq;
               },
               delete(id) {
@@ -53,6 +70,7 @@ const mockIndexedDb = {
                   db[storeName][id] = undefined;
                   process.nextTick(() => deleteReq.onsuccess());
                 }
+	              registerCall("delete");
                 return deleteReq;
               },
               openCursor() {
@@ -71,6 +89,7 @@ const mockIndexedDb = {
                   },
                 });
                 process.nextTick(() => openCursorReq.onsuccess(nextResult()));
+	              registerCall("openCursor");
                 return openCursorReq;
               },
             };
@@ -92,4 +111,5 @@ export const mock = {
     return db["RESOURCES"];
   },
   resetDB,
+	registerCall,
 };

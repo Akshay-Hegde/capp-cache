@@ -72,7 +72,7 @@ export function load({ resources = [], document = window.document }, { syncCache
         const documentTarget = cacheOnly || syncCacheOnly || !staticAttributes.canAddToDom ? MOCK_DOCUMENT : document;
         let tag;
 
-        loadResource({ indexedDBAccess: db, url, immediate: false, isBinary })
+        loadResource({ indexedDBAccess: db, url, immediate: false, isBinary, cacheOnly: cacheOnly || syncCacheOnly })
           .then(({ resource }) => {
             /* resource already cached */
             tag = documentTarget.createElement(staticAttributes.tagName);
@@ -159,7 +159,7 @@ export function load({ resources = [], document = window.document }, { syncCache
                 reject(lastErr);
               } else {
                 resolve();
-	              perfMarkEnd("RESOURCES LOAD", RESOURCES_LOAD_START);
+                perfMarkEnd("RESOURCES LOAD", RESOURCES_LOAD_START);
               }
             }
           });

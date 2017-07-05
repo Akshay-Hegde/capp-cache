@@ -18,11 +18,11 @@ const scheduleFlush = () => {
           const urls = pendingChanges[storeName];
           urls.forEach(url => {
             db
-              .getResource(url)
+              .get(url)
               .then(resource => {
                 const newResource = { ...resource, timestamp: now };
                 log(`updating timestamp for ${url} from ${resource.timestamp} to ${now}`);
-                return db.putResource(newResource.id, newResource);
+                return db.put(newResource.id, newResource);
               })
               .catch(err => error(err));
           });

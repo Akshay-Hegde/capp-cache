@@ -15,46 +15,46 @@ it("opens indexeddb connection", async () => {
 
 it("saves resource", async () => {
   const db = await idbAccess(mockIDB);
-  await db.putResource("a", "mock content");
+  await db.put("a", "mock content");
 });
 
 it("fetches previously saved resource", async () => {
   const db = await idbAccess(mockIDB);
-  await db.putResource(ID1, { content: CONTENT_VALUE, contentType: "dummy" });
-  const { content } = await db.getResource(ID1);
+  await db.put(ID1, { content: CONTENT_VALUE, contentType: "dummy" });
+  const { content } = await db.get(ID1);
   expect(content).toEqual(CONTENT_VALUE);
 });
 
 it("removes previously saved resource", async () => {
   const db = await idbAccess(mockIDB);
-  await db.putResource(ID1, CONTENT_VALUE);
+  await db.put(ID1, CONTENT_VALUE);
   await db.removeResource(ID1);
-  await expect(db.getResource(ID1)).rejects.toEqual(NOT_FOUND);
+  await expect(db.get(ID1)).rejects.toEqual(NOT_FOUND);
 });
 it("prunes resources that are not in the id list", async () => {
   const db = await idbAccess(mockIDB);
-  await db.putResource(ID1, { content: CONTENT_VALUE, contentType: DUMMY_TYPE });
-  await db.putResource(ID2, { content: CONTENT_VALUE, contentType: DUMMY_TYPE });
+  await db.put(ID1, { content: CONTENT_VALUE, contentType: DUMMY_TYPE });
+  await db.put(ID2, { content: CONTENT_VALUE, contentType: DUMMY_TYPE });
   await db.pruneDb([]);
 
-  expect(db.getResource(ID1)).rejects.toEqual(NOT_FOUND);
-  expect(db.getResource(ID2)).rejects.toEqual(NOT_FOUND);
+  expect(db.get(ID1)).rejects.toEqual(NOT_FOUND);
+  expect(db.get(ID2)).rejects.toEqual(NOT_FOUND);
 });
 it("doesn`t prune resources that are in the id list", async () => {
   const db = await idbAccess(mockIDB);
-  await db.putResource(ID1, { content: CONTENT_VALUE, contentType: DUMMY_TYPE });
-  await db.putResource(ID2, { content: CONTENT_VALUE, contentType: DUMMY_TYPE });
+  await db.put(ID1, { content: CONTENT_VALUE, contentType: DUMMY_TYPE });
+  await db.put(ID2, { content: CONTENT_VALUE, contentType: DUMMY_TYPE });
   await db.pruneDb([ID1]);
-  const resource1 = await db.getResource(ID1);
+  const resource1 = await db.get(ID1);
   await expect(resource1.content).toBe(CONTENT_VALUE);
-  await expect(db.getResource(ID2)).rejects.toBeDefined();
+  await expect(db.get(ID2)).rejects.toBeDefined();
 });
 
 it(`prunes all resources when pruneDB called without any parameter`, async () => {
   const db = await idbAccess(mockIDB);
-  await db.putResource(ID1, CONTENT_VALUE);
-  await db.putResource(ID2, CONTENT_VALUE);
+  await db.put(ID1, CONTENT_VALUE);
+  await db.put(ID2, CONTENT_VALUE);
   await db.pruneDb();
-  await expect(db.getResource(ID1)).rejects.toEqual(NOT_FOUND);
-  await expect(db.getResource(ID2)).rejects.toEqual(NOT_FOUND);
+  await expect(db.get(ID1)).rejects.toEqual(NOT_FOUND);
+  await expect(db.get(ID2)).rejects.toEqual(NOT_FOUND);
 });
