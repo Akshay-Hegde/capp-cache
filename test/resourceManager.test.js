@@ -1,6 +1,8 @@
+jest.mock("../src/Self", () => require("./mocks/mockSelf").default);
 jest.mock("../src/network", () => require("./mocks/mockNetwork"));
 jest.mock("../src/id", () => ({ id: id => id }));
-jest.mock("../src/indexedDB", () => require("./mocks/mockIDB").mock);
+jest.mock("../src/IndexedDB", () => require("./mocks/mockIDB").mock);
+jest.mock("../src/Worker", () => require("./mocks/mockWorker"));
 const { load } = require("../src/resourceManager");
 const mockIDB = require("./mocks/mockIDB").mock;
 
@@ -79,7 +81,7 @@ it("fetches files to cache according to manifest", async () => {
 });
 it("adds elements to head by default", async () => {
   await load({ resources: [{ url: DUMMY1 }, { url: DUMMY2 }], document });
-	await jest.runAllTimers();
+  await jest.runAllTimers();
   expect(head.appendChild).toHaveBeenCalledTimes(2);
 });
 it("applies the properties of a resource from the manifest", async () => {
@@ -106,8 +108,8 @@ it("does not append to the dom cacheOnly resources", async () => {
   expect(head.appendChild).not.toHaveBeenCalled();
 });
 it("does not get the actual resource for cacheonly resources", async () => {
-	await load({ resources: [{ url: DUMMY1, cacheOnly: true }], document });
-	expect(mockIDB.registerCall.mock.calls[0]).toEqual(["count"]);
+  await load({ resources: [{ url: DUMMY1, cacheOnly: true }], document });
+  expect(mockIDB.registerCall.mock.calls[0]).toEqual(["count"]);
 });
 it("downloads to the cache cacheOnly resources", async () => {
   await load({ resources: [{ url: DUMMY1, cacheOnly: true }], document });
@@ -260,7 +262,7 @@ it("adds fontface element when there is cache", async () => {
     document,
     resources: [resource],
   });
-	await jest.runAllTimers();
+  await jest.runAllTimers();
   expect(cssTag.innerHTML).toContain("mock_object_url");
   expect(document.head.appendChild).toHaveBeenCalledTimes(1);
 });
@@ -313,22 +315,22 @@ it("handles complex script of both sync and async, with and without cache", asyn
   expect(head.appendChild).toHaveBeenCalledTimes(4);
 });
 it("uses count API on IDB when loadResources is called with syncCacheOnly=true", async () => {
-	const manifestArgs = {
-		resources: [
-			{ url: DUMMY1, attributes: { attr1: true, attr2: "attr1 value" }, cacheOnly: true },
-			{ url: DUMMY2, attributes: { attr1: true, attr2: "attr2 value" } },
-			{ url: DUMMY3, attributes: { attr1: true, attr2: "attr2 value" } },
-		],
-		document,
-	};
-	load(manifestArgs, { syncCacheOnly: true });
-	await jest.runAllTimers();
-	load(manifestArgs, { syncCacheOnly: true });
-	await jest.runAllTimers();
-	for (let i = 0; i< 6; i++){
-		expect(mockIDB.registerCall.mock.calls[i]).toEqual(["count"]);
-	}
- });
+  const manifestArgs = {
+    resources: [
+      { url: DUMMY1, attributes: { attr1: true, attr2: "attr1 value" }, cacheOnly: true },
+      { url: DUMMY2, attributes: { attr1: true, attr2: "attr2 value" } },
+      { url: DUMMY3, attributes: { attr1: true, attr2: "attr2 value" } },
+    ],
+    document,
+  };
+  load(manifestArgs, { syncCacheOnly: true });
+  await jest.runAllTimers();
+  load(manifestArgs, { syncCacheOnly: true });
+  await jest.runAllTimers();
+  for (let i = 0; i < 6; i++) {
+    expect(mockIDB.registerCall.mock.calls[i]).toEqual(["count"]);
+  }
+});
 it("adds the script in the correct order, according to the manifest", async () => {
   const manifestArgs = {
     resources: [

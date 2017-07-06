@@ -1,5 +1,6 @@
 import { log, error } from "./logger";
-import { loadResource, fetchAndSaveInCache } from "./resourceLoader";
+import { loadResource } from "./resourceLoader";
+import { fetchAndSaveInCache } from "./fetchToCache";
 import { load } from "./resourceManager";
 import { id } from "./id";
 import indexedDBAccess from "./indexedDBAccess";

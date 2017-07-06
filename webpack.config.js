@@ -6,10 +6,14 @@ module.exports = function(env = { dev: "true" }) {
   const distFolder = path.join(__dirname, "dist");
   console.log(`Building webpack with env ${JSON.stringify(env)}. buildForDev = ${env.dev}`);
   const config = {
-    entry: "./index.js",
+    entry: {
+      "capp-cache": "./index.js",
+      "fetch-worker": "./src/fetchWorker.js",
+    },
     output: {
       path: distFolder,
-      filename: "capp-cache.js",
+      filename: "[name].js",
+      chunkFilename: "[name].chunk.js",
     },
     devtool: buildForDev ? "eval" : "source-map",
     plugins: buildForDev

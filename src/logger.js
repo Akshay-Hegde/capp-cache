@@ -24,16 +24,16 @@ export function error() {
 }
 
 const checkIfPerformanceAvailable = () => {
-  perfAvailable = !!(LOG_LEVELS.log && window.performance && window.performance.measure);
+  perfAvailable = !!(LOG_LEVELS.log && self.performance && self.performance.measure);
 };
 checkIfPerformanceAvailable();
 
 function perfMeasure(name, marker1, marker2) {
-  _logLevelIndex === LOG_LEVELS.log && window.performance.measure(name, marker1, marker2);
+  _logLevelIndex === LOG_LEVELS.log && self.performance.measure(name, marker1, marker2);
 }
 
 export function perfMark(marker) {
-  _logLevelIndex === LOG_LEVELS.log && window.performance.mark(marker);
+  _logLevelIndex === LOG_LEVELS.log && self.performance.mark(marker);
 }
 
 export function perfMarkEnd(name, marker1, marker2) {

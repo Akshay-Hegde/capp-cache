@@ -1,6 +1,6 @@
 jest.mock("../src/network", () => require("./mocks/mockNetwork"));
 jest.mock("../src/id", () => ({ id: id => id }));
-jest.mock("../src/indexedDB", () => require("./mocks/mockIDB").mock);
+jest.mock("../src/IndexedDB", () => require("./mocks/mockIDB").mock);
 const resourceLoader = require("../src/resourceLoader");
 const indexedDBAccess = require("../src/indexedDBAccess").default;
 const closeIndexedDBAccess = require("../src/indexedDBAccess").closeConnection;
@@ -12,7 +12,7 @@ const RESOURCE_URL2 = "dummy.url2";
 
 beforeEach(() => {
   closeIndexedDBAccess();
-  require("../src/indexedDB").resetDB();
+  require("../src/IndexedDB").resetDB();
 });
 
 it("rejects when a resource is not in the database", async () => {
@@ -47,7 +47,7 @@ it("saves the file in cache after fetching from the web", async () => {
   const idbAccess = await indexedDBAccess();
   await expect(loadResource({ indexedDBAccess: idbAccess, url: RESOURCE_URL })).rejects.toBeFalsy();
   await jest.runAllTimers();
-  expect(require("../src/indexedDB").dbData[RESOURCE_URL]).toBeTruthy();
+  expect(require("../src/IndexedDB").dbData[RESOURCE_URL]).toBeTruthy();
 });
 // it("updates ttl timestamp when loading resources", async () => {
 //   expect(false).toBeTruthy();

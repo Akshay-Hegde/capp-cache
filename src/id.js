@@ -5,8 +5,8 @@ const polyfillId = url => {
 };
 
 export const id = url => {
-  if (window.URL) {
-    const { href } = new URL(url, window.location.href);
+  if (self.URL) {
+    const { href } = new URL(url, self.location.href);
     return href;
   } else {
     return polyfillId(url);

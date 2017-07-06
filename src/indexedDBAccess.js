@@ -1,5 +1,5 @@
 import { log, error } from "./logger";
-import indexedDB from "./indexedDB";
+import indexedDB from "./IndexedDB";
 
 const DB_NAME = "RESOURCE_CACHE";
 const STORE_NAME = "RESOURCES";
