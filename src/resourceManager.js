@@ -44,7 +44,7 @@ export function sortResources(resources) {
 /**
  * Loads a list of resources according to the manifest.
  * */
-export function load({ resources = [], document = window.document }, { syncCacheOnly = false } = {}) {
+export function load({ resources = [], document = window.document }, { syncCacheOnly = false, wasManifestModified = false } = {}) {
   perfMark(RESOURCES_LOAD_START);
   return new Promise((resolve, reject) => {
     if (resources.length === 0) {
@@ -85,7 +85,7 @@ export function load({ resources = [], document = window.document }, { syncCache
               }
               content = `//# sourceURL=${url}\n${content}\n${onLoadScript}`;
             }
-            staticAttributes.setElementContentFunc(tag, documentTarget, content, resourceManifestObj);
+            staticAttributes.setElementContentFunc({ tag, documentTarget, content, resourceManifestObj, wasManifestModified });
             tag.setAttribute("data-cappcache-src", url);
           })
           .catch(e => {
@@ -99,7 +99,7 @@ export function load({ resources = [], document = window.document }, { syncCache
               }
               tag = documentTarget.createElement(tagType);
               if (staticAttributes.alwaysCallSetContent) {
-                staticAttributes.setElementContentFunc(tag, documentTarget, undefined, resourceManifestObj);
+                staticAttributes.setElementContentFunc({ tag, documentTarget, resourceManifestObj });
               }
               if (staticAttributes.contentFetchKey) {
                 tag.setAttribute(staticAttributes.contentFetchKey, url);

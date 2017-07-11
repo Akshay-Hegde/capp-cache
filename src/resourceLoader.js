@@ -33,12 +33,12 @@ export const loadResource = ({ indexedDBAccess, url, immediate = false, isBinary
         perfMarkEnd(`loadResource ${url}${cacheOnly ? " (cache only)" : ""}`, `loadResource ${url} start`);
       })
       .catch(err => {
-      	if (err) {
-		      error(`failed to fetch resource from cache ${fullUrl}. error: ${err}`);
-		      return reject(err);
-	      } else {
-		      log(`resource ${fullUrl} was not in cache`);
-	      }
+        if (err) {
+          error(`failed to fetch resource from cache ${fullUrl}. error: ${err}`);
+          return reject(err);
+        } else {
+          log(`resource ${fullUrl} was not in cache`);
+        }
         if (immediate) {
           fetchAndSaveInCache({ url: fullUrl, indexedDBAccess, isBinary })
             .then(resource => resolve({ resource, fromCache: false }))

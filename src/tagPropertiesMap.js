@@ -5,8 +5,12 @@ export default {
     attributes: {
       type: "text/javascript",
     },
-    setElementContentFunc(tag, documentTarget, content) {
-      tag.appendChild(documentTarget.createTextNode(content));
+    setElementContentFunc({ tag, documentTarget, content, wasManifestModified }) {
+	    if (wasManifestModified) {
+		    tag.setAttribute("src", "data:text/javascript," + content); //if some of the files have changed, adding some script as inline scripts and some with src="" doesn't maintain the order of loading
+	    } else {
+		    tag.appendChild(documentTarget.createTextNode(content));
+	    }
     },
     canAddToDom: true,
   },
@@ -20,7 +24,7 @@ export default {
     attributesWhenNotInline: {
       rel: "stylesheet",
     },
-    setElementContentFunc(tag, documentTarget, content) {
+    setElementContentFunc({ tag, content }) {
       tag.innerHTML = content;
     },
     canAddToDom: true,
@@ -33,7 +37,7 @@ export default {
     tagName: "link",
     contentFetchKey: "href",
     canAddToDom: true,
-    setElementContentFunc(tag, documentTarget, content) {
+    setElementContentFunc({ tag, content }) {
       tag.href = URL.createObjectURL(content);
     },
     attributes: {},
@@ -47,7 +51,7 @@ export default {
     },
     allowLoadingOutOfOrder: true,
     defaultToBinary: true,
-    setElementContentFunc(tag, documentTarget, content, resourceManifestObj) {
+    setElementContentFunc({ tag, content, resourceManifestObj }) {
       const {
         fontAttributes,
         localFontFamily = null,

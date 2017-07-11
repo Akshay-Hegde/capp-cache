@@ -16,7 +16,7 @@ import manifestManager from "./src/manifestManager";
       .fetchManifest(manifestUrl)
       .then(({ manifest, wasModified }) => {
         if (wasModified) {
-          load(manifest, { syncCacheOnly: true })
+          load(manifest, { syncCacheOnly: true, wasManifestModified: true })
             .then(() => {
               trigger("manifestUpdated");
             })
@@ -30,7 +30,7 @@ import manifestManager from "./src/manifestManager";
     error(`Unable to find attribute "data-cc-manifest" on the HTML tag, CappCache will not work`);
   }
   window.cappCache = {
-    loadResources : load,
+    loadResources: load,
     getResourceUri,
     revokeResourceUriForUrl,
     pruneDB,
