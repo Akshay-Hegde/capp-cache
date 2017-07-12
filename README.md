@@ -30,6 +30,7 @@ Property  | description                                                         
 resources | An array of resources to be cached. See the following table for details. | array of resource entries   | []
 manifestUrl | A URL from which the manifest JSON is fetched.                         | URL
 version   | An identifier for the version of the manifest. A change in this version will result in background syncing of the cache with the new manifest. See function on("manifestUpdated") for details.  | string |
+forceLoadFromCache| By default, when a resource (especially relevant to Javascript) is not in cache, capp-cache will add it to the DOM with `src` attribute, and only then download the resource (again) in the background to cache for subsequent runs. While this improves performance for first run, it creates slightly different behavior due to the way the browser handles inline scripts vs. scripts with src attribute. This flag forces capp-cache to first fetch the resource and only then add it to the DOM in the same way it would have if the resource was already in the cache. On subsequent runs, when the cache is already full this flag has no effect. | boolean | false
 
 
 When the page loads, the library will add your resources to the DOM, according to the resources list.

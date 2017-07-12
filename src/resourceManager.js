@@ -44,7 +44,7 @@ export function sortResources(resources) {
 /**
  * Loads a list of resources according to the manifest.
  * */
-export function load({ resources = [], document = window.document }, { syncCacheOnly = false, wasManifestModified = false } = {}) {
+export function load({ resources = [], document = window.document, forceLoadFromCache = false }, { syncCacheOnly = false, wasManifestModified = false,} = {}) {
   perfMark(RESOURCES_LOAD_START);
   return new Promise((resolve, reject) => {
     if (resources.length === 0) {
@@ -72,7 +72,7 @@ export function load({ resources = [], document = window.document }, { syncCache
         const documentTarget = cacheOnly || syncCacheOnly || !staticAttributes.canAddToDom ? MOCK_DOCUMENT : document;
         let tag;
 
-        loadResource({ indexedDBAccess: db, url, immediate: false, isBinary, cacheOnly: cacheOnly || syncCacheOnly })
+        loadResource({ indexedDBAccess: db, url, immediate: forceLoadFromCache, isBinary, cacheOnly: cacheOnly || syncCacheOnly })
           .then(({ resource }) => {
             /* resource already cached */
             tag = documentTarget.createElement(staticAttributes.tagName);

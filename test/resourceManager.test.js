@@ -351,7 +351,6 @@ it("adds the script in the correct order, according to the manifest", async () =
 });
 it("if the manifest was updated, loading script uses data url to maintain load order", async () => {
   const manifestArgs = {
-
     resources: [
       { url: DUMMY1, attributes: { attr1: true, attr2: "attr1 value" } },
       { url: DUMMY2, attributes: { attr1: true, attr2: "attr2 value" } },
@@ -380,4 +379,21 @@ it("if the manifest was updated, loading script uses data url to maintain load o
   expect(calls[1][1]).toEqual(expect.stringMatching(/^data:text\/javascript/));
   expect(calls[2][1]).toEqual(expect.stringMatching(/^data:text\/javascript/));
 	expect(calls[3][1]).toBe(DUMMY4);
+});
+
+it("when forceLoadFromCache flag is set in the manifest, files will be fetched to indexedDB and only then added, instead of using src attribute", async () => {
+	const manifestArgs = {
+		resources: [
+			{ url: DUMMY1, attributes: { attr1: true, attr2: "attr1 value" } },
+			{ url: DUMMY2, attributes: { attr1: true, attr2: "attr2 value" } },
+			{ url: DUMMY3, attributes: { attr1: true, attr2: "attr3 value" } },
+		],
+		forceLoadFromCache: true,
+		document,
+	};
+	await load(manifestArgs);
+	const srcCalls = scriptTag.setAttribute.mock.calls.filter(c => c[0] === "src");
+	expect(srcCalls).toHaveLength(0);
+	const appendChildCalls = scriptTag.appendChild.mock.calls;
+	expect(appendChildCalls).toHaveLength(3);
 });
