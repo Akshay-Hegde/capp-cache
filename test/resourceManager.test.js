@@ -375,9 +375,10 @@ it("if the manifest was updated, loading script uses data url to maintain load o
   }, {wasManifestModified: true});
   await jest.runAllTimers();
   const calls = scriptTag.setAttribute.mock.calls.filter(c => c[0] === "src");
-	expect(calls[0][1]).toEqual(expect.stringMatching(/^data:text\/javascript/));
-  expect(calls[1][1]).toEqual(expect.stringMatching(/^data:text\/javascript/));
-  expect(calls[2][1]).toEqual(expect.stringMatching(/^data:text\/javascript/));
+	const DATA_URL_PREFIX = /^data:text\/javascript/;
+	expect(calls[0][1]).toEqual(expect.stringMatching(DATA_URL_PREFIX));
+  expect(calls[1][1]).toEqual(expect.stringMatching(DATA_URL_PREFIX));
+  expect(calls[2][1]).toEqual(expect.stringMatching(DATA_URL_PREFIX));
 	expect(calls[3][1]).toBe(DUMMY4);
 });
 
