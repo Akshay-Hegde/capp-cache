@@ -1,5 +1,6 @@
 {
   "version": "52",
+  "onLoadDone": "console.log(`finished loading in ${performance.now()}`);",
   "resources": [
     {
       "url": "index.css",

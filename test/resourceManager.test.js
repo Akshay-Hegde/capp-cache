@@ -356,45 +356,96 @@ it("if the manifest was updated, loading script uses data url to maintain load o
       { url: DUMMY2, attributes: { attr1: true, attr2: "attr2 value" } },
       { url: DUMMY3, attributes: { attr1: true, attr2: "attr3 value" } },
     ],
-	  version: "old",
+    version: "old",
     document,
   };
   await load(manifestArgs);
   await jest.runAllTimers();
-	scriptTag.setAttribute.mockClear();
-	scriptTag.appendChild.mockClear();
-  await load({
-    resources: [
-      manifestArgs.resources[0],
-	    { url: DUMMY4, attributes: { attr1: true, attr2: "attr2 value" } },
-      manifestArgs.resources[1],
-      manifestArgs.resources[2],
-    ],
-	  version: "new",
-	  document,
-  }, {wasManifestModified: true});
+  scriptTag.setAttribute.mockClear();
+  scriptTag.appendChild.mockClear();
+  await load(
+    {
+      resources: [
+        manifestArgs.resources[0],
+        { url: DUMMY4, attributes: { attr1: true, attr2: "attr2 value" } },
+        manifestArgs.resources[1],
+        manifestArgs.resources[2],
+      ],
+      version: "new",
+      document,
+    },
+    { wasManifestModified: true }
+  );
   await jest.runAllTimers();
   const calls = scriptTag.setAttribute.mock.calls.filter(c => c[0] === "src");
-	const DATA_URL_PREFIX = /^data:text\/javascript/;
-	expect(calls[0][1]).toEqual(expect.stringMatching(DATA_URL_PREFIX));
+  const DATA_URL_PREFIX = /^data:text\/javascript/;
+  expect(calls[0][1]).toEqual(expect.stringMatching(DATA_URL_PREFIX));
   expect(calls[1][1]).toEqual(expect.stringMatching(DATA_URL_PREFIX));
   expect(calls[2][1]).toEqual(expect.stringMatching(DATA_URL_PREFIX));
-	expect(calls[3][1]).toBe(DUMMY4);
+  expect(calls[3][1]).toBe(DUMMY4);
 });
 
 it("when forceLoadFromCache flag is set in the manifest, files will be fetched to indexedDB and only then added, instead of using src attribute", async () => {
-	const manifestArgs = {
-		resources: [
-			{ url: DUMMY1, attributes: { attr1: true, attr2: "attr1 value" } },
-			{ url: DUMMY2, attributes: { attr1: true, attr2: "attr2 value" } },
-			{ url: DUMMY3, attributes: { attr1: true, attr2: "attr3 value" } },
-		],
-		forceLoadFromCache: true,
-		document,
-	};
-	await load(manifestArgs);
-	const srcCalls = scriptTag.setAttribute.mock.calls.filter(c => c[0] === "src");
-	expect(srcCalls).toHaveLength(0);
-	const appendChildCalls = scriptTag.appendChild.mock.calls;
-	expect(appendChildCalls).toHaveLength(3);
+  const manifestArgs = {
+    resources: [
+      { url: DUMMY1, attributes: { attr1: true, attr2: "attr1 value" } },
+      { url: DUMMY2, attributes: { attr1: true, attr2: "attr2 value" } },
+      { url: DUMMY3, attributes: { attr1: true, attr2: "attr3 value" } },
+    ],
+    forceLoadFromCache: true,
+    document,
+  };
+  await load(manifestArgs);
+  const srcCalls = scriptTag.setAttribute.mock.calls.filter(c => c[0] === "src");
+  expect(srcCalls).toHaveLength(0);
+  const appendChildCalls = scriptTag.appendChild.mock.calls;
+  expect(appendChildCalls).toHaveLength(3);
+});
+it("when a user adds onLoadDone callback, it is called after all scripts are done", async () => {
+  const DONE_CALLBACK = "DONE CALLBACK";
+  const manifestArgs = () => ({
+    resources: [
+      { url: DUMMY1, attributes: { attr1: true, attr2: "attr1 value" } },
+      { url: DUMMY2, attributes: { attr1: true, attr2: "attr2 value" } },
+      { url: DUMMY3, attributes: { attr1: true, attr2: "attr3 value" } },
+    ],
+    onLoadDone: DONE_CALLBACK,
+    document,
+  });
+  await load(manifestArgs());
+  await jest.runAllTimers();
+  expect(
+    scriptTag.setAttribute.mock.calls.filter(arr => arr[0] === "onload" && arr[1].startsWith(DONE_CALLBACK))
+  ).toHaveLength(1);
+  scriptTag.setAttribute.mockClear();
+  scriptTag.appendChild.mockClear();
+
+  //second time, with cache
+  await load(manifestArgs());
+  await jest.runAllTimers();
+  expect(scriptTag.appendChild).toHaveBeenLastCalledWith(expect.stringMatching(new RegExp(DONE_CALLBACK)));
+});
+it("when a user adds onLoadDone callback but all resources are no scripts that are loaded to DOM, it is called after all is loaded to DOM", async () => {
+  global.doneCB = jest.fn();
+  const manifestArgs = id => ({
+    resources: [
+      { url: DUMMY1, attributes: { attr1: true, attr2: "attr1 value" }, cacheOnly: true },
+      { url: DUMMY2, attributes: { attr1: true, attr2: "attr2 value" }, type: "css" },
+      { url: DUMMY3, attributes: { attr1: true, attr2: "attr3 value", async: true } },
+    ],
+    onLoadDone: `doneCB(${id})`,
+    document,
+  });
+  await load(manifestArgs(1));
+  await jest.runAllTimers();
+  expect(scriptTag.setAttribute.mock.calls.filter(arr => arr[0] === "onload")).toHaveLength(0);
+  expect(global.doneCB).toHaveBeenLastCalledWith(1);
+  scriptTag.setAttribute.mockClear();
+  scriptTag.appendChild.mockClear();
+
+  //second time, with cache
+  await load(manifestArgs(2));
+  await jest.runAllTimers();
+  expect(scriptTag.appendChild).not.toHaveBeenLastCalledWith(expect.stringMatching(new RegExp("doneCB")));
+  expect(global.doneCB).toHaveBeenLastCalledWith(2);
 });

@@ -1,4 +1,4 @@
-import { error, log, logSince, perfMark, perfMarkEnd } from "./logger";
+import { error, log, perfMark, perfMarkEnd } from "./logger";
 import indexedDBAccess from "./indexedDBAccess";
 import tagPropertiesMap from "./tagPropertiesMap";
 import { loadResource, getCachedFiles } from "./resourceLoader";
@@ -41,10 +41,40 @@ export function sortResources(resources) {
   resources.forEach((r, index) => (r._index = index));
 }
 
+function handleOnLoadDoneCb(onLoadDone, resources) {
+  let onLoadDoneCBWhenThereAreNoResources = Function.prototype; //this is a fallback callback, called when ALL resources are async, cacheOnly or not scripts
+  if (onLoadDone) {
+    let i = resources.length - 1,
+      found = false;
+    while (i > -1 && !found) {
+      let resource = resources[i];
+      if (!resource.attributes) {
+        resource.attributes = {};
+      }
+      if (!resource.attributes.async && !resource.cacheOnly && (resource.type === "js" || !resource.type)) {
+        found = true;
+        const originalOnLoad = resource.attributes.onload || "";
+        resource.attributes.onload = onLoadDone + "\n" + originalOnLoad;
+      }
+      i--;
+    }
+    if (!found) {
+      log(
+        "could not find appropriate script for global onload callback. Falling back to notifying after all resources are added to DOM"
+      );
+      onLoadDoneCBWhenThereAreNoResources = new Function(onLoadDone);
+    }
+  }
+  return onLoadDoneCBWhenThereAreNoResources;
+}
+
 /**
  * Loads a list of resources according to the manifest.
  * */
-export function load({ resources = [], document = window.document, forceLoadFromCache = false }, { syncCacheOnly = false, wasManifestModified = false,} = {}) {
+export function load(
+  { resources = [], document = window.document, forceLoadFromCache = false, onLoadDone },
+  { syncCacheOnly = false, wasManifestModified = false } = {}
+) {
   perfMark(RESOURCES_LOAD_START);
   return new Promise((resolve, reject) => {
     if (resources.length === 0) {
@@ -52,6 +82,7 @@ export function load({ resources = [], document = window.document, forceLoadFrom
     }
     indexedDBAccess().then(db => {
       sortResources(resources);
+      let onLoadDoneCBWhenThereAreNoResources = handleOnLoadDoneCb(onLoadDone, resources);
       let lastErr = undefined;
 
       const tagsReadyToBeAdded = [];
@@ -72,7 +103,13 @@ export function load({ resources = [], document = window.document, forceLoadFrom
         const documentTarget = cacheOnly || syncCacheOnly || !staticAttributes.canAddToDom ? MOCK_DOCUMENT : document;
         let tag;
 
-        loadResource({ indexedDBAccess: db, url, immediate: forceLoadFromCache, isBinary, cacheOnly: cacheOnly || syncCacheOnly })
+        loadResource({
+          indexedDBAccess: db,
+          url,
+          immediate: forceLoadFromCache,
+          isBinary,
+          cacheOnly: cacheOnly || syncCacheOnly,
+        })
           .then(({ resource }) => {
             /* resource already cached */
             tag = documentTarget.createElement(staticAttributes.tagName);
@@ -85,7 +122,13 @@ export function load({ resources = [], document = window.document, forceLoadFrom
               }
               content = `//# sourceURL=${url}\n${content}\n${onLoadScript}`;
             }
-            staticAttributes.setElementContentFunc({ tag, documentTarget, content, resourceManifestObj, wasManifestModified });
+            staticAttributes.setElementContentFunc({
+              tag,
+              documentTarget,
+              content,
+              resourceManifestObj,
+              wasManifestModified,
+            });
             tag.setAttribute("data-cappcache-src", url);
           })
           .catch(e => {
@@ -159,6 +202,7 @@ export function load({ resources = [], document = window.document, forceLoadFrom
                 reject(lastErr);
               } else {
                 resolve();
+                onLoadDoneCBWhenThereAreNoResources();
                 perfMarkEnd("RESOURCES LOAD", RESOURCES_LOAD_START);
               }
             }

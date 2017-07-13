@@ -30,7 +30,8 @@ Property  | description                                                         
 resources | An array of resources to be cached. See the following table for details. | array of resource entries   | []
 manifestUrl | A URL from which the manifest JSON is fetched.                         | URL
 version   | An identifier for the version of the manifest. A change in this version will result in background syncing of the cache with the new manifest. See function on("manifestUpdated") for details.  | string |
-forceLoadFromCache| By default, when a resource (especially relevant to Javascript) is not in cache, capp-cache will add it to the DOM with `src` attribute, and only then download the resource (again) in the background to cache for subsequent runs. While this improves performance for first run, it creates slightly different behavior due to the way the browser handles inline scripts vs. scripts with src attribute. This flag forces capp-cache to first fetch the resource and only then add it to the DOM in the same way it would have if the resource was already in the cache. On subsequent runs, when the cache is already full this flag has no effect. | boolean | false
+forceLoadFromCache| By default, when a resource (especially relevant to Javascript) is not in cache, capp-cache will add it to the DOM with `src` attribute, and only then download the resource (again) in the background to cache for subsequent runs. While this improves performance for first run, it creates slightly different behavior due to the way the browser handles inline scripts vs. scripts with src attribute. This flag forces capp-cache to first fetch the resource and only then add it to the DOM in the same way it would have if the resource was already in the cache. On subsequent runs, when the cache is already full this flag has no effect. | boolean | false   
+onLoadDone| A string that can be used to build a `Function()`. It will be added as `onload` callback to the last script in the list of manifest resources that is not `cacheOnly` or has `async` attribute. For example the value `"console.log('done')"` will print a "done" string once the last resource was loaded. If  | string  
 
 
 When the page loads, the library will add your resources to the DOM, according to the resources list.
@@ -231,14 +232,12 @@ The root issue is that since the library does not enjoy and special capabilities
 - You can't just append script elements in your DOM.   
 **Workaround**: you must declare it in a manifest and let CappCache append it to the DOM.
 - [DomContentLoaded](https://developer.mozilla.org/en/docs/Web/Events/DOMContentLoaded) is fired before synchronous scripts are loaded.   
-**Workaround**: register to the script's `onload` event in the cappCacheManifest. For example:
+**Workaround**: use the manifest `onLoadDone` callback:
 
 ```javascript
-{
-  "url": "my-script.js",
-  "attributes": {
-    "onload": "console.log('script loaded')"
-   }
+{ 
+   resources: [...],
+   onLoadDone: "document.dispatchEvent(new Event('ready'));"
 }
 ``` 
 - Secondary resources that are declared by your app need to use CappCache as well. For example, font `src` declared in your CSS file.   
