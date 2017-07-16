@@ -252,7 +252,7 @@ The root issue is that since the library does not enjoy and special capabilities
    onLoadDone: "document.dispatchEvent(new Event('ready'));"
 }
 ``` 
-If you have to use `DOMContentLoaded` directly (for example, you use a library that relies on this event) you can override the event. See [Overriding `DomContentLoaded` firing too early with `data-cc-override-domcontentloaded` attribute] the default behavior of `DOMContentLoaded`.
+If you have to use `DOMContentLoaded` directly (for example, you use a library that relies on this event) you can [override](#overriding-domcontentloaded-firing-too-early-with-data-cc-override-domcontentloaded-attribute) the default event.
 
 - Secondary resources that are declared by your app need to use CappCache as well. For example, font `src` declared in your CSS file.   
 **Workaround**: one option is to inline the resource as base64 encoded [data URL](https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/Data_URIs). There are [online](https://dopiaza.org/tools/datauri/index.php) tools for that, or you can use a bundler such as Webpack [url-loader](https://github.com/webpack-contrib/url-loader)
