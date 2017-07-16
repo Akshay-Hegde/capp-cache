@@ -449,3 +449,95 @@ it("when a user adds onLoadDone callback but all resources are no scripts that a
   expect(scriptTag.appendChild).not.toHaveBeenLastCalledWith(expect.stringMatching(new RegExp("doneCB")));
   expect(global.doneCB).toHaveBeenLastCalledWith(2);
 });
+
+it("when a user turns on Overriding `DomContentLoaded` it triggers an event, when an onLoadDone is defined", async () => {
+	const manifestArgs = id => ({
+		resources: [
+			{ url: DUMMY1, attributes: { attr1: true, attr2: "attr1 value" } },
+			{ url: DUMMY2, attributes: { attr1: true, attr2: "attr2 value" }, type: "css" },
+			{ url: DUMMY3, attributes: { attr1: true, attr2: "attr3 value", async: true } },
+		],
+		onLoadDone: `doneCB(${id})`,
+		document,
+	});
+
+	//from network
+	await load(manifestArgs(1), { overrideDomContentLoaded: true });
+	await jest.runAllTimers();
+	expect(scriptTag.setAttribute.mock.calls.filter(c => c[0] === "onload")[0][1]).toEqual(expect.stringMatching(/DOMContentLoaded/));
+	jest.clearAllMocks();
+
+	//from cache
+	await load(manifestArgs(2), { overrideDomContentLoaded: true });
+	await jest.runAllTimers();
+	expect(scriptTag.setAttribute.mock.calls.filter(c => c[0] === "onload")[0][1]).toEqual(expect.stringMatching(/DOMContentLoaded/));
+});
+it("when a user turns on Overriding `DomContentLoaded` it triggers an event, when an onLoadDone is not defined", async () => {
+	const manifestArgs = id => ({
+		resources: [
+			{ url: DUMMY1, attributes: { attr1: true, attr2: "attr1 value" } },
+			{ url: DUMMY2, attributes: { attr1: true, attr2: "attr2 value" }, type: "css" },
+			{ url: DUMMY3, attributes: { attr1: true, attr2: "attr3 value", async: true } },
+		],
+		document,
+	});
+
+	//from network
+	await load(manifestArgs(1), { overrideDomContentLoaded: true });
+	await jest.runAllTimers();
+	expect(scriptTag.setAttribute.mock.calls.filter(c => c[0] === "onload")[0][1]).toEqual(expect.stringMatching(/DOMContentLoaded/));
+	jest.clearAllMocks();
+
+	//from cache
+	await load(manifestArgs(2), { overrideDomContentLoaded: true });
+	await jest.runAllTimers();
+	expect(scriptTag.setAttribute.mock.calls.filter(c => c[0] === "onload")[0][1]).toEqual(expect.stringMatching(/DOMContentLoaded/));
+});
+
+it("when a user turns on Overriding `DomContentLoaded` it triggers an event, when an onLoadDone is defined, all resources are not script that so we fallback to after add to dom", async () => {
+	global.doneCB = jest.fn();
+	global.document.dispatchEvent = jest.fn();
+	const manifestArgs = id => ({
+		resources: [
+			{ url: DUMMY1, attributes: { attr1: true, attr2: "attr1 value" }, cacheOnly: true },
+			{ url: DUMMY2, attributes: { attr1: true, attr2: "attr2 value" }, type: "css" },
+			{ url: DUMMY3, attributes: { attr1: true, attr2: "attr3 value", async: true } },
+		],
+		onLoadDone: `doneCB(${id})`,
+		document,
+	});
+
+	//from network
+	await load(manifestArgs(1), { overrideDomContentLoaded: true });
+	await jest.runAllTimers();
+	expect(global.document.dispatchEvent).toHaveBeenCalledWith(expect.objectContaining({ type: "DOMContentLoaded" }));
+	global.document.dispatchEvent.mockClear();
+
+	//from cache
+	await load(manifestArgs(2), { overrideDomContentLoaded: true });
+	await jest.runAllTimers();
+	expect(global.document.dispatchEvent).toHaveBeenCalledWith(expect.objectContaining({ type: "DOMContentLoaded" }));
+});
+it("when a user turns on Overriding `DomContentLoaded` it triggers an event, when an onLoadDone is not defined, all resources are not script that so we fallback to after add to dom", async () => {
+	global.doneCB = jest.fn();
+	global.document.dispatchEvent = jest.fn();
+	const manifestArgs = id => ({
+		resources: [
+			{ url: DUMMY1, attributes: { attr1: true, attr2: "attr1 value" }, cacheOnly: true },
+			{ url: DUMMY2, attributes: { attr1: true, attr2: "attr2 value" }, type: "css" },
+			{ url: DUMMY3, attributes: { attr1: true, attr2: "attr3 value", async: true } },
+		],
+		document,
+	});
+
+	//from network
+	await load(manifestArgs(1), { overrideDomContentLoaded: true });
+	await jest.runAllTimers();
+	expect(global.document.dispatchEvent).toHaveBeenCalledWith(expect.objectContaining({ type: "DOMContentLoaded" }));
+	global.document.dispatchEvent.mockClear();
+
+	//from cache
+	await load(manifestArgs(2), { overrideDomContentLoaded: true });
+	await jest.runAllTimers();
+	expect(global.document.dispatchEvent).toHaveBeenCalledWith(expect.objectContaining({ type: "DOMContentLoaded" }));
+});

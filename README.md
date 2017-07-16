@@ -31,7 +31,7 @@ resources | An array of resources to be cached. See the following table for deta
 manifestUrl | A URL from which the manifest JSON is fetched.                         | URL
 version   | An identifier for the version of the manifest. A change in this version will result in background syncing of the cache with the new manifest. See function on("manifestUpdated") for details.  | string |
 forceLoadFromCache| By default, when a resource (especially relevant to Javascript) is not in cache, capp-cache will add it to the DOM with `src` attribute, and only then download the resource (again) in the background to cache for subsequent runs. While this improves performance for first run, it creates slightly different behavior due to the way the browser handles inline scripts vs. scripts with src attribute. This flag forces capp-cache to first fetch the resource and only then add it to the DOM in the same way it would have if the resource was already in the cache. On subsequent runs, when the cache is already full this flag has no effect. | boolean | false   
-onLoadDone| A string that can be used to build a `Function()`. It will be added as `onload` callback to the last script in the list of manifest resources that is not `cacheOnly` or has `async` attribute. For example the value `"console.log('done')"` will print a "done" string once the last resource was loaded. If  | string  
+onLoadDone| A string that can be used to build a `Function()`. It will be added as `onload` callback to the last script in the list of manifest resources that is not `cacheOnly` or has `async` attribute. For example the value `"console.log('done')"` will print a "done" string once the last resource was loaded. If  | string
 
 
 When the page loads, the library will add your resources to the DOM, according to the resources list.
@@ -54,6 +54,18 @@ By default, Capp Cache will try to fetch a file called `cappCacheManifest.json`.
 You can override this behavior by setting an object property on the `window` object called `cappCacheManifest` before Capp Cache library is loaded.  
 To specify a **custom URL** from which cappCache loads the manifest, set `window.cappCacheManifest.manifestUrl` to that URL.
 To **inline the manifest**, so that no additional request is triggered, sepcify the `window.cappCacheManifest.resources` array, without specifying `window.cappCacheManifest.manifestUrl`.
+
+
+#### Overriding `DomContentLoaded` firing too early with `data-cc-override-domcontentloaded` attribute
+Existing code, or code that uses libraries might relay on `DOMContentLoaded` event. Since a capp-cached app usually has HTML file which is mostly empty (as scripts are added dynamically), code that relies on `DOMContentLoaded ` will run before the scripts have been evaluated. When this flag is set to `true`, capp-cache will capture `DOMContentLoaded ` event and fire the event only after all scripts have been loaded (same time that capp-cahce `onLoadDone` is fired).
+Since this information must be available synchronously, you need to specify it as attribute in your HTML file, on the `html` tag. For example:
+
+```html 
+<html data-cc-manifest="capp-cache-manifest.json" data-cc-override-domcontentloaded="true">
+...
+</html>
+```
+
 
 ---
 
@@ -240,6 +252,8 @@ The root issue is that since the library does not enjoy and special capabilities
    onLoadDone: "document.dispatchEvent(new Event('ready'));"
 }
 ``` 
+If you have to use `DOMContentLoaded` directly (for example, you use a library that relies on this event) you can [override](Overriding `DomContentLoaded` firing too early with `data-cc-override-domcontentloaded` attribute) the default behavior of `DOMContentLoaded`.
+
 - Secondary resources that are declared by your app need to use CappCache as well. For example, font `src` declared in your CSS file.   
 **Workaround**: one option is to inline the resource as base64 encoded [data URL](https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/Data_URIs). There are [online](https://dopiaza.org/tools/datauri/index.php) tools for that, or you can use a bundler such as Webpack [url-loader](https://github.com/webpack-contrib/url-loader)
 - [Code splitting](https://webpack.js.org/guides/code-splitting-async/) does not take advantage of caching and offline.   

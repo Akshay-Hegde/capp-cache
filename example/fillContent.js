@@ -5,3 +5,7 @@ document.getElementById("content").innerHTML = `
         After first load turn off your connectivity and reload, everything will still work.
     </p>
 `;
+
+document.addEventListener("DOMContentLoaded", e => {
+	console.log(`Document Got DOMContentLoaded`);
+});

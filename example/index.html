@@ -1,6 +1,6 @@
 <!--This file is an usage example and not part of the library-->
 
-<html data-cc-manifest="cappCacheManifest.json">
+<html data-cc-manifest="cappCacheManifest.json" data-cc-override-domcontentloaded="true">
 <!--<html manifest="manifest.appcache">-->
 <head>
     <style>
@@ -12,26 +12,7 @@
 			window.performance.mark('capp-cache-start');
             window.resourceLoaded = msg => console.log(`resource loaded : ${msg}`);
     </script>
-    <script>
-			/*
-                    window.cappCacheManifest = {
-                        resources: [
-                            {
-                                url: "https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js",
-                            },
-                            {
-                                url: "https://cdnjs.cloudflare.com/ajax/libs/select2-bootstrap-css/1.4.6/select2-bootstrap.css",
-                                type: "css"
-                            },
-                            {
-                                url: "index.css",
-                                type: "css"
-                            }
-                        ],
-                       manifestUrl : "cappCacheManifest.json"
-                    };
-            */
-    </script>
+
     <script src="../dist/capp-cache.js"></script>
     <script type="text/javascript">
 			setTimeout(() => window.cappCache.loadResources({

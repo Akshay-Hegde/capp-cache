@@ -7,10 +7,21 @@ import manifestManager from "./src/manifestManager";
   if (window.location.search.indexOf("debug-cp") > 0) {
     setLogLevel(LOG_LEVELS.log);
   }
-  const manifestUrl = document.getElementsByTagName("html")[0].dataset.ccManifest;
+  const dataset = document.getElementsByTagName("html")[0].dataset;
+  const overrideDomContentLoaded = dataset.ccOverrideDomcontentloaded === "true";
+  if (overrideDomContentLoaded) {
+    const listener = e => {
+      e.stopImmediatePropagation();
+      e.preventDefault();
+      e.stopPropagation();
+      document.removeEventListener("DOMContentLoaded", listener, true);
+    };
+    document.addEventListener("DOMContentLoaded", listener, true);
+  }
+  const manifestUrl = dataset.ccManifest;
   if (manifestUrl !== undefined) {
     manifestManager
-      .fetchManifest(manifestUrl)
+      .fetchManifest(manifestUrl, { overrideDomContentLoaded: overrideDomContentLoaded })
       .then(({ manifest, wasModified }) => {
         if (wasModified) {
           load(manifest, { syncCacheOnly: true, wasManifestModified: true })

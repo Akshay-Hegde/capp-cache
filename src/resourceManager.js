@@ -41,9 +41,13 @@ export function sortResources(resources) {
   resources.forEach((r, index) => (r._index = index));
 }
 
-function handleOnLoadDoneCb(onLoadDone, resources) {
+function handleOnLoadDoneCb(onLoadDone, resources, overrideDomContentLoaded) {
   let onLoadDoneCBWhenThereAreNoResources = Function.prototype; //this is a fallback callback, called when ALL resources are async, cacheOnly or not scripts
-  if (onLoadDone) {
+  let domContentLoadedCb = "";
+  if (overrideDomContentLoaded) {
+    domContentLoadedCb = "document.dispatchEvent(new Event('DOMContentLoaded', {bubbles: true}));";
+  }
+  if (onLoadDone || overrideDomContentLoaded) {
     let i = resources.length - 1,
       found = false;
     while (i > -1 && !found) {
@@ -54,7 +58,7 @@ function handleOnLoadDoneCb(onLoadDone, resources) {
       if (!resource.attributes.async && !resource.cacheOnly && (resource.type === "js" || !resource.type)) {
         found = true;
         const originalOnLoad = resource.attributes.onload || "";
-        resource.attributes.onload = onLoadDone + "\n" + originalOnLoad;
+        resource.attributes.onload = onLoadDone + "\n" + domContentLoadedCb+ "\n" + originalOnLoad;
       }
       i--;
     }
@@ -62,7 +66,7 @@ function handleOnLoadDoneCb(onLoadDone, resources) {
       log(
         "could not find appropriate script for global onload callback. Falling back to notifying after all resources are added to DOM"
       );
-      onLoadDoneCBWhenThereAreNoResources = new Function(onLoadDone);
+      onLoadDoneCBWhenThereAreNoResources = new Function(onLoadDone + "\n" + domContentLoadedCb);
     }
   }
   return onLoadDoneCBWhenThereAreNoResources;
@@ -73,7 +77,7 @@ function handleOnLoadDoneCb(onLoadDone, resources) {
  * */
 export function load(
   { resources = [], document = window.document, forceLoadFromCache = false, onLoadDone },
-  { syncCacheOnly = false, wasManifestModified = false } = {}
+  { syncCacheOnly = false, wasManifestModified = false, overrideDomContentLoaded = false } = {}
 ) {
   perfMark(RESOURCES_LOAD_START);
   return new Promise((resolve, reject) => {
@@ -82,7 +86,7 @@ export function load(
     }
     indexedDBAccess().then(db => {
       sortResources(resources);
-      let onLoadDoneCBWhenThereAreNoResources = handleOnLoadDoneCb(onLoadDone, resources);
+      let onLoadDoneCBWhenThereAreNoResources = handleOnLoadDoneCb(onLoadDone, resources, overrideDomContentLoaded);
       let lastErr = undefined;
 
       const tagsReadyToBeAdded = [];
