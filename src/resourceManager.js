@@ -2,6 +2,7 @@ import { error, log, perfMark, perfMarkEnd } from "./logger";
 import indexedDBAccess from "./indexedDBAccess";
 import tagPropertiesMap from "./tagPropertiesMap";
 import { loadResource, getCachedFiles } from "./resourceLoader";
+import {sortResources} from './sortResources';
 
 const RESOURCES_LOAD_START = "Resources load start";
 
@@ -20,26 +21,6 @@ const MOCK_DOCUMENT = {
   createTextNode: Function.prototype,
 };
 const loadedResources = [];
-
-export function sortResources(resources) {
-  resources.forEach((r, index) => (r._index = index));
-  resources.sort((r1, r2) => {
-    if (r1.type === "fontface" && r2.type !== "fontface") {
-      return -1;
-    }
-    if (r2.type === "fontface" && r1.type !== "fontface") {
-      return 1;
-    }
-    if (r1.cacheOnly && !r2.cacheOnly) {
-      return 1;
-    }
-    if (r2.cacheOnly && !r1.cacheOnly) {
-      return -1;
-    }
-    return r1._index - r2._index;
-  });
-  resources.forEach((r, index) => (r._index = index));
-}
 
 function handleOnLoadDoneCb(onLoadDone, resources, overrideDomContentLoaded) {
   let onLoadDoneCBWhenThereAreNoResources = Function.prototype; //this is a fallback callback, called when ALL resources are async, cacheOnly or not scripts

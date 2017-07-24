@@ -279,7 +279,7 @@ it("adds fontface element when there is cache", async () => {
   expect(document.head.appendChild).toHaveBeenCalledTimes(1);
 });
 describe("sorts the manifest", () => {
-  const { sortResources } = require("../src/resourceManager");
+  const { sortResources } = require("../src/sortResources");
   const getIndexOf = name => resources.findIndex(r => r.name === name);
   const resources = [
     //should move to the bottom since it has cache only
