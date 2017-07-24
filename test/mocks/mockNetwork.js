@@ -1,3 +1,6 @@
+const {handleResponse} = require("../../src/responseHandlers");
+
+
 const MOCK_RESPONSES = {
   "manifest.url": {
     content: JSON.stringify({
@@ -13,7 +16,7 @@ const fetchResource = jest.fn((url, responseType = "text") => {
   const MOCK_RESP = mockResponses[url] || DEFAULT_RESPONSE;
   return new Promise((resolve, reject) => {
     console.log(`fetch resource mock`);
-    resolve(MOCK_RESP);
+    resolve(handleResponse(MOCK_RESP));
   });
 });
 

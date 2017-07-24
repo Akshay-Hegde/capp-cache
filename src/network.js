@@ -1,3 +1,5 @@
+import {handleResponse} from './responseHandlers';
+
 const NO_CONTENT_TYPE = "";
 
 export const fetchResource = (url, responseType = "text") => {
@@ -10,10 +12,11 @@ export const fetchResource = (url, responseType = "text") => {
       function() {
         if (xhr.status === 200) {
           const { response } = xhr;
-          resolve({
-            content: response,
-            contentType: xhr.getResponseHeader("content-type") || NO_CONTENT_TYPE,
-          });
+	        const returnValue = {
+		        content: response,
+		        contentType: xhr.getResponseHeader("content-type") || NO_CONTENT_TYPE,
+	        };
+	        resolve(handleResponse(returnValue));
         } else {
           reject(xhr);
         }

@@ -1,7 +1,7 @@
 jest.mock("../src/network", () => require("./mocks/mockNetwork"));
 jest.mock("../src/id", () => ({ id: id => id }));
 jest.mock("../src/indexedDB", () => require("./mocks/mockIDB").mock);
-const { load } = require("../src/resourceManager");
+const { load, getResourceUri } = require("../src/resourceManager");
 const mockIDB = require("./mocks/mockIDB").mock;
 
 const DUMMY1 = "dummy.url1";
@@ -134,6 +134,19 @@ it("adds the script inline when the script is in the cache", async () => {
   });
   await jest.runAllTimers();
   expect(scriptTag.appendChild).toHaveBeenCalledWith(expect.stringMatching(/mock response/));
+});
+it("allow the user to load resources with a programmatic API", async () => {
+	const SVG_URL = "svg";
+	const SVG_CONTENT = `<use xlink:href=\"#btNuzo4gP\" opacity=\"1\" fill=\"#666666\" fill-opacity=\"0.66\"></use>`;
+	require("./mocks/mockNetwork").configureResponse(SVG_URL, {content: SVG_CONTENT, contentType: "image/svg+xml"});
+	const content = await getResourceUri({ url: SVG_URL, isBinary: false });
+	expect(content.length).toBeGreaterThan(SVG_CONTENT.length);
+	expect(content.indexOf("#")).toBe(-1); //since we have a response handler that escapes "#"
+
+	//idb already has resource
+	const cachedContent = await getResourceUri({ url: SVG_URL, isBinary: false });
+	expect(cachedContent.length).toBeGreaterThan(SVG_CONTENT.length);
+	expect(cachedContent.indexOf("#")).toBe(-1);
 });
 it("adds an src to the script when the script is not in the cache", async () => {
   scriptTag.appendChild.mockClear();
