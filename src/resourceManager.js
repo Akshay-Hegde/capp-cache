@@ -2,7 +2,7 @@ import { error, log, perfMark, perfMarkEnd } from "./logger";
 import indexedDBAccess from "./indexedDBAccess";
 import tagPropertiesMap from "./tagPropertiesMap";
 import { loadResource, getCachedFiles } from "./resourceLoader";
-import {sortResources} from './sortResources';
+import { sortResources } from "./sortResources";
 
 const RESOURCES_LOAD_START = "Resources load start";
 
@@ -39,7 +39,7 @@ function handleOnLoadDoneCb(onLoadDone, resources, overrideDomContentLoaded) {
       if (!resource.attributes.async && !resource.cacheOnly && (resource.type === "js" || !resource.type)) {
         found = true;
         const originalOnLoad = resource.attributes.onload || "";
-        resource.attributes.onload = onLoadDone + "\n" + domContentLoadedCb+ "\n" + originalOnLoad;
+        resource.attributes.onload = onLoadDone + "\n" + domContentLoadedCb + "\n" + originalOnLoad;
       }
       i--;
     }
@@ -57,10 +57,19 @@ function handleOnLoadDoneCb(onLoadDone, resources, overrideDomContentLoaded) {
  * Loads a list of resources according to the manifest.
  * */
 export function load(
-  { resources = [], document = window.document, forceLoadFromCache = false, onLoadDone },
-  { syncCacheOnly = false, wasManifestModified = false, overrideDomContentLoaded = false } = {}
+  {
+    resources = [],
+    document = window.document,
+    forceLoadFromCache = false,
+    onLoadDone,
+    recacheAfterVersionChange = false,
+  },
+  { syncCacheOnly = false, wasManifestModified = false, overrideDomContentLoaded = false, forceRecaching = false } = {}
 ) {
   perfMark(RESOURCES_LOAD_START);
+  if (recacheAfterVersionChange === true && wasManifestModified === true) {
+    forceRecaching = true;
+  }
   return new Promise((resolve, reject) => {
     if (resources.length === 0) {
       return resolve();
@@ -94,6 +103,7 @@ export function load(
           immediate: forceLoadFromCache,
           isBinary,
           cacheOnly: cacheOnly || syncCacheOnly,
+          forceRecaching,
         })
           .then(({ resource }) => {
             /* resource already cached */

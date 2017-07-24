@@ -1,5 +1,4 @@
-const {handleResponse} = require("../../src/responseHandlers");
-
+const { handleResponse } = require("../../src/responseHandlers");
 
 const MOCK_RESPONSES = {
   "manifest.url": {

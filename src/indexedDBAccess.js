@@ -36,6 +36,8 @@ export default function() {
       };
     });
 
+  idbWrapper.skip = () => Promise.reject();
+
   idbWrapper.exists = id =>
     new Promise((resolve, reject) => {
       const request = store("readonly").count(id);

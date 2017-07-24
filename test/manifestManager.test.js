@@ -29,7 +29,7 @@ it("uses the cached manifest on subsequent runs", async () => {
     }),
   });
   await manifestManager.fetchManifest(MOCK_URL, mockIDB);
-  expect(mockResourceManager.load).toHaveBeenLastCalledWith({"version": "1"}, expect.anything());
+  expect(mockResourceManager.load).toHaveBeenLastCalledWith({ version: "1" }, expect.anything());
 });
 it("updates the manifest in the background", async () => {
   await manifestManager.fetchManifest(MOCK_URL, mockIDB);

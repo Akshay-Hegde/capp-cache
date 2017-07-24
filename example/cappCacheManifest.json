@@ -1,5 +1,6 @@
 {
   "version": "52",
+  "recacheAfterVersionChange":true,
   "onLoadDone": "console.log(`finished loading in ${performance.now()}`);",
   "resources": [
     {

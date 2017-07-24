@@ -136,17 +136,17 @@ it("adds the script inline when the script is in the cache", async () => {
   expect(scriptTag.appendChild).toHaveBeenCalledWith(expect.stringMatching(/mock response/));
 });
 it("allow the user to load resources with a programmatic API", async () => {
-	const SVG_URL = "svg";
-	const SVG_CONTENT = `<use xlink:href=\"#btNuzo4gP\" opacity=\"1\" fill=\"#666666\" fill-opacity=\"0.66\"></use>`;
-	require("./mocks/mockNetwork").configureResponse(SVG_URL, {content: SVG_CONTENT, contentType: "image/svg+xml"});
-	const content = await getResourceUri({ url: SVG_URL, isBinary: false });
-	expect(content.length).toBeGreaterThan(SVG_CONTENT.length);
-	expect(content.indexOf("#")).toBe(-1); //since we have a response handler that escapes "#"
+  const SVG_URL = "svg";
+  const SVG_CONTENT = `<use xlink:href=\"#btNuzo4gP\" opacity=\"1\" fill=\"#666666\" fill-opacity=\"0.66\"></use>`;
+  require("./mocks/mockNetwork").configureResponse(SVG_URL, { content: SVG_CONTENT, contentType: "image/svg+xml" });
+  const content = await getResourceUri({ url: SVG_URL, isBinary: false });
+  expect(content.length).toBeGreaterThan(SVG_CONTENT.length);
+  expect(content.indexOf("#")).toBe(-1); //since we have a response handler that escapes "#"
 
-	//idb already has resource
-	const cachedContent = await getResourceUri({ url: SVG_URL, isBinary: false });
-	expect(cachedContent.length).toBeGreaterThan(SVG_CONTENT.length);
-	expect(cachedContent.indexOf("#")).toBe(-1);
+  //idb already has resource
+  const cachedContent = await getResourceUri({ url: SVG_URL, isBinary: false });
+  expect(cachedContent.length).toBeGreaterThan(SVG_CONTENT.length);
+  expect(cachedContent.indexOf("#")).toBe(-1);
 });
 it("adds an src to the script when the script is not in the cache", async () => {
   scriptTag.appendChild.mockClear();
@@ -414,6 +414,56 @@ it("when forceLoadFromCache flag is set in the manifest, files will be fetched t
   const appendChildCalls = scriptTag.appendChild.mock.calls;
   expect(appendChildCalls).toHaveLength(3);
 });
+it("when forceRecaching flag is set in the argument for loadResource, resources are fetched from network and saved to db even if it is already cached", async () => {
+  const manifestArgs = {
+    resources: [
+      { url: DUMMY1, attributes: { attr1: true, attr2: "attr1 value" } },
+      { url: DUMMY2, attributes: { attr1: true, attr2: "attr2 value" } },
+      { url: DUMMY3, attributes: { attr1: true, attr2: "attr3 value" } },
+    ],
+    forceLoadFromCache: true,
+    document,
+  };
+  await load(manifestArgs);
+  scriptTag.appendChild.mockClear();
+  const NEW_CONTENT = "new dummy1";
+  require("./mocks/mockNetwork").configureResponse(DUMMY1, {
+    content: NEW_CONTENT,
+    contentType: "application/javascript",
+  });
+  await load(manifestArgs, { forceRecaching: true });
+  jest.runAllTimers();
+  const appendChildCalls = scriptTag.appendChild.mock.calls;
+  expect(appendChildCalls[0][0]).toMatch(new RegExp(NEW_CONTENT));
+	require("./mocks/mockNetwork").resetResponses();
+});
+it("when the manifest has recacheAfterVersionChange flag and the version has changed, it turns on the forceRecaching flag on load", async () => {
+  const manifestArgs = (version, extraArgs = {}) => ({
+    resources: [
+      { url: DUMMY1, attributes: { attr1: true, attr2: "attr1 value" } },
+      { url: DUMMY2, attributes: { attr1: true, attr2: "attr2 value" } },
+      { url: DUMMY3, attributes: { attr1: true, attr2: "attr3 value" } },
+    ],
+    version,
+    document,
+    ...extraArgs,
+  });
+  await load(manifestArgs(1));
+  await jest.runAllTimers();
+  scriptTag.appendChild.mockClear();
+  scriptTag.setAttribute.mockClear();
+
+	const NEW_CONTENT = "new dummy1";
+	require("./mocks/mockNetwork").configureResponse(DUMMY1, {
+    content: NEW_CONTENT,
+    contentType: "application/javascript",
+  });
+	await load(manifestArgs(2, { forceLoadFromCache: true, recacheAfterVersionChange: true }), { wasManifestModified: true });
+  jest.runAllTimers();
+	const setSrcAttributeCalls = scriptTag.setAttribute.mock.calls.filter(call => call[0] === "src");
+	expect(setSrcAttributeCalls[0][1]).toMatch(new RegExp(NEW_CONTENT));
+	require("./mocks/mockNetwork").resetResponses();
+});
 it("when a user adds onLoadDone callback, it is called after all scripts are done", async () => {
   const DONE_CALLBACK = "DONE CALLBACK";
   const manifestArgs = () => ({
@@ -464,93 +514,101 @@ it("when a user adds onLoadDone callback but all resources are no scripts that a
 });
 
 it("when a user turns on Overriding `DomContentLoaded` it triggers an event, when an onLoadDone is defined", async () => {
-	const manifestArgs = id => ({
-		resources: [
-			{ url: DUMMY1, attributes: { attr1: true, attr2: "attr1 value" } },
-			{ url: DUMMY2, attributes: { attr1: true, attr2: "attr2 value" }, type: "css" },
-			{ url: DUMMY3, attributes: { attr1: true, attr2: "attr3 value", async: true } },
-		],
-		onLoadDone: `doneCB(${id})`,
-		document,
-	});
+  const manifestArgs = id => ({
+    resources: [
+      { url: DUMMY1, attributes: { attr1: true, attr2: "attr1 value" } },
+      { url: DUMMY2, attributes: { attr1: true, attr2: "attr2 value" }, type: "css" },
+      { url: DUMMY3, attributes: { attr1: true, attr2: "attr3 value", async: true } },
+    ],
+    onLoadDone: `doneCB(${id})`,
+    document,
+  });
 
-	//from network
-	await load(manifestArgs(1), { overrideDomContentLoaded: true });
-	await jest.runAllTimers();
-	expect(scriptTag.setAttribute.mock.calls.filter(c => c[0] === "onload")[0][1]).toEqual(expect.stringMatching(/DOMContentLoaded/));
-	jest.clearAllMocks();
+  //from network
+  await load(manifestArgs(1), { overrideDomContentLoaded: true });
+  await jest.runAllTimers();
+  expect(scriptTag.setAttribute.mock.calls.filter(c => c[0] === "onload")[0][1]).toEqual(
+    expect.stringMatching(/DOMContentLoaded/)
+  );
+  jest.clearAllMocks();
 
-	//from cache
-	await load(manifestArgs(2), { overrideDomContentLoaded: true });
-	await jest.runAllTimers();
-	expect(scriptTag.setAttribute.mock.calls.filter(c => c[0] === "onload")[0][1]).toEqual(expect.stringMatching(/DOMContentLoaded/));
+  //from cache
+  await load(manifestArgs(2), { overrideDomContentLoaded: true });
+  await jest.runAllTimers();
+  expect(scriptTag.setAttribute.mock.calls.filter(c => c[0] === "onload")[0][1]).toEqual(
+    expect.stringMatching(/DOMContentLoaded/)
+  );
 });
 it("when a user turns on Overriding `DomContentLoaded` it triggers an event, when an onLoadDone is not defined", async () => {
-	const manifestArgs = id => ({
-		resources: [
-			{ url: DUMMY1, attributes: { attr1: true, attr2: "attr1 value" } },
-			{ url: DUMMY2, attributes: { attr1: true, attr2: "attr2 value" }, type: "css" },
-			{ url: DUMMY3, attributes: { attr1: true, attr2: "attr3 value", async: true } },
-		],
-		document,
-	});
+  const manifestArgs = id => ({
+    resources: [
+      { url: DUMMY1, attributes: { attr1: true, attr2: "attr1 value" } },
+      { url: DUMMY2, attributes: { attr1: true, attr2: "attr2 value" }, type: "css" },
+      { url: DUMMY3, attributes: { attr1: true, attr2: "attr3 value", async: true } },
+    ],
+    document,
+  });
 
-	//from network
-	await load(manifestArgs(1), { overrideDomContentLoaded: true });
-	await jest.runAllTimers();
-	expect(scriptTag.setAttribute.mock.calls.filter(c => c[0] === "onload")[0][1]).toEqual(expect.stringMatching(/DOMContentLoaded/));
-	jest.clearAllMocks();
+  //from network
+  await load(manifestArgs(1), { overrideDomContentLoaded: true });
+  await jest.runAllTimers();
+  expect(scriptTag.setAttribute.mock.calls.filter(c => c[0] === "onload")[0][1]).toEqual(
+    expect.stringMatching(/DOMContentLoaded/)
+  );
+  jest.clearAllMocks();
 
-	//from cache
-	await load(manifestArgs(2), { overrideDomContentLoaded: true });
-	await jest.runAllTimers();
-	expect(scriptTag.setAttribute.mock.calls.filter(c => c[0] === "onload")[0][1]).toEqual(expect.stringMatching(/DOMContentLoaded/));
+  //from cache
+  await load(manifestArgs(2), { overrideDomContentLoaded: true });
+  await jest.runAllTimers();
+  expect(scriptTag.setAttribute.mock.calls.filter(c => c[0] === "onload")[0][1]).toEqual(
+    expect.stringMatching(/DOMContentLoaded/)
+  );
 });
 
 it("when a user turns on Overriding `DomContentLoaded` it triggers an event, when an onLoadDone is defined, all resources are not script that so we fallback to after add to dom", async () => {
-	global.doneCB = jest.fn();
-	global.document.dispatchEvent = jest.fn();
-	const manifestArgs = id => ({
-		resources: [
-			{ url: DUMMY1, attributes: { attr1: true, attr2: "attr1 value" }, cacheOnly: true },
-			{ url: DUMMY2, attributes: { attr1: true, attr2: "attr2 value" }, type: "css" },
-			{ url: DUMMY3, attributes: { attr1: true, attr2: "attr3 value", async: true } },
-		],
-		onLoadDone: `doneCB(${id})`,
-		document,
-	});
+  global.doneCB = jest.fn();
+  global.document.dispatchEvent = jest.fn();
+  const manifestArgs = id => ({
+    resources: [
+      { url: DUMMY1, attributes: { attr1: true, attr2: "attr1 value" }, cacheOnly: true },
+      { url: DUMMY2, attributes: { attr1: true, attr2: "attr2 value" }, type: "css" },
+      { url: DUMMY3, attributes: { attr1: true, attr2: "attr3 value", async: true } },
+    ],
+    onLoadDone: `doneCB(${id})`,
+    document,
+  });
 
-	//from network
-	await load(manifestArgs(1), { overrideDomContentLoaded: true });
-	await jest.runAllTimers();
-	expect(global.document.dispatchEvent).toHaveBeenCalledWith(expect.objectContaining({ type: "DOMContentLoaded" }));
-	global.document.dispatchEvent.mockClear();
+  //from network
+  await load(manifestArgs(1), { overrideDomContentLoaded: true });
+  await jest.runAllTimers();
+  expect(global.document.dispatchEvent).toHaveBeenCalledWith(expect.objectContaining({ type: "DOMContentLoaded" }));
+  global.document.dispatchEvent.mockClear();
 
-	//from cache
-	await load(manifestArgs(2), { overrideDomContentLoaded: true });
-	await jest.runAllTimers();
-	expect(global.document.dispatchEvent).toHaveBeenCalledWith(expect.objectContaining({ type: "DOMContentLoaded" }));
+  //from cache
+  await load(manifestArgs(2), { overrideDomContentLoaded: true });
+  await jest.runAllTimers();
+  expect(global.document.dispatchEvent).toHaveBeenCalledWith(expect.objectContaining({ type: "DOMContentLoaded" }));
 });
 it("when a user turns on Overriding `DomContentLoaded` it triggers an event, when an onLoadDone is not defined, all resources are not script that so we fallback to after add to dom", async () => {
-	global.doneCB = jest.fn();
-	global.document.dispatchEvent = jest.fn();
-	const manifestArgs = id => ({
-		resources: [
-			{ url: DUMMY1, attributes: { attr1: true, attr2: "attr1 value" }, cacheOnly: true },
-			{ url: DUMMY2, attributes: { attr1: true, attr2: "attr2 value" }, type: "css" },
-			{ url: DUMMY3, attributes: { attr1: true, attr2: "attr3 value", async: true } },
-		],
-		document,
-	});
+  global.doneCB = jest.fn();
+  global.document.dispatchEvent = jest.fn();
+  const manifestArgs = id => ({
+    resources: [
+      { url: DUMMY1, attributes: { attr1: true, attr2: "attr1 value" }, cacheOnly: true },
+      { url: DUMMY2, attributes: { attr1: true, attr2: "attr2 value" }, type: "css" },
+      { url: DUMMY3, attributes: { attr1: true, attr2: "attr3 value", async: true } },
+    ],
+    document,
+  });
 
-	//from network
-	await load(manifestArgs(1), { overrideDomContentLoaded: true });
-	await jest.runAllTimers();
-	expect(global.document.dispatchEvent).toHaveBeenCalledWith(expect.objectContaining({ type: "DOMContentLoaded" }));
-	global.document.dispatchEvent.mockClear();
+  //from network
+  await load(manifestArgs(1), { overrideDomContentLoaded: true });
+  await jest.runAllTimers();
+  expect(global.document.dispatchEvent).toHaveBeenCalledWith(expect.objectContaining({ type: "DOMContentLoaded" }));
+  global.document.dispatchEvent.mockClear();
 
-	//from cache
-	await load(manifestArgs(2), { overrideDomContentLoaded: true });
-	await jest.runAllTimers();
-	expect(global.document.dispatchEvent).toHaveBeenCalledWith(expect.objectContaining({ type: "DOMContentLoaded" }));
+  //from cache
+  await load(manifestArgs(2), { overrideDomContentLoaded: true });
+  await jest.runAllTimers();
+  expect(global.document.dispatchEvent).toHaveBeenCalledWith(expect.objectContaining({ type: "DOMContentLoaded" }));
 });
