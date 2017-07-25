@@ -1,4 +1,4 @@
-import { error, log, perfMark, perfMarkEnd } from "./logger";
+import { error, log, perfMark, perfMarkEnd } from "./cappCacheLogger";
 import indexedDBAccess from "./indexedDBAccess";
 import tagPropertiesMap from "./tagPropertiesMap";
 import { loadResource, getCachedFiles } from "./resourceLoader";

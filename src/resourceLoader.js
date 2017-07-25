@@ -1,4 +1,4 @@
-import { log, error, perfMark, perfMarkEnd } from "./logger";
+import { log, error, perfMark, perfMarkEnd } from "./cappCacheLogger";
 import { id } from "./id";
 import { fetchResource } from "./network";
 

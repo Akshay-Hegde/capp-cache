@@ -1,5 +1,5 @@
 import idbAccess from "./indexedDBAccess";
-import { error, log } from "./logger";
+import { error, log } from "./cappCacheLogger";
 
 const FLUSH_WAIT = 6000;
 const pendingChanges = {};

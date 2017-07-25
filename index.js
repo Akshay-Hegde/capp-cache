@@ -1,4 +1,4 @@
-import { LOG_LEVELS, setLogLevel, error } from "./src/logger";
+import { LOG_LEVELS, setLogLevel, error } from "./src/cappCacheLogger";
 import { load, pruneDB, getResourceUri, revokeResourceUriForUrl, getLoadedResources } from "./src/resourceManager";
 import { on, trigger } from "./src/eventBus";
 import manifestManager from "./src/manifestManager";

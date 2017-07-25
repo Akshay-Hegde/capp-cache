@@ -1,4 +1,4 @@
-import { log, error } from "./logger";
+import { log, error } from "./cappCacheLogger";
 import indexedDB from "./indexedDB";
 
 const DB_NAME = "RESOURCE_CACHE";

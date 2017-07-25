@@ -1,4 +1,4 @@
-import { log, error } from "./logger";
+import { log, error } from "./cappCacheLogger";
 import { loadResource, fetchAndSaveInCache } from "./resourceLoader";
 import { load } from "./resourceManager";
 import { id } from "./id";
