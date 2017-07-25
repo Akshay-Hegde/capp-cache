@@ -1,5 +1,9 @@
 CACHE MANIFEST
+
 index.html
 capp-cache.js
+
+NETWORK:
+*
 
 #comment
