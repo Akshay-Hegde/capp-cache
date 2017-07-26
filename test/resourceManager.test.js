@@ -1,7 +1,7 @@
 jest.mock("../src/network", () => require("./mocks/mockNetwork"));
 jest.mock("../src/id", () => ({ id: id => id }));
 jest.mock("../src/indexedDB", () => require("./mocks/mockIDB").mock);
-const { load, getResourceUri } = require("../src/resourceManager");
+const { load, getResourceUri, getLoadedResources } = require("../src/resourceManager");
 const mockIDB = require("./mocks/mockIDB").mock;
 
 const DUMMY1 = "dummy.url1";
@@ -435,7 +435,7 @@ it("when forceRecaching flag is set in the argument for loadResource, resources 
   jest.runAllTimers();
   const appendChildCalls = scriptTag.appendChild.mock.calls;
   expect(appendChildCalls[0][0]).toMatch(new RegExp(NEW_CONTENT));
-	require("./mocks/mockNetwork").resetResponses();
+  require("./mocks/mockNetwork").resetResponses();
 });
 it("when the manifest has recacheAfterVersionChange flag and the version has changed, it turns on the forceRecaching flag on load", async () => {
   const manifestArgs = (version, extraArgs = {}) => ({
@@ -453,16 +453,18 @@ it("when the manifest has recacheAfterVersionChange flag and the version has cha
   scriptTag.appendChild.mockClear();
   scriptTag.setAttribute.mockClear();
 
-	const NEW_CONTENT = "new dummy1";
-	require("./mocks/mockNetwork").configureResponse(DUMMY1, {
+  const NEW_CONTENT = "new dummy1";
+  require("./mocks/mockNetwork").configureResponse(DUMMY1, {
     content: NEW_CONTENT,
     contentType: "application/javascript",
   });
-	await load(manifestArgs(2, { forceLoadFromCache: true, recacheAfterVersionChange: true }), { wasManifestModified: true });
+  await load(manifestArgs(2, { forceLoadFromCache: true, recacheAfterVersionChange: true }), {
+    wasManifestModified: true,
+  });
   jest.runAllTimers();
-	const setSrcAttributeCalls = scriptTag.setAttribute.mock.calls.filter(call => call[0] === "src");
-	expect(setSrcAttributeCalls[0][1]).toMatch(new RegExp(NEW_CONTENT));
-	require("./mocks/mockNetwork").resetResponses();
+  const setSrcAttributeCalls = scriptTag.setAttribute.mock.calls.filter(call => call[0] === "src");
+  expect(setSrcAttributeCalls[0][1]).toMatch(new RegExp(NEW_CONTENT));
+  require("./mocks/mockNetwork").resetResponses();
 });
 it("when a user adds onLoadDone callback, it is called after all scripts are done", async () => {
   const DONE_CALLBACK = "DONE CALLBACK";
@@ -611,4 +613,25 @@ it("when a user turns on Overriding `DomContentLoaded` it triggers an event, whe
   await load(manifestArgs(2), { overrideDomContentLoaded: true });
   await jest.runAllTimers();
   expect(global.document.dispatchEvent).toHaveBeenCalledWith(expect.objectContaining({ type: "DOMContentLoaded" }));
+});
+
+describe("getLoadedResources API", () => {
+  it("returns a list of resources loaded in the current session", async () => {
+    jest.resetModules();
+    const { load, getLoadedResources } = require("../src/resourceManager"); //we need to clear the list of loaded files
+    const manifestArgs = {
+      resources: [
+        { url: DUMMY1, attributes: { attr1: true, attr2: "attr1 value" }, cacheOnly: true },
+        { url: DUMMY2, attributes: { attr1: true, attr2: "attr2 value" }, type: "css" },
+        { url: DUMMY3, attributes: { attr1: true, attr2: "attr2 value" } },
+      ],
+      document,
+    };
+    await load(manifestArgs);
+    const resources = getLoadedResources();
+    expect(resources).toHaveLength(manifestArgs.resources.length);
+    expect(resources[0].domSelector).toBe('style[data-cappcache-src="dummy.url2"]');
+    expect(resources[1].domSelector).toBe('script[data-cappcache-src="dummy.url3"]');
+    expect(resources[2].domSelector).toBeNull();
+  });
 });

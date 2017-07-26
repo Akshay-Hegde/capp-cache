@@ -78,15 +78,14 @@ const mockIndexedDb = {
                 let idx = 0;
                 const nextResult = () => ({
                   target: {
-                    result:
-                      idx === keys.length
-                        ? null
-                        : {
-                            key: keys[idx++],
-                            continue() {
-                              process.nextTick(() => openCursorReq.onsuccess(nextResult()));
-                            },
+                    result: idx === keys.length
+                      ? null
+                      : {
+                          key: keys[idx++],
+                          continue() {
+                            process.nextTick(() => openCursorReq.onsuccess(nextResult()));
                           },
+                        },
                   },
                 });
                 process.nextTick(() => openCursorReq.onsuccess(nextResult()));

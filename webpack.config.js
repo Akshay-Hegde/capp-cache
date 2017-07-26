@@ -30,10 +30,10 @@ module.exports = function(env = { dev: "true" }) {
               unsafe_comps: true,
               screw_ie8: true,
             },
-	          parallel: {
-		          cache: true,
-		          workers: 4,
-	          }
+            parallel: {
+              cache: true,
+              workers: 4,
+            },
           }),
         ],
     devServer: {

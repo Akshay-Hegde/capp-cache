@@ -5,6 +5,7 @@ import { loadResource, getCachedFiles } from "./resourceLoader";
 import { sortResources } from "./sortResources";
 
 const RESOURCES_LOAD_START = "Resources load start";
+const DATA_SRC_ATTR = "data-cappcache-src";
 
 const WAITING = "waiting";
 const LOADED = "loaded";
@@ -158,7 +159,12 @@ export function load(
             Object.keys(staticAttributes.attributes).forEach(attribute => {
               tag.setAttribute(attribute, staticAttributes.attributes[attribute]);
             });
-            loadedResources.push({ url });
+            loadedResources.push({
+              url,
+              domSelector: documentTarget === MOCK_DOCUMENT
+                ? null
+                : `${staticAttributes.tagName}[${DATA_SRC_ATTR}="${url}"]`,
+            });
             if (!cacheOnly) {
               let currPos = resourceManifestObj._index;
               tagsReadyToBeAdded[currPos] = { state: WAITING, domTarget: documentTarget[target], tag, url };
@@ -207,7 +213,7 @@ export function load(
   });
 }
 export function getLoadedResources() {
-  return loadedResources.map(i => ({ url: i.url }));
+  return loadedResources.map(i => ({ url: i.url, domSelector: i.domSelector }));
 }
 const resourceUriHistory = {};
 
