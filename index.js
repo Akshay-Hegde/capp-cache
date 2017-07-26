@@ -38,6 +38,7 @@ import manifestManager from "./src/manifestManager";
     error(`Unable to find attribute "data-cc-manifest" on the HTML tag, CappCache will not work`);
   }
   window.cappCache = {
+	  /*version-placeholder*/ //this is a placeholder for the version field, it is replaced by Webpack in build time
     loadResources: load,
     getResourceUri,
     revokeResourceUriForUrl,
@@ -46,6 +47,5 @@ import manifestManager from "./src/manifestManager";
     getLoadedResources,
     setLogLevel,
     LOG_LEVELS,
-    /*version-placeholder*/ //this is replaced by webpack during build, do not change
   };
 })();
