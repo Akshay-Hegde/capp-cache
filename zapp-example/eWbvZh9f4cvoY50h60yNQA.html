@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html manifest="eWbvZh9f4cvoY50h60yNQA/mobile.appcache?action=show&amp;controller=mobile&amp;token=eWbvZh9f4cvoY50h60yNQA"
+      data-cc-manifest="cappCacheManifest.json">
+<head>
+  <meta charset="UTF-8">
+  <title>Med 18 btc</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, minimum-scale=1.0,maximum-scale=1.0">
+  <meta name="viewport" content="initial-scale=1, user-scalable=no, minimum-scale=1.0,maximum-scale=1.0" media="(device-height: 568px)">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="format-detection" content="telephone=no">
+
+  <!-- Google dont find me -->
+  <meta name="robots" content="noindex"/>
+
+  <!-- Cache busting -->
+  <meta http-equiv="pragma" content="no-cache"/>
+  <meta http-equiv="cache-control" content="no-cache, no-store, max-age=0, private, must-revalidate"/>
+  <meta http-equiv="expires" content="Fri, 01 Jan 1990 00:00:00 GMT"/>
+
+
+  <style>
+    @-webkit-keyframes rotate-loading-indicator {
+        from {
+            -webkit-transform: rotate(0deg);
+        }
+
+        to {
+            -webkit-transform: rotate(360deg);
+        }
+    }
+
+    @-moz-keyframes rotate-loading-indicator {
+        from {
+            -moz-transform: rotate(0deg);
+        }
+
+        to {
+            -moz-transform: rotate(360deg);
+        }
+    }
+
+    @keyframes rotate-loading-indicator {
+        from {
+            transform: rotate(0deg);
+        }
+
+        to {
+            transform: rotate(360deg);
+        }
+    }
+    .brand-primary-color{
+        background-color: #3A3A3A;
+    }
+    #new-splash {
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        z-index: 999993;
+        background-color: white;
+        -webkit-transition: all 0.3s;
+        -moz-transition: all 0.3s;
+        -ms-transition: all 0.3s;
+        -o-transition: all 0.3s;
+        transition: all 0.3s;
+    }
+
+    .hidden *{
+        display: none;
+    }
+
+    #home-button-container {
+        height: 44px;
+        display: -webkit-flex;
+        display: flex;
+        -webkit-flex-display: row;
+        flex-direction: row;
+        -webkit-align-items: center;
+        align-items: center;
+    }
+
+    #home-button-container svg{
+        height: 44px;
+        display: flex;
+        display: -webkit-flex;
+        align-items: center;
+        -webkit-align-items: center;
+    }
+
+    #new-splash-home-icon {
+        margin: 0 3px;
+        font-size: 1.4em;
+    }
+
+    #new-splash-org {
+        margin: 30px;
+        height: 88px;
+        position: relative;
+        text-align: center;
+        display:none;
+    }
+
+    #new-splash-org img {
+        max-height: 100%;
+        max-width: 100%;
+        display: none;
+
+    }
+
+    #new-splash-org-1 {
+        display: inline-block;
+        height: 100%;
+        width: 0;
+    }
+
+    #new-splash-app {
+        /*border-top: 1px solid #ebebeb;*/
+        /*border-bottom: 1px solid #ebebeb;*/
+        -webkit-transition: all 0.3s;
+        -moz-transition: all 0.3s;
+        -ms-transition: all 0.3s;
+        -o-transition: all 0.3s;
+        transition: all 0.3s;
+        margin-top: 20%;
+    }
+
+    #new-splash-app-inner {
+        margin: 30px auto 0;
+        max-width: 450px;
+        padding: 0 30px;
+        box-sizing: border-box;
+        display: -webkit-flex;
+        display: flex;
+        -webkit-flex-direction: column;
+        flex-direction: column;
+        -webkit-align-items: center;
+        align-items: center;
+    }
+
+    #new-splash-app-icon {
+        width: 80px;
+        height: 80px;
+        float: left;
+        -webkit-transition: all 0.3s;
+        -moz-transition: all 0.3s;
+        -ms-transition: all 0.3s;
+        -o-transition: all 0.3s;
+        transition: all 0.3s;
+    }
+
+    #new-splash-app-icon img {
+        max-height: 100%;
+        max-width: 100%;
+    }
+
+    #new-splash-app-name {
+        display: flex;
+        display: -webkit-flex;
+        align-items: center;
+        -webkit-align-items: center;
+        /*margin-left: 96px;*/
+        height: 80px;
+        font-size: 20px;
+        color: #3a3a3a;
+        position: relative;
+        -webkit-transition: all 0.3s;
+        -moz-transition: all 0.3s;
+        -ms-transition: all 0.3s;
+        -o-transition: all 0.3s;
+        transition: all 0.3s;
+    }
+
+    #new-splash-app-name-inner-2 {
+        display: block;
+        vertical-align: middle;
+        text-align: center;
+    }
+
+    /*#new-splash-loading {*/
+        /*line-height: 44px;*/
+        /*position: relative;*/
+        /*margin-top: 30px;*/
+        /*-webkit-transition: all 0.3s;*/
+        /*-moz-transition: all 0.3s;*/
+        /*-ms-transition: all 0.3s;*/
+        /*-o-transition: all 0.3s;*/
+        /*transition: all 0.3s;*/
+        /*-webkit-align-self: stretch;*/
+        /*align-self: stretch;*/
+    /*}*/
+
+    /*#new-splash-loading-spinner {*/
+        /*float: left;*/
+        /*width: 15px;*/
+        /*height: 15px;*/
+        /*margin-top: 15px;*/
+        /*background-size: 100%;*/
+        /*border-radius: 50%;*/
+        /*border: 1px solid #3a3a3a;*/
+        /*position: relative;*/
+        /*box-sizing: border-box;*/
+        /*animation: rotate-loading-indicator 1s linear 0s infinite;*/
+        /*-moz-animation: rotate-loading-indicator 1s linear 0s infinite;*/
+        /*-webkit-animation: rotate-loading-indicator 1s linear 0s infinite;*/
+    /*}*/
+
+    /*#new-splash-loading-spinner:before {*/
+        /*content: '';*/
+        /*position: absolute;*/
+        /*width: 6px;*/
+        /*height: 6px;*/
+        /*background-color: white;*/
+        /*top: 4px;*/
+        /*left: -1px;*/
+    /*}*/
+
+    /*#new-splash-loading-text {*/
+        /*text-align: center;*/
+    /*}*/
+    /*.splash-message{*/
+        /*box-shadow: none !important;*/
+    /*}*/
+
+    /*#new-splash-powered-by {*/
+        /*position: absolute;*/
+        /*bottom: 0;*/
+        /*height: 22px;*/
+        /*line-height: 22px;*/
+        /*padding: 11px 0;*/
+        /*text-align: center;*/
+        /*font-size: 10px;*/
+        /*width: 100%;*/
+    /*}*/
+
+    /*#new-splash-powered-by div {*/
+        /*display: inline-block;*/
+        /*vertical-align: top;*/
+    /*}*/
+
+    /*#new-splash-powered-by img {*/
+        /*height: 22px;*/
+    /*}*/
+
+    /*#home-button-container {*/
+
+    /*}*/
+
+    #home-button-container.hidden *{
+        visibility: hidden !important;
+    }
+
+    @media screen and (max-height: 360px) {
+        /* line 176, ../sass/splash.scss */
+        #new-splash-org {
+            margin: 15px;
+            height: 60px;
+        }
+
+        /* line 181, ../sass/splash.scss */
+        #new-splash-app-inner {
+            margin: 15px auto 0;
+            padding: 0 15px;
+        }
+
+        /* line 186, ../sass/splash.scss */
+        #new-splash-loading {
+            margin-top: 15px;
+        }
+
+        /* line 190, ../sass/splash.scss */
+        #new-splash-app-icon {
+            height: 40px;
+            width: 40px;
+        }
+
+        /* line 195, ../sass/splash.scss */
+        #new-splash-app-name {
+            margin-left: 56px;
+            height: 40px;
+        }
+    }
+    @media screen and (max-height: 360px) and (max-width: 360px) {
+        /* line 203, ../sass/splash.scss */
+        #new-splash-app-inner {
+            padding: 0 30px;
+        }
+    }
+    @media screen and (max-height: 245px) {
+        /* line 211, ../sass/splash.scss */
+        #new-splash-loading {
+            display: none;
+        }
+    }
+    /*********** loading state - before getting app details **********/
+    /* line 219, ../sass/splash.scss */
+    #new-splash.loading #new-splash-app {
+        border-color: transparent;
+    }
+    /* line 223, ../sass/splash.scss */
+    #new-splash.loading #new-splash-loading {
+        border-color: transparent;
+    }
+    /* line 227, ../sass/splash.scss */
+    #new-splash.loading #new-splash-app-icon, #new-splash.loading #new-splash-app-name {
+        opacity: 0;
+    }
+
+    /* line 232, ../sass/splash.scss */
+    #new-splash.fade-out {
+        opacity: 0;
+    }
+
+    /* line 236, ../sass/splash.scss */
+    .new-splash-text {
+        font-family: Avenir, Roboto, Helvetica, Arial, sans-serif;
+        font-weight: 500;
+    }
+
+    #home-svg {
+        height: 26px;
+        width: 32px;
+        float: left;
+        margin-left: 10px;
+    }
+
+    @media screen and (max-height: 360px) {
+        /* line 241, ../sass/splash.scss */
+        #new-splash-org {
+            margin: 15px auto;
+            max-width: 200px;
+        }
+    }
+
+
+    body{
+        font-family: Avenir, Roboto, Helvetica, Arial, sans-serif
+    }
+
+    #new-splash-loading{
+        bottom: 16px;
+        position: absolute;
+        border: black;
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+        max-width: 450px;
+        margin-right: auto;
+        margin-left: auto;
+        right: 15px;
+        left: 15px;
+        box-sizing: border-box;
+        display: flex;
+        height: 62px;
+        align-items: center;
+        border-radius: 4px;
+    }
+    @-webkit-keyframes sk-bouncedelay {
+        0%, 80%, 100% {-webkit-transform: scale(0)}
+        40% {-webkit-transform: scale(1)}
+    }
+
+    @keyframes sk-bouncedelay {
+        0%, 80%, 100% {
+            -webkit-transform: scale(0);
+            transform: scale(0);
+        }
+
+        40% {
+            -webkit-transform: scale(1);
+            transform: scale(1);
+        }
+    }
+    .new-splash-loading-icon{
+        float: left;
+        margin: 7px 15px 7px 25px;
+        max-height: 25px;
+        overflow: hidden;
+        /*min-height: 44px;*/
+    }
+    .new-splash-loading-spinner-bounce{
+        width: 8px;
+        height: 8px;
+        background-color: #3F91EB;
+        border-radius: 50%;
+        display: inline-block;
+    }
+    .new-splash-loading-spinner-bounce {
+        -webkit-animation: sk-bouncedelay 1.4s infinite ease-in-out both;
+        animation: sk-bouncedelay 1.4s infinite ease-in-out both;
+    }
+    .new-splash-loading-spinner-bounce:first-of-type {
+         -webkit-animation-delay: -0.32s;
+         animation-delay: -0.32s;
+    }
+
+    .new-splash-loading-spinner-bounce:nth-of-type(2) {
+         -webkit-animation-delay: -0.16s;
+         animation-delay: -0.16s;
+    }
+    #new-splash-loading-text{
+        padding-left: 2px;
+    }
+
+</style><style>.brand-primary-color { background-color: #3400ff }</style>
+
+    <script src="capp-cache.js"></script>
+
+</head>
+<body class="zapp">
+  <script>
+      (function () {
+          window.Capriza = {
+              apiHost: "https://apidev.capriza.com",
+              zappHost: "https://zappdev.capriza.com",
+              zappToken: "eWbvZh9f4cvoY50h60yNQA",
+              relaybusUrl: "https://relaybusdev.capriza.com/relay.bus",
+              rtPublicKey: "026306f81fe92c89e945eadb918986e3f631ae0d523104893aaf8613f8ccf48a76",
+              runStart: Date.now(),
+              lang_header: "en-US,en;q=0.8",
+              deviceInfo: JSON.parse('{"browser_supported":true}'),
+              zappInfo: JSON.parse('{\"asset_versions\":{\"custom_css_version\":\"a8e8605f7eb064ca\",\"structure_version\":\"1567e078cf022b6c\"},\"mboot_version\":\"20170702-561\",\"mboot_base_url\":\"https://zappdev.capriza.com/static/mboot\",\"u_app_version\":1,\"med_version\":\"18.621.0-beta\",\"zappName\":\"Med 18 btc\"}'),
+              resourcesLoaded: {}
+          };
+      })();
+
+      function resourceLoaded(resource) {
+          Capriza.resourcesLoaded[resource] = true;
+      };
+  </script>
+
+  
+<div id="new-splash" class="new-splash-to-be-removed">
+
+    <div id="home-button-container" class="hidden new-splash-text brand-primary-color ss-dss_primBgCol">
+        <svg id="home-svg" width="100px" height="100px" viewBox="0 0 100 100" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:sketch="http://www.bohemiancoding.com/sketch/ns">
+            <!-- Generator: Sketch 3.2 (9961) - http://www.bohemiancoding.com/sketch -->
+            <title>zapp-grid-circle</title>
+            <desc>Created with Sketch.</desc>
+            <defs></defs>
+            <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" sketch:type="MSPage">
+                <g id="zapp-grid-circle" sketch:type="MSArtboardGroup" fill="#000000">
+                    <path d="M50,0 C22.3857143,0 0,22.3857143 0,50 C0,77.6142857 22.3857143,100 50,100 C77.6142857,100 100,77.6142857 100,50 C100,22.3857143 77.6142857,0 50,0 L50,0 Z M50,96.4285714 C24.3589286,96.4285714 3.57142857,75.6410714 3.57142857,50 C3.57142857,24.3589286 24.3589286,3.57142857 50,3.57142857 C75.6410714,3.57142857 96.4285714,24.3589286 96.4285714,50 C96.4285714,75.6410714 75.6410714,96.4285714 50,96.4285714 Z M34,26 L34,40 L48,40 L48,26 L34,26 Z M52,26 L52,40 L66,40 L66,26 L52,26 Z M34,44 L34,58 L48,58 L48,44 L34,44 Z M52,44 L52,58 L66,58 L66,44 L52,44 Z M34,61 L34,75 L48,75 L48,61 L34,61 Z M52,61 L52,75 L66,75 L66,61 L52,61 Z" id="Imported-Layers-3" sketch:type="MSShapeGroup"></path>
+                </g>
+            </g>
+        </svg>
+        <span>Back to List</span>
+    </div>
+    <div id="new-splash-org">
+        <div id="new-splash-org-1"></div>
+        <!--<img src="<%= org_icon_url %>" style="visibility: visible;">-->
+    </div>
+    <div id="new-splash-app">
+        <div id="new-splash-app-inner">
+            <div id="new-splash-app-icon">
+                <img>
+            </div>
+            <div id="new-splash-app-name">
+                <div id="new-splash-app-name-inner-2" class="new-splash-text"></div>
+            </div>
+        </div>
+        <div id="new-splash-loading">
+            <!--<div id="new-splash-loading-spinner"></div>-->
+            <div class="new-splash-loading-icon">
+                <div class="new-splash-loading-spinner-bounce"></div>
+                <div class="new-splash-loading-spinner-bounce"></div>
+                <div class="new-splash-loading-spinner-bounce"></div>
+            </div>
+            <div id="new-splash-loading-text" class="new-splash-text">Loading your Zapp...</div>
+        </div>
+    </div>
+    <script>
+        var isStore = location.search.indexOf('store=true') > -1;
+        var isIframe = location.search.indexOf('isIframe=true') > -1;
+
+        setTimeout(function(){
+            if (Capriza && Capriza.zappInfo && Capriza.zappInfo.zappName){
+                console.log("zapp name found  " + decodeURIComponent(Capriza.zappInfo.zappName));
+                document.getElementById("new-splash-app-name-inner-2").innerText = decodeURIComponent(Capriza.zappInfo.zappName);
+            }
+        },16);
+
+        if (isStore) {
+
+            var homeButtonContainer = document.getElementById('home-button-container');//$('#home-button-container');
+            homeButtonContainer.classList.remove("hidden");
+            homeButtonContainer.addEventListener('click', function() {
+
+                if (isIframe) {
+                    top.Capriza.zappAPI["zapp/close"]()
+                }
+
+                else if (window.Dispatcher) {
+                    window.Dispatcher.trigger('app/close');
+                }
+
+                else {
+                    var storeUrlIndex = location.search.indexOf('storeUrl');
+                    if (storeUrlIndex < 0) return;
+                    var nextAmprIndex = location.search.indexOf('&', storeUrlIndex) > -1 ? location.search.indexOf('&', storeUrlIndex) : location.search.length;
+                    var storeUrl = location.search.substring(storeUrlIndex+9, nextAmprIndex);
+                    location.assign(decodeURIComponent(storeUrl)+"#?fromZapp=true");
+                }
+            });
+
+
+        }
+
+    </script>
+</div>
+
+
+  <script type="text/javascript">
+      window.splashRender = true;
+  </script>
+
+</body>
+</html>

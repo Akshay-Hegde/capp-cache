@@ -1,0 +1,1 @@
+console.log(`PERFORMANCE END: ${performance.now()}`);

@@ -1,6 +1,7 @@
 import { log, error, perfMark, perfMarkEnd } from "./logger";
 import { id } from "./id";
 import { fetchResource } from "./network";
+import { trigger, EVENTS } from "./eventBus";
 
 let RESOURCE_FETCH_DELAY = 1000;
 let cachedFilesInSession = {};
@@ -56,6 +57,7 @@ export const loadResource = ({ indexedDBAccess, url, immediate = false, isBinary
       });
   });
   cachedFilesInSession[fullUrl] = true;
+  trigger(EVENTS.RESOURCE_ACCESS, { url: fullUrl });
   return promise;
 };
 
