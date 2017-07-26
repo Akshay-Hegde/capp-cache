@@ -1,4 +1,4 @@
-import { log, error } from "./logger";
+import { log, error } from "./cappCacheLogger";
 import indexedDB from "./indexedDB";
 
 const DB_NAME = "RESOURCE_CACHE";
@@ -50,21 +50,21 @@ export default function(storeName = DEFAULT_STORE_NAME) {
 			};
 		});
 
-	idbWrapper.exists = id =>
-		new Promise((resolve, reject) => {
-			const request = store("readonly").count(id);
-			request.onsuccess = e => {
-				const exists = e.target.result > 0;
-				if (exists) {
-					resolve({});
-				} else {
-					reject();
-				}
-			};
-			request.onerror = event => {
-				reject(event);
-			};
-		});
+  idbWrapper.skip = () => Promise.reject();idbWrapper.exists = id =>
+    new Promise((resolve, reject) => {
+      const request = store("readonly").count(id);
+      request.onsuccess = e => {
+        const exists = e.target.result > 0;
+        if (exists) {
+          resolve({});
+        } else {
+          reject();
+        }
+      };
+      request.onerror = event => {
+        reject(event);
+      };
+    });
 
 	idbWrapper.removeResource = id =>
 		new Promise((resolve, reject) => {

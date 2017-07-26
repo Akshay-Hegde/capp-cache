@@ -5,6 +5,20 @@ module.exports = function(env = { dev: "true" }) {
   const buildForDev = env.dev;
   const distFolder = path.join(__dirname, "dist");
   console.log(`Building webpack with env ${JSON.stringify(env)}. buildForDev = ${env.dev}`);
+  const basePlugins = [];
+  const baseLoaders = [
+    {
+      test: /index\.js$/,
+      exclude: /(^node_modules$)/,
+      use: {
+        loader: "string-replace-loader",
+        query: {
+          search: "/*version-placeholder*/",
+          replace: `version: ${JSON.stringify(require("./package.json").version)},`,
+        },
+      },
+    },
+  ];
   const config = {
     entry: "./index.js",
     output: {
@@ -13,8 +27,9 @@ module.exports = function(env = { dev: "true" }) {
     },
     devtool: buildForDev ? "eval" : "source-map",
     plugins: buildForDev
-      ? []
+      ? basePlugins
       : [
+          ...basePlugins,
           new webpack.optimize.ModuleConcatenationPlugin(),
           new webpack.DefinePlugin({
             "process.env.NODE_ENV": '"production"',
@@ -30,6 +45,10 @@ module.exports = function(env = { dev: "true" }) {
               unsafe_comps: true,
               screw_ie8: true,
             },
+            parallel: {
+              cache: true,
+              workers: 4,
+            },
           }),
         ],
     devServer: {
@@ -38,8 +57,9 @@ module.exports = function(env = { dev: "true" }) {
     },
     module: {
       rules: buildForDev
-        ? []
+        ? baseLoaders
         : [
+            ...baseLoaders,
             {
               test: /\.js$/,
               exclude: /(^node_modules$)/,

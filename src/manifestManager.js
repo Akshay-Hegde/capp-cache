@@ -1,11 +1,11 @@
-import { log, error } from "./logger";
+import { log, error } from "./cappCacheLogger";
 import { loadResource, fetchAndSaveInCache } from "./resourceLoader";
 import { load } from "./resourceManager";
 import { id } from "./id";
 import indexedDBAccess from "./indexedDBAccess";
 
 export default {
-  fetchManifest(manifestUrl) {
+  fetchManifest(manifestUrl, { overrideDomContentLoaded = false }) {
     const fullManifestUrl = id(manifestUrl);
     return new Promise((resolve, reject) => {
       indexedDBAccess().then(db => {
@@ -13,7 +13,7 @@ export default {
           .then(({ fromCache, resource }) => {
             const manifestContent = resource.content;
             const manifest = JSON.parse(manifestContent);
-            load(manifest);
+            load(manifest, { overrideDomContentLoaded });
             let wasModified = false;
             if (fromCache) {
               fetchAndSaveInCache({ url: fullManifestUrl, indexedDBAccess: db }).then(newManifestContent => {

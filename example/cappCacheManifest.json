@@ -1,5 +1,6 @@
 {
   "version": "52",
+  "recacheAfterVersionChange":true,
   "onLoadDone": "console.log(`finished loading in ${performance.now()}`);",
   "resources": [
     {
@@ -20,8 +21,9 @@
       "url": "https://cdnjs.cloudflare.com/ajax/libs/select2-bootstrap-css/1.4.6/select2-bootstrap.css",
       "type": "css",
       "attributes": {
-        "onload": "console.log('DONE')"
-      }
+        "onload": "console.log('DONE - onload of bootstrap. From network only')"
+      },
+      "networkOnly": true
     },
     {
       "url": "measure.js",

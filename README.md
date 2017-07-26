@@ -30,8 +30,9 @@ Property  | description                                                         
 resources | An array of resources to be cached. See the following table for details. | array of resource entries   | []
 manifestUrl | A URL from which the manifest JSON is fetched.                         | URL
 version   | An identifier for the version of the manifest. A change in this version will result in background syncing of the cache with the new manifest. See function on("manifestUpdated") for details.  | string |
-forceLoadFromCache| By default, when a resource (especially relevant to Javascript) is not in cache, capp-cache will add it to the DOM with `src` attribute, and only then download the resource (again) in the background to cache for subsequent runs. While this improves performance for first run, it creates slightly different behavior due to the way the browser handles inline scripts vs. scripts with src attribute. This flag forces capp-cache to first fetch the resource and only then add it to the DOM in the same way it would have if the resource was already in the cache. On subsequent runs, when the cache is already full this flag has no effect. | boolean | false   
-onLoadDone| A string that can be used to build a `Function()`. It will be added as `onload` callback to the last script in the list of manifest resources that is not `cacheOnly` or has `async` attribute. For example the value `"console.log('done')"` will print a "done" string once the last resource was loaded. If  | string  
+forceLoadFromCache| By default, when a resource (especially relevant to Javascript) is not in cache, capp-cache will add it to the DOM with `src` attribute, and only then download the resource (again) in the background to cache for subsequent runs. While this improves performance for first run, it creates slightly different behavior due to the way the browser handles inline scripts vs. scripts with src attribute. It also doubles network traffic. This flag forces capp-cache to first fetch the resource and only then add it to the DOM in the same way it would have if the resource was already in the cache. On subsequent runs, when the cache is already full this flag has no effect. | boolean | false
+onLoadDone| A function that is added as `onload` callback to the last script in the list of manifest resources that is not `cacheOnly` or has `async` attribute. For example the value `"console.log('done')"` will print a "done" string once the last resource was loaded. <br/>In the capp-cache manifest JSON you can only pass a string that is convertible to a function using the `Function` contstructor. When using the programmatic API `loadResources` function you can pass an actual function. | string \| function
+recacheAfterVersionChange | A flag indicating to capp-cache to download all files in the manifest whenever the `version` field has changed. By default, capp-cache only downloads resources which were not already cached. That means that you cannot update the content of a cached resource; you have to provide a new resource url. With this flag set to `true` following a `version` change, capp-cache will download all resources from network, updating the resources content. Note that the update files will only be available on the second page load, as capp-cache immediately loads files according to the cached manifest. If you need register to `manifestUpdated ` event (see below) | boolean | false|
 
 
 When the page loads, the library will add your resources to the DOM, according to the resources list.
@@ -44,6 +45,7 @@ type      | type of resource. js and css will be added to the DOM unless you spe
 target    | parent element of the resource                              | head, body       | head
 attributes| A key / value list of attributes to set on the tag element  | object               |
 cacheOnly | sync the script to the database, but don't append it to the DOM. Use to ensure a resource is in the cache for future use | manifest |
+networkOnly | fetches a resource directly from the network every time, without any caching. This can be helpful for example when you have some resource that changes on each run, but you want to maintain the order between cached and non cached scripts, so you cannot append it directly to the HTML file.|boolean | false|
 format    | **[fontface only]** the format of the font file that will be cached | string | woff2
 localFontFamily | **[fontface only]** a string array of local font-family names that will be specified using `local(...)` before the cached url. | [string] | 
 fallbackUrls | **[fontface only]** a list of font file urls that will be used as fallback. Those urls will not be cached. | array of `{url, format}` | 
@@ -54,6 +56,18 @@ By default, Capp Cache will try to fetch a file called `cappCacheManifest.json`.
 You can override this behavior by setting an object property on the `window` object called `cappCacheManifest` before Capp Cache library is loaded.  
 To specify a **custom URL** from which cappCache loads the manifest, set `window.cappCacheManifest.manifestUrl` to that URL.
 To **inline the manifest**, so that no additional request is triggered, sepcify the `window.cappCacheManifest.resources` array, without specifying `window.cappCacheManifest.manifestUrl`.
+
+
+#### Overriding `DomContentLoaded` firing too early with `data-cc-override-domcontentloaded` attribute
+Existing code, or code that uses libraries might relay on `DOMContentLoaded` event. Since a capp-cached app usually has HTML file which is mostly empty (as scripts are added dynamically), code that relies on `DOMContentLoaded ` will run before the scripts have been evaluated. When this flag is set to `true`, capp-cache will capture `DOMContentLoaded ` event and fire the event only after all scripts have been loaded (same time that capp-cahce `onLoadDone` is fired).
+Since this information must be available synchronously, you need to specify it as attribute in your HTML file, on the `html` tag. For example:
+
+```html 
+<html data-cc-manifest="capp-cache-manifest.json" data-cc-override-domcontentloaded="true">
+...
+</html>
+```
+
 
 ---
 
@@ -138,10 +152,11 @@ will generate the following tag:
 
 
 ## API
-### `window.cappCache.loadResources(manifest, {syncCacheOnly = false})`
+### `window.cappCache.loadResources(manifest, {syncCacheOnly = false, forceRecaching = false})`
 Loads resources according to a manifest object; use this function to load scripts dynamically. The function receives two arguments.  
 `manifest` - a manifest object with a `resources` property similar to the `cappCacheManifest.json` file. 
 `syncCacheOnly` - if set to `true` files are just cached, but not added to the DOM.
+`forceRecaching` - if set to `true` resources will be downloaded again to the cache, even if they already exists in the cache. If this flag is not set, a resource will never be downloaded once it is cached.
 For example:
 
 ```javascript
@@ -164,6 +179,9 @@ The library keeps track of all resources it has loaded in that session. When you
 ### `window.cappCache.on("manifestUpdated", callback)`
 The library caches the `cappCacheManifest.json` and loads all resources accordingly. This saves significant time on startup. However, it has the downside of loading outdated files after a change. If you want to be able to respond to such event, you can register to this event using this function. The callback function will be called with no arguments after the updated manifest is saved to the cache and all resources from that manifest were fetched. For example, you might want to suggest the user to reload the page to see the latest version of the page.  
 This feature should be used in conjunction with the `version` property of `cappCacheManifest.json` file. The library will consider an update only if the `version` property is different from the cached manifest. 
+
+### `window.cappCache.getLoadedResources()`
+Returns an `array` of all resources that were loaded in the current session. Each entry in the array contains the `url` from which the resource was loaded and optionally `domSelector` property that allows accessing the element that was added to the DOM. If the element was not added to the DOM (e.g. `cacheOnly` resource) the property will be `null`.
 
 ### `window.cappCache.getResourceUri({url, isBinary = true})`
 Fetches a resource (commonly images and fonts) and returns an object URL. You can use this URI as the source of your resource. For example:
@@ -191,6 +209,9 @@ If the resource is textual, set `isBinary` to false. In this case you will recei
 
 ### `window.cappCache.setLogLevel(window.cappCache.LOG_LEVELS)`
 Sets the console output log level of the library. By default set to warn. 
+
+### `window.cappCache.version`
+Returns capp-cache version
 
 ### FAQ
 
@@ -240,6 +261,8 @@ The root issue is that since the library does not enjoy and special capabilities
    onLoadDone: "document.dispatchEvent(new Event('ready'));"
 }
 ``` 
+If you have to use `DOMContentLoaded` directly (for example, you use a library that relies on this event) you can [override](#overriding-domcontentloaded-firing-too-early-with-data-cc-override-domcontentloaded-attribute) the default event.
+
 - Secondary resources that are declared by your app need to use CappCache as well. For example, font `src` declared in your CSS file.   
 **Workaround**: one option is to inline the resource as base64 encoded [data URL](https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/Data_URIs). There are [online](https://dopiaza.org/tools/datauri/index.php) tools for that, or you can use a bundler such as Webpack [url-loader](https://github.com/webpack-contrib/url-loader)
 - [Code splitting](https://webpack.js.org/guides/code-splitting-async/) does not take advantage of caching and offline.   

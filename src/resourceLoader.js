@@ -1,4 +1,4 @@
-import { log, error, perfMark, perfMarkEnd } from "./logger";
+import { log, error, perfMark, perfMarkEnd } from "./cappCacheLogger";
 import { id } from "./id";
 import { fetchResource } from "./network";
 import { trigger, EVENTS } from "./eventBus";
@@ -21,11 +21,27 @@ export const fetchAndSaveInCache = ({ url, indexedDBAccess, isBinary }) =>
       });
   });
 
-export const loadResource = ({ indexedDBAccess, url, immediate = false, isBinary = false, cacheOnly = false }) => {
+export const loadResource = ({
+  indexedDBAccess,
+  url,
+  immediate = false,
+  isBinary = false,
+  cacheOnly = false,
+  forceRecaching = false,
+  networkOnly = false,
+}) => {
   perfMark(`loadResource ${url} start`);
   const fullUrl = id(url);
-  const method = cacheOnly ? "exists" : "get";
+  let method = "get";
+  if (forceRecaching) {
+    method = "skip";
+  } else if (cacheOnly) {
+    method = "exists";
+  }
   const promise = new Promise((resolve, reject) => {
+    if (networkOnly) {
+      return reject(null)
+    }
     indexedDBAccess
       [method](fullUrl)
       .then(resource => {
@@ -35,7 +51,11 @@ export const loadResource = ({ indexedDBAccess, url, immediate = false, isBinary
       })
       .catch(err => {
         if (err) {
-          error(`failed to fetch resource from cache ${fullUrl}. error: ${err}`);
+          error(
+            `${forceRecaching ? "re-caching resource" : "failed to fetch resource from cache"} ${fullUrl}.${err
+              ? " error" + err
+              : ""}`
+          );
           return reject(err);
         } else {
           log(`resource ${fullUrl} was not in cache`);

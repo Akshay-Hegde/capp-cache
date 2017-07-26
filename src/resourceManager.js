@@ -1,9 +1,12 @@
-import { error, log, perfMark, perfMarkEnd } from "./logger";
+import { error, log, perfMark, perfMarkEnd } from "./cappCacheLogger";
 import indexedDBAccess from "./indexedDBAccess";
 import tagPropertiesMap from "./tagPropertiesMap";
 import { loadResource, getCachedFiles } from "./resourceLoader";
+import { sortResources } from "./sortResources";
+import { handleOnLoadDoneCb } from "./onLoadDoneHandling";
 
 const RESOURCES_LOAD_START = "Resources load start";
+const DATA_SRC_ATTR = "data-cappcache-src";
 
 const WAITING = "waiting";
 const LOADED = "loaded";
@@ -21,74 +24,50 @@ const MOCK_DOCUMENT = {
 };
 const loadedResources = [];
 
-export function sortResources(resources) {
-  resources.forEach((r, index) => (r._index = index));
-  resources.sort((r1, r2) => {
-    if (r1.type === "fontface" && r2.type !== "fontface") {
-      return -1;
-    }
-    if (r2.type === "fontface" && r1.type !== "fontface") {
-      return 1;
-    }
-    if (r1.cacheOnly && !r2.cacheOnly) {
-      return 1;
-    }
-    if (r2.cacheOnly && !r1.cacheOnly) {
-      return -1;
-    }
-    return r1._index - r2._index;
-  });
-  resources.forEach((r, index) => (r._index = index));
-}
-
-function handleOnLoadDoneCb(onLoadDone, resources) {
-  let onLoadDoneCBWhenThereAreNoResources = Function.prototype; //this is a fallback callback, called when ALL resources are async, cacheOnly or not scripts
-  if (onLoadDone) {
-    let i = resources.length - 1,
-      found = false;
-    while (i > -1 && !found) {
-      let resource = resources[i];
-      if (!resource.attributes) {
-        resource.attributes = {};
-      }
-      if (!resource.attributes.async && !resource.cacheOnly && (resource.type === "js" || !resource.type)) {
-        found = true;
-        const originalOnLoad = resource.attributes.onload || "";
-        resource.attributes.onload = onLoadDone + "\n" + originalOnLoad;
-      }
-      i--;
-    }
-    if (!found) {
-      log(
-        "could not find appropriate script for global onload callback. Falling back to notifying after all resources are added to DOM"
-      );
-      onLoadDoneCBWhenThereAreNoResources = new Function(onLoadDone);
-    }
-  }
-  return onLoadDoneCBWhenThereAreNoResources;
-}
-
 /**
  * Loads a list of resources according to the manifest.
  * */
 export function load(
-  { resources = [], document = window.document, forceLoadFromCache = false, onLoadDone },
-  { syncCacheOnly = false, wasManifestModified = false } = {}
+  {
+    resources = [],
+    document = window.document,
+    forceLoadFromCache = false,
+    onLoadDone,
+    recacheAfterVersionChange = false,
+    doneCallback = null,
+  },
+  { syncCacheOnly = false, wasManifestModified = false, overrideDomContentLoaded = false, forceRecaching = false } = {}
 ) {
   perfMark(RESOURCES_LOAD_START);
+  if (recacheAfterVersionChange === true && wasManifestModified === true) {
+    forceRecaching = true;
+  }
   return new Promise((resolve, reject) => {
     if (resources.length === 0) {
       return resolve();
     }
     indexedDBAccess().then(db => {
       sortResources(resources);
-      let onLoadDoneCBWhenThereAreNoResources = handleOnLoadDoneCb(onLoadDone, resources);
+      let onLoadDoneCBWhenThereAreNoResources = handleOnLoadDoneCb(
+        onLoadDone,
+        resources,
+        overrideDomContentLoaded,
+        doneCallback
+      );
       let lastErr = undefined;
 
       const tagsReadyToBeAdded = [];
       let parsedTagsCount = 0;
       resources.forEach(resourceManifestObj => {
-        let { url, type = "js", target = "head", attributes = {}, cacheOnly = false, isBinary } = resourceManifestObj;
+        let {
+          url,
+          type = "js",
+          target = "head",
+          attributes = {},
+          cacheOnly = false,
+          isBinary,
+          networkOnly = false,
+        } = resourceManifestObj;
         perfMark(`load start ${url}`);
         const userAttributes = attributes;
         const staticAttributes = tagPropertiesMap[type];
@@ -109,9 +88,11 @@ export function load(
           immediate: forceLoadFromCache,
           isBinary,
           cacheOnly: cacheOnly || syncCacheOnly,
+          forceRecaching,
+          networkOnly,
         })
+          /* resource already cached */
           .then(({ resource }) => {
-            /* resource already cached */
             tag = documentTarget.createElement(staticAttributes.tagName);
 
             let { content } = resource;
@@ -131,10 +112,10 @@ export function load(
             });
             tag.setAttribute("data-cappcache-src", url);
           })
+          /* resource is not in cache */
           .catch(e => {
             if (e === null) {
               //there is no error, the resource is simply not in cache
-              /* resource is not in cache */
               let tagType = staticAttributes.tagName;
               if (staticAttributes.tagNameWhenNotInline !== undefined) {
                 tagType = staticAttributes.tagNameWhenNotInline;
@@ -153,8 +134,8 @@ export function load(
               return Promise.reject();
             }
           })
+          /* Common code for all cases, in cache and not in cache */
           .then(() => {
-            /* All types of tags, inline and non inline */
             Object.keys(userAttributes).forEach(attribute => {
               if (attribute !== "async") {
                 tag.setAttribute(attribute, userAttributes[attribute]);
@@ -163,7 +144,12 @@ export function load(
             Object.keys(staticAttributes.attributes).forEach(attribute => {
               tag.setAttribute(attribute, staticAttributes.attributes[attribute]);
             });
-            loadedResources.push({ url });
+            loadedResources.push({
+              url,
+              domSelector: documentTarget === MOCK_DOCUMENT
+                ? null
+                : `${staticAttributes.tagName}[${DATA_SRC_ATTR}="${url}"]`,
+            });
             if (!cacheOnly) {
               let currPos = resourceManifestObj._index;
               tagsReadyToBeAdded[currPos] = { state: WAITING, domTarget: documentTarget[target], tag, url };
@@ -212,7 +198,7 @@ export function load(
   });
 }
 export function getLoadedResources() {
-  return loadedResources.map(i => ({ url: i.url }));
+  return loadedResources.map(i => ({ url: i.url, domSelector: i.domSelector }));
 }
 const resourceUriHistory = {};
 

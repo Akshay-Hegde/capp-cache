@@ -1,7 +1,6 @@
-<!--This file is an usage example and not part of the library-->
 
-<html data-cc-manifest="cappCacheManifest.json">
-<!--<html manifest="manifest.appcache">-->
+
+<html data-cc-manifest="cappCacheManifest.json" data-cc-override-domcontentloaded="true"  manifest="manifest.appcache" ><!--This file is an usage example and not part of the library-->
 <head>
     <style>
         .capp-cache {
@@ -12,58 +11,41 @@
 			window.performance.mark('capp-cache-start');
             window.resourceLoaded = msg => console.log(`resource loaded : ${msg}`);
     </script>
-    <script>
-			/*
-                    window.cappCacheManifest = {
-                        resources: [
-                            {
-                                url: "https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js",
-                            },
-                            {
-                                url: "https://cdnjs.cloudflare.com/ajax/libs/select2-bootstrap-css/1.4.6/select2-bootstrap.css",
-                                type: "css"
-                            },
-                            {
-                                url: "index.css",
-                                type: "css"
-                            }
-                        ],
-                       manifestUrl : "cappCacheManifest.json"
-                    };
-            */
-    </script>
-    <script src="../dist/capp-cache.js"></script>
-    <script type="text/javascript">
-			setTimeout(() => window.cappCache.loadResources({
-				resources: [
-					{
-						url: "./someScript.js",
-                        type:"js",
-						attributes: {
-                            name: "custom JS",
-							onload: "console.log('done js')"
-						}
-					},
-					{
-						url: "https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.js",
-						cacheOnly: true,
-					},
-					{
-						url: "./index.css",
-						type: "css",
-						attributes: {
-							name: "custom CSS",
-							onload: "console.log('done css')"
-						},
 
-					},
-				],
-			}), 0);
-			window.cappCache.on('manifestUpdated', window.location.reload);
-			window.cappCache.setLogLevel(window.cappCache.LOG_LEVELS.log);
-    </script>
+    <script src="capp-cache.js"></script>
+
 </head>
 <body class="capp-cache">
+<script type="text/javascript">
+	setTimeout(() => window.cappCache.loadResources({
+		resources: [
+			{
+				url: "./someScript.js",
+				type:"js",
+				attributes: {
+					name: "custom JS",
+					onload: "console.log('done js')"
+				}
+			},
+			{
+				url: "https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.js",
+				cacheOnly: true,
+			},
+			{
+				url: "./index.css",
+				type: "css",
+				attributes: {
+					name: "custom CSS",
+					onload: "console.log('done css')"
+				},
+
+			},
+		],
+      onLoadDone: ()=>console.log('on load done as a function')
+	},{forceRecaching: true}), 0);
+	window.cappCache.on('manifestUpdated', window.location.reload);
+	window.cappCache.setLogLevel(window.cappCache.LOG_LEVELS.log);
+</script>
 <div id="container">
     <img id="capp-cache-img2"/>
     <script>
