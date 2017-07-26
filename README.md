@@ -209,6 +209,9 @@ If the resource is textual, set `isBinary` to false. In this case you will recei
 ### `window.cappCache.setLogLevel(window.cappCache.LOG_LEVELS)`
 Sets the console output log level of the library. By default set to warn. 
 
+### `window.cappCache.version`
+Returns capp-cache version
+
 ### FAQ
 
 #### Why not just use Service Worker?
