@@ -490,6 +490,30 @@ it("when a user adds onLoadDone callback, it is called after all scripts are don
   await jest.runAllTimers();
   expect(scriptTag.appendChild).toHaveBeenLastCalledWith(expect.stringMatching(new RegExp(DONE_CALLBACK)));
 });
+it("when a user adds onLoadDone callback as an function instead of string, it is called after all scripts are done", async () => {
+	const DONE_CALLBACK = jest.fn();
+	const manifestArgs = () => ({
+		resources: [
+			{ url: DUMMY1, attributes: { attr1: true, attr2: "attr1 value" } },
+			{ url: DUMMY2, attributes: { attr1: true, attr2: "attr2 value" } },
+			{ url: DUMMY3, attributes: { attr1: true, attr2: "attr3 value" } },
+		],
+		onLoadDone: DONE_CALLBACK,
+		document,
+	});
+	await load(manifestArgs());
+	await jest.runAllTimers();
+	expect(
+		scriptTag.setAttribute.mock.calls.filter(arr => arr[0] === "onload" && arr[1].includes("___onLoadDoneCallback"))
+	).toHaveLength(1);
+	scriptTag.setAttribute.mockClear();
+	scriptTag.appendChild.mockClear();
+
+	//second time, with cache
+	await load(manifestArgs());
+	await jest.runAllTimers();
+	expect(scriptTag.appendChild).toHaveBeenLastCalledWith(expect.stringMatching(new RegExp("___onLoadDoneCallback")));
+});
 it("when a user adds onLoadDone callback but all resources are no scripts that are loaded to DOM, it is called after all is loaded to DOM", async () => {
   global.doneCB = jest.fn();
   const manifestArgs = id => ({

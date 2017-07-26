@@ -1,7 +1,6 @@
 
 
 <html data-cc-manifest="cappCacheManifest.json" data-cc-override-domcontentloaded="true"  manifest="manifest.appcache" ><!--This file is an usage example and not part of the library-->
-<!--<html manifest="manifest.appcache">-->
 <head>
     <style>
         .capp-cache {
@@ -42,6 +41,7 @@
 
 			},
 		],
+      onLoadDone: ()=>console.log('on load done as a function')
 	},{forceRecaching: true}), 0);
 	window.cappCache.on('manifestUpdated', window.location.reload);
 	window.cappCache.setLogLevel(window.cappCache.LOG_LEVELS.log);

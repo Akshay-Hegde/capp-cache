@@ -24,6 +24,11 @@ const MOCK_DOCUMENT = {
 const loadedResources = [];
 
 function handleOnLoadDoneCb(onLoadDone, resources, overrideDomContentLoaded) {
+	if (typeof onLoadDone === "function"){
+		const privateCallback = "___onLoadDoneCallback";
+		window.cappCache && (window.cappCache[privateCallback] = onLoadDone);
+		onLoadDone = `window.cappCache["${privateCallback}"](); delete window.cappCache["${privateCallback}"];`;
+	}
   let onLoadDoneCBWhenThereAreNoResources = Function.prototype; //this is a fallback callback, called when ALL resources are async, cacheOnly or not scripts
   let domContentLoadedCb = "";
   if (overrideDomContentLoaded) {
@@ -64,6 +69,7 @@ export function load(
     forceLoadFromCache = false,
     onLoadDone,
     recacheAfterVersionChange = false,
+	  doneCallback = null
   },
   { syncCacheOnly = false, wasManifestModified = false, overrideDomContentLoaded = false, forceRecaching = false } = {}
 ) {
@@ -77,7 +83,7 @@ export function load(
     }
     indexedDBAccess().then(db => {
       sortResources(resources);
-      let onLoadDoneCBWhenThereAreNoResources = handleOnLoadDoneCb(onLoadDone, resources, overrideDomContentLoaded);
+      let onLoadDoneCBWhenThereAreNoResources = handleOnLoadDoneCb(onLoadDone, resources, overrideDomContentLoaded, doneCallback);
       let lastErr = undefined;
 
       const tagsReadyToBeAdded = [];
