@@ -59,7 +59,15 @@ export function load(
       const tagsReadyToBeAdded = [];
       let parsedTagsCount = 0;
       resources.forEach(resourceManifestObj => {
-        let { url, type = "js", target = "head", attributes = {}, cacheOnly = false, isBinary } = resourceManifestObj;
+        let {
+          url,
+          type = "js",
+          target = "head",
+          attributes = {},
+          cacheOnly = false,
+          isBinary,
+          networkOnly = false,
+        } = resourceManifestObj;
         perfMark(`load start ${url}`);
         const userAttributes = attributes;
         const staticAttributes = tagPropertiesMap[type];
@@ -81,9 +89,10 @@ export function load(
           isBinary,
           cacheOnly: cacheOnly || syncCacheOnly,
           forceRecaching,
+          networkOnly,
         })
+          /* resource already cached */
           .then(({ resource }) => {
-            /* resource already cached */
             tag = documentTarget.createElement(staticAttributes.tagName);
 
             let { content } = resource;
@@ -103,10 +112,10 @@ export function load(
             });
             tag.setAttribute("data-cappcache-src", url);
           })
+          /* resource is not in cache */
           .catch(e => {
             if (e === null) {
               //there is no error, the resource is simply not in cache
-              /* resource is not in cache */
               let tagType = staticAttributes.tagName;
               if (staticAttributes.tagNameWhenNotInline !== undefined) {
                 tagType = staticAttributes.tagNameWhenNotInline;
@@ -125,8 +134,8 @@ export function load(
               return Promise.reject();
             }
           })
+          /* Common code for all cases, in cache and not in cache */
           .then(() => {
-            /* All types of tags, inline and non inline */
             Object.keys(userAttributes).forEach(attribute => {
               if (attribute !== "async") {
                 tag.setAttribute(attribute, userAttributes[attribute]);

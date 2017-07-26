@@ -45,6 +45,7 @@ type      | type of resource. js and css will be added to the DOM unless you spe
 target    | parent element of the resource                              | head, body       | head
 attributes| A key / value list of attributes to set on the tag element  | object               |
 cacheOnly | sync the script to the database, but don't append it to the DOM. Use to ensure a resource is in the cache for future use | manifest |
+networkOnly | fetches a resource directly from the network every time, without any caching. This can be helpful for example when you have some resource that changes on each run, but you want to maintain the order between cached and non cached scripts, so you cannot append it directly to the HTML file.|boolean | false|
 format    | **[fontface only]** the format of the font file that will be cached | string | woff2
 localFontFamily | **[fontface only]** a string array of local font-family names that will be specified using `local(...)` before the cached url. | [string] | 
 fallbackUrls | **[fontface only]** a list of font file urls that will be used as fallback. Those urls will not be cached. | array of `{url, format}` | 

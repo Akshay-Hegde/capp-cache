@@ -115,6 +115,17 @@ it("downloads to the cache cacheOnly resources", async () => {
   await jest.runAllTimers();
   expect(mockIDB.dbData[DUMMY1]).toBeTruthy();
 });
+it("fetches network only resources from the network and doesn't cache it", async () => {
+	await load({ resources: [{ url: DUMMY1 }, { url: DUMMY2, networkOnly: true}], document });
+	await jest.runAllTimers();
+	await load({ resources: [{ url: DUMMY2, networkOnly: true}], document });
+	await jest.runAllTimers();
+	expect(mockIDB.dbData[DUMMY2]).toBeUndefined();
+	expect(scriptTag.appendChild.mock.calls).toHaveLength(0);
+	expect(scriptTag.setAttribute.mock.calls.filter(c=> {
+		return c[0] === "src" && c[1] === DUMMY2;
+	})).toHaveLength(2);
+});
 it("does not try to add blob to the DOM", async () => {
   await load({ resources: [{ url: DUMMY1, type: "blob" }], document });
   await jest.runAllTimers();
@@ -135,7 +146,7 @@ it("adds the script inline when the script is in the cache", async () => {
   await jest.runAllTimers();
   expect(scriptTag.appendChild).toHaveBeenCalledWith(expect.stringMatching(/mock response/));
 });
-it("allow the user to load resources with a programmatic API", async () => {
+it("allow the user to load resources such as image with a programmatic API", async () => {
   const SVG_URL = "svg";
   const SVG_CONTENT = `<use xlink:href=\"#btNuzo4gP\" opacity=\"1\" fill=\"#666666\" fill-opacity=\"0.66\"></use>`;
   require("./mocks/mockNetwork").configureResponse(SVG_URL, { content: SVG_CONTENT, contentType: "image/svg+xml" });

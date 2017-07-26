@@ -27,6 +27,7 @@ export const loadResource = ({
   isBinary = false,
   cacheOnly = false,
   forceRecaching = false,
+  networkOnly = false,
 }) => {
   perfMark(`loadResource ${url} start`);
   const fullUrl = id(url);
@@ -37,6 +38,9 @@ export const loadResource = ({
     method = "exists";
   }
   const promise = new Promise((resolve, reject) => {
+    if (networkOnly) {
+      return reject(null)
+    }
     indexedDBAccess
       [method](fullUrl)
       .then(resource => {
