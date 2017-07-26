@@ -38,6 +38,7 @@
     "http-server": "*",
     "jest": "*",
     "prettier": "^1.4.2",
+    "string-replace-loader": "^1.3.0",
     "webpack": "^3.3.0",
     "webpack-dev-server": "^2.6.1"
   },

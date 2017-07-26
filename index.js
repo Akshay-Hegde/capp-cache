@@ -46,6 +46,6 @@ import manifestManager from "./src/manifestManager";
     getLoadedResources,
     setLogLevel,
     LOG_LEVELS,
-	  version: VERSION,
+    /*version-placeholder*/ //this is replaced by webpack during build, do not change
   };
 })();
