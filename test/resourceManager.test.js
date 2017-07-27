@@ -505,7 +505,6 @@ it("when a user adds onLoadDone callback as string, it is called after all scrip
 });
 it("when a user adds onLoadDone callback as an function instead of string, it is called after all scripts are done", async () => {
   const doneCallback = jest.fn();
-  const DONE_CALLBACK = "console.log(DONE CALLBACK)";
   const manifestArgs = () => ({
     resources: [
       { url: DUMMY1, attributes: { attr1: true, attr2: "attr1 value" } },
@@ -527,7 +526,34 @@ it("when a user adds onLoadDone callback as an function instead of string, it is
   await jest.runAllTimers();
   expect(doneCallback).toHaveBeenCalled();
 });
-
+it("loadResources resolves using script in the body when some resources are added to the body", async () => {
+	jest.clearAllMocks();
+	const manifestArgs = () => ({
+    resources: [
+      { url: DUMMY1, attributes: { attr1: true, attr2: "attr1 value" }, target: "head" },
+      { url: DUMMY2, attributes: { attr1: true, attr2: "attr2 value" }, target: "body" },
+      { url: DUMMY3, attributes: { attr1: true, attr2: "attr3 value" }, target: "head" },
+    ],
+    document,
+  });
+  await load(manifestArgs());
+  await jest.runAllTimers();
+  expect(require("./mocks/mockOnLoadDoneHandling").appendOnLoadScript).toHaveBeenCalledWith(expect.objectContaining({elementAddedToBody: true}));
+});
+it("loadResources resolves using script in the head when all resources are added to the head", async () => {
+	jest.clearAllMocks();
+	const manifestArgs = () => ({
+		resources: [
+			{ url: DUMMY1, attributes: { attr1: true, attr2: "attr1 value" }, target: "head" },
+			{ url: DUMMY2, attributes: { attr1: true, attr2: "attr2 value" }, target: "head" },
+			{ url: DUMMY3, attributes: { attr1: true, attr2: "attr3 value" }, target: "head" },
+		],
+		document,
+	});
+	await load(manifestArgs());
+	await jest.runAllTimers();
+	expect(require("./mocks/mockOnLoadDoneHandling").appendOnLoadScript).toHaveBeenCalledWith(expect.objectContaining({elementAddedToBody: false}));
+});
 it("when a user turns on Overriding `DomContentLoaded` it triggers an event, when an onLoadDone is defined", async () => {
   global.domContentLoaded = jest.fn();
   const manifestArgs = id => ({

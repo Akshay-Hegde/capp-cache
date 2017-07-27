@@ -34,7 +34,6 @@ export function load(
     forceLoadFromCache = false,
     onLoadDone,
     recacheAfterVersionChange = false,
-    doneCallback = null,
   },
   { syncCacheOnly = false, wasManifestModified = false, overrideDomContentLoaded = false, forceRecaching = false } = {}
 ) {
@@ -43,6 +42,7 @@ export function load(
     forceRecaching = true;
   }
   console.log(`STRATING DONE`);
+  let elementAddedToBody = false;
   return new Promise((resolve, reject) => {
     if (resources.length === 0) {
       return resolve();
@@ -63,6 +63,7 @@ export function load(
           isBinary,
           networkOnly = false,
         } = resourceManifestObj;
+        if (target === "body") elementAddedToBody = true;
         perfMark(`load start ${url}`);
         const userAttributes = attributes;
         const staticAttributes = tagPropertiesMap[type];
@@ -182,7 +183,13 @@ export function load(
                 error(`Error while loading resources ${lastErr}`);
                 reject(lastErr);
               } else {
-                appendOnLoadScript({ document, callback: resolve, overrideDomContentLoaded, onLoadDone });
+                appendOnLoadScript({
+                  document,
+                  callback: resolve,
+                  overrideDomContentLoaded,
+                  onLoadDone,
+                  elementAddedToBody,
+                });
                 perfMarkEnd("RESOURCES LOAD", RESOURCES_LOAD_START);
               }
             }

@@ -3,6 +3,7 @@ export function appendOnLoadScript({
   callback,
   overrideDomContentLoaded,
   onLoadDone = Function.prototype,
+  elementAddedToBody,
 }) {
   const ID = `__cappcache-${("" + Math.random()).slice(2, 10)}`;
   const onLoadTypeOf = typeof onLoadDone;
@@ -27,5 +28,5 @@ export function appendOnLoadScript({
   const script = documentTarget.createElement("script");
   script.id = ID;
   script.appendChild(documentTarget.createTextNode(content));
-  documentTarget.head.appendChild(script);
+  documentTarget[elementAddedToBody ? "body" : "head"].appendChild(script);
 }
