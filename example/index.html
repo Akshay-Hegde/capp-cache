@@ -42,7 +42,7 @@
 			},
 		],
       onLoadDone: ()=>console.log('on load done as a function')
-	},{forceRecaching: true}), 0);
+	},{forceRecaching: true}).then(()=>console.log("loadResources done 'then'")), 0);
 	window.cappCache.on('manifestUpdated', window.location.reload);
 	window.cappCache.setLogLevel(window.cappCache.LOG_LEVELS.log);
 </script>

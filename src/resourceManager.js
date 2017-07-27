@@ -3,7 +3,7 @@ import indexedDBAccess from "./indexedDBAccess";
 import tagPropertiesMap from "./tagPropertiesMap";
 import { loadResource, getCachedFiles } from "./resourceLoader";
 import { sortResources } from "./sortResources";
-import { handleOnLoadDoneCb } from "./onLoadDoneHandling";
+import { appendOnLoadScript } from "./onLoadDoneHandling";
 
 const RESOURCES_LOAD_START = "Resources load start";
 const DATA_SRC_ATTR = "data-cappcache-src";
@@ -42,18 +42,13 @@ export function load(
   if (recacheAfterVersionChange === true && wasManifestModified === true) {
     forceRecaching = true;
   }
+  console.log(`STRATING DONE`);
   return new Promise((resolve, reject) => {
     if (resources.length === 0) {
       return resolve();
     }
     indexedDBAccess().then(db => {
       sortResources(resources);
-      let onLoadDoneCBWhenThereAreNoResources = handleOnLoadDoneCb(
-        onLoadDone,
-        resources,
-        overrideDomContentLoaded,
-        doneCallback
-      );
       let lastErr = undefined;
 
       const tagsReadyToBeAdded = [];
@@ -187,8 +182,7 @@ export function load(
                 error(`Error while loading resources ${lastErr}`);
                 reject(lastErr);
               } else {
-                resolve();
-                onLoadDoneCBWhenThereAreNoResources();
+                appendOnLoadScript({ document, callback: resolve, overrideDomContentLoaded, onLoadDone });
                 perfMarkEnd("RESOURCES LOAD", RESOURCES_LOAD_START);
               }
             }
