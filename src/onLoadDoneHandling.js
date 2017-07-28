@@ -21,7 +21,6 @@ export function appendOnLoadScript({
   const content = ` 
 		      window.cappCache["${ID}"](); 
 		      delete window.cappCache["${ID}"]; 
-		      console.log("CAPP_CACHE_DONE");
 		      ${overrideDomContentLoaded ? "document.dispatchEvent(new Event('DOMContentLoaded', {bubbles: true}));" : ""}
 		      ${onLoadText}
 		      document.querySelector("#${ID}").remove()`;

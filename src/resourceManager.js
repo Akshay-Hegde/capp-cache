@@ -41,7 +41,6 @@ export function load(
   if (recacheAfterVersionChange === true && wasManifestModified === true) {
     forceRecaching = true;
   }
-  console.log(`STRATING DONE`);
   let elementAddedToBody = false;
   return new Promise((resolve, reject) => {
     if (resources.length === 0) {
