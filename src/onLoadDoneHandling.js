@@ -27,6 +27,7 @@ export function appendOnLoadScript({
 		      document.querySelector("#${ID}").remove()`;
   const script = documentTarget.createElement("script");
   script.id = ID;
+  script.async = false;
   script.appendChild(documentTarget.createTextNode(content));
   documentTarget[elementAddedToBody ? "body" : "head"].appendChild(script);
 }
