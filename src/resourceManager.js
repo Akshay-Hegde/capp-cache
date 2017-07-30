@@ -159,11 +159,9 @@ export function load(
                 while (tagsReadyToBeAdded[currPos] !== undefined && tagsReadyToBeAdded[currPos].state === WAITING) {
                   const { domTarget, tag, url } = tagsReadyToBeAdded[currPos];
                   perfMark(url);
-                  setTimeout(() => {
-                    domTarget.appendChild(tag);
-                    log(`%c added [${url}] to the ${target}`, "color: blue");
-                    perfMarkEnd(`add to DOM ${url}`, url);
-                  });
+                  domTarget.appendChild(tag);
+                  log(`%c added [${url}] to the ${target}`, "color: blue");
+                  perfMarkEnd(`add to DOM ${url}`, url);
                   tagsReadyToBeAdded[currPos].state = LOADED;
                   currPos++;
                 }
