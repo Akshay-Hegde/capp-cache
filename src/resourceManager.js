@@ -131,13 +131,13 @@ export function load(
           })
           /* Common code for all cases, in cache and not in cache */
           .then(() => {
+            Object.keys(staticAttributes.attributes).forEach(attribute => {
+              tag.setAttribute(attribute, staticAttributes.attributes[attribute]);
+            });
             Object.keys(userAttributes).forEach(attribute => {
               if (attribute !== "async") {
                 tag.setAttribute(attribute, userAttributes[attribute]);
               }
-            });
-            Object.keys(staticAttributes.attributes).forEach(attribute => {
-              tag.setAttribute(attribute, staticAttributes.attributes[attribute]);
             });
             loadedResources.push({
               url,
