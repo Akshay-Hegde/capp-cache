@@ -29,15 +29,15 @@ const checkIfPerformanceAvailable = () => {
 checkIfPerformanceAvailable();
 
 function perfMeasure(name, marker1, marker2) {
-  _logLevelIndex === LOG_LEVELS.log && window.performance.measure(name, marker1, marker2);
+  isDetailedLog() && window.performance.measure(name, marker1, marker2);
 }
 
 export function perfMark(marker) {
-  _logLevelIndex === LOG_LEVELS.log && window.performance.mark(marker);
+  isDetailedLog() && window.performance.mark(marker);
 }
 
 export function perfMarkEnd(name, marker1, marker2) {
-  if (_logLevelIndex === LOG_LEVELS.log) {
+  if (isDetailedLog()) {
     const markerEnd = marker2 || marker1 + " - end";
     perfMark(markerEnd);
     perfMeasure(name, marker1, markerEnd);
@@ -55,4 +55,8 @@ export function logSince(timer, message) {
     timers[timer] = performance && performance.now();
   }
   log(`timing: (${performance.now() - timers[timer]}) ${message}`);
+}
+
+export function isDetailedLog() {
+	return _logLevelIndex === LOG_LEVELS.log;
 }

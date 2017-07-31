@@ -270,7 +270,7 @@ If you have to use `DOMContentLoaded` directly (for example, you use a library t
 **workaround**: in your bundler configuration, define a separate entry point for the code that should be loaded later. When the application needs to load that chunk, use CappCache `loadResource` function. 
 - Flash of unstyled content ([FOUC](https://en.wikipedia.org/wiki/Flash_of_unstyled_content)) - When the page loads, you see unstyled HTML elements. This happens because the CSS is loaded dynamically using Javascript. The browser thinks that there is no CSS for the elements and displays the elements without styling.   
 **workaround**:
-Hide the 
+Hide the application until capp-cache is loaded
 
 ```html
 <head>
