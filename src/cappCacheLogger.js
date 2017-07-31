@@ -58,5 +58,5 @@ export function logSince(timer, message) {
 }
 
 export function isDetailedLog() {
-	return _logLevelIndex === LOG_LEVELS.log;
+  return _logLevelIndex === LOG_LEVELS.log;
 }

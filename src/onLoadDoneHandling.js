@@ -1,4 +1,4 @@
-import { perfMarkEnd, isDetailedLog } from "./cappCacheLogger";
+import { perfMarkEnd, isDetailedLog, log } from "./cappCacheLogger";
 
 const RESOURCES_LOAD_START = "Resources load start";
 
@@ -22,14 +22,20 @@ export function appendOnLoadScript({
     };
   }
   window.cappCache[ID] = callback;
-	window.cappCache[ID + "__perf"] = isDetailedLog() ? () => perfMarkEnd("RESOURCES LOAD", RESOURCES_LOAD_START) : Function.prototype;
+  const ID_PERF = ID + "__perf";
+  window.cappCache[ID_PERF] = isDetailedLog()
+    ? () => {
+        perfMarkEnd("RESOURCES LOAD", RESOURCES_LOAD_START);
+        log("Done loading resources");
+      }
+    : Function.prototype;
   const content = `data:text/javascript, 
 		      window.cappCache["${ID}"](); 
-		      window.cappCache["${ID + "__perf"}"](); 
+		      window.cappCache["${ID_PERF}"](); 
 		      delete window.cappCache["${ID}"]; 
+		      delete window.cappCache["${ID_PERF}"]; 
 		      ${overrideDomContentLoaded ? "document.dispatchEvent(new Event('DOMContentLoaded', {bubbles: true}));" : ""}
 		      ${onLoadText}
-		      console.log("DONE - onLoadHandling");
 		      document.querySelector("#${ID}").remove()`;
   const script = documentTarget.createElement("script");
   script.id = ID;
