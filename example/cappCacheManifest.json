@@ -66,6 +66,9 @@
         "type":"image/png",
         "rel":"shortcut icon"
       }
+    },
+    {
+      "url": "lastFile.js"
     }
   ]
 }

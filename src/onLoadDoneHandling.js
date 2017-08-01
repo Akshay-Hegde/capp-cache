@@ -1,37 +1,45 @@
-import { log } from "./cappCacheLogger";
+import { perfMarkEnd, isDetailedLog, log } from "./cappCacheLogger";
 
-export function handleOnLoadDoneCb(onLoadDone, resources, overrideDomContentLoaded) {
-  if (typeof onLoadDone === "function") {
-    const privateCallback = "___onLoadDoneCallback";
-    window.cappCache && (window.cappCache[privateCallback] = onLoadDone);
-    onLoadDone = `window.cappCache["${privateCallback}"](); delete window.cappCache["${privateCallback}"];`;
+const RESOURCES_LOAD_START = "Resources load start";
+
+export function appendOnLoadScript({
+  document: documentTarget,
+  callback,
+  overrideDomContentLoaded,
+  onLoadDone = Function.prototype,
+  elementAddedToBody,
+}) {
+  const ID = `__cappcache-${("" + Math.random()).slice(2, 10)}`;
+  const onLoadTypeOf = typeof onLoadDone;
+  let onLoadText = "";
+  if (onLoadTypeOf === "string") {
+    onLoadText = onLoadDone;
+  } else if (onLoadTypeOf === "function") {
+    const _prevCallback = callback;
+    callback = () => {
+      onLoadDone();
+      _prevCallback();
+    };
   }
-  let onLoadDoneCBWhenThereAreNoResources = Function.prototype; //this is a fallback callback, called when ALL resources are async, cacheOnly or not scripts
-  let domContentLoadedCb = "";
-  if (overrideDomContentLoaded) {
-    domContentLoadedCb = "document.dispatchEvent(new Event('DOMContentLoaded', {bubbles: true}));";
-  }
-  if (onLoadDone || overrideDomContentLoaded) {
-    let i = resources.length - 1,
-      found = false;
-    while (i > -1 && !found) {
-      let resource = resources[i];
-      if (!resource.attributes) {
-        resource.attributes = {};
+  window.cappCache[ID] = callback;
+  const ID_PERF = ID + "__perf";
+  window.cappCache[ID_PERF] = isDetailedLog()
+    ? () => {
+        perfMarkEnd("RESOURCES LOAD", RESOURCES_LOAD_START);
+        log("Done loading resources");
       }
-      if (!resource.attributes.async && !resource.cacheOnly && (resource.type === "js" || !resource.type)) {
-        found = true;
-        const originalOnLoad = resource.attributes.onload || "";
-        resource.attributes.onload = onLoadDone + "\n" + domContentLoadedCb + "\n" + originalOnLoad;
-      }
-      i--;
-    }
-    if (!found) {
-      log(
-        "could not find appropriate script for global onload callback. Falling back to notifying after all resources are added to DOM"
-      );
-      onLoadDoneCBWhenThereAreNoResources = new Function(onLoadDone + "\n" + domContentLoadedCb);
-    }
-  }
-  return onLoadDoneCBWhenThereAreNoResources;
+    : Function.prototype;
+  const content = `data:text/javascript, 
+		      window.cappCache["${ID}"](); 
+		      window.cappCache["${ID_PERF}"](); 
+		      delete window.cappCache["${ID}"]; 
+		      delete window.cappCache["${ID_PERF}"]; 
+		      ${overrideDomContentLoaded ? "document.dispatchEvent(new Event('DOMContentLoaded', {bubbles: true}));" : ""}
+		      ${onLoadText}
+		      document.querySelector("#${ID}").remove()`;
+  const script = documentTarget.createElement("script");
+  script.id = ID;
+  script.async = false;
+  script.src = content;
+  documentTarget[elementAddedToBody ? "body" : "head"].appendChild(script);
 }

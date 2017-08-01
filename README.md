@@ -31,7 +31,7 @@ resources | An array of resources to be cached. See the following table for deta
 manifestUrl | A URL from which the manifest JSON is fetched.                         | URL
 version   | An identifier for the version of the manifest. A change in this version will result in background syncing of the cache with the new manifest. See function on("manifestUpdated") for details.  | string |
 forceLoadFromCache| By default, when a resource (especially relevant to Javascript) is not in cache, capp-cache will add it to the DOM with `src` attribute, and only then download the resource (again) in the background to cache for subsequent runs. While this improves performance for first run, it creates slightly different behavior due to the way the browser handles inline scripts vs. scripts with src attribute. It also doubles network traffic. This flag forces capp-cache to first fetch the resource and only then add it to the DOM in the same way it would have if the resource was already in the cache. On subsequent runs, when the cache is already full this flag has no effect. | boolean | false
-onLoadDone| A function that is added as `onload` callback to the last script in the list of manifest resources that is not `cacheOnly` or has `async` attribute. For example the value `"console.log('done')"` will print a "done" string once the last resource was loaded. <br/>In the capp-cache manifest JSON you can only pass a string that is convertible to a function using the `Function` contstructor. When using the programmatic API `loadResources` function you can pass an actual function. | string \| function
+onLoadDone| A function that is called after all (synchronous) elements were evaluated by the browser. For example the value `"console.log('done')"` will print a "done" string once the last resource was loaded. <br/>In the capp-cache manifest JSON you can only pass a string that is convertible to a function using the `Function` contstructor. When using the programmatic API `loadResources` function you can pass an actual function. | string \| function
 recacheAfterVersionChange | A flag indicating to capp-cache to download all files in the manifest whenever the `version` field has changed. By default, capp-cache only downloads resources which were not already cached. That means that you cannot update the content of a cached resource; you have to provide a new resource url. With this flag set to `true` following a `version` change, capp-cache will download all resources from network, updating the resources content. Note that the update files will only be available on the second page load, as capp-cache immediately loads files according to the cached manifest. If you need register to `manifestUpdated ` event (see below) | boolean | false|
 
 
@@ -157,6 +157,7 @@ Loads resources according to a manifest object; use this function to load script
 `manifest` - a manifest object with a `resources` property similar to the `cappCacheManifest.json` file. 
 `syncCacheOnly` - if set to `true` files are just cached, but not added to the DOM.
 `forceRecaching` - if set to `true` resources will be downloaded again to the cache, even if they already exists in the cache. If this flag is not set, a resource will never be downloaded once it is cached.
+**Returns** a promise that resolves when all synchronous resources were loaded to the DOM and parsed by the browser, or rejects on any error.     
 For example:
 
 ```javascript
@@ -269,7 +270,7 @@ If you have to use `DOMContentLoaded` directly (for example, you use a library t
 **workaround**: in your bundler configuration, define a separate entry point for the code that should be loaded later. When the application needs to load that chunk, use CappCache `loadResource` function. 
 - Flash of unstyled content ([FOUC](https://en.wikipedia.org/wiki/Flash_of_unstyled_content)) - When the page loads, you see unstyled HTML elements. This happens because the CSS is loaded dynamically using Javascript. The browser thinks that there is no CSS for the elements and displays the elements without styling.   
 **workaround**:
-Hide the 
+Hide the application until capp-cache is loaded
 
 ```html
 <head>

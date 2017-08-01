@@ -40,7 +40,7 @@ export const loadResource = ({
   }
   const promise = new Promise((resolve, reject) => {
     if (networkOnly) {
-      return reject(null)
+      return reject(null);
     }
     indexedDBAccess
       [method](fullUrl)

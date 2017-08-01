@@ -3,7 +3,7 @@ import indexedDBAccess from "./indexedDBAccess";
 import tagPropertiesMap from "./tagPropertiesMap";
 import { loadResource, getCachedFiles } from "./resourceLoader";
 import { sortResources } from "./sortResources";
-import { handleOnLoadDoneCb } from "./onLoadDoneHandling";
+import { appendOnLoadScript } from "./onLoadDoneHandling";
 
 const RESOURCES_LOAD_START = "Resources load start";
 const DATA_SRC_ATTR = "data-cappcache-src";
@@ -34,7 +34,6 @@ export function load(
     forceLoadFromCache = false,
     onLoadDone,
     recacheAfterVersionChange = false,
-    doneCallback = null,
   },
   { syncCacheOnly = false, wasManifestModified = false, overrideDomContentLoaded = false, forceRecaching = false } = {}
 ) {
@@ -42,18 +41,13 @@ export function load(
   if (recacheAfterVersionChange === true && wasManifestModified === true) {
     forceRecaching = true;
   }
+  let elementAddedToBody = false;
   return new Promise((resolve, reject) => {
     if (resources.length === 0) {
       return resolve();
     }
     indexedDBAccess().then(db => {
       sortResources(resources);
-      let onLoadDoneCBWhenThereAreNoResources = handleOnLoadDoneCb(
-        onLoadDone,
-        resources,
-        overrideDomContentLoaded,
-        doneCallback
-      );
       let lastErr = undefined;
 
       const tagsReadyToBeAdded = [];
@@ -68,6 +62,7 @@ export function load(
           isBinary,
           networkOnly = false,
         } = resourceManifestObj;
+        if (target === "body") elementAddedToBody = true;
         perfMark(`load start ${url}`);
         const userAttributes = attributes;
         const staticAttributes = tagPropertiesMap[type];
@@ -136,13 +131,13 @@ export function load(
           })
           /* Common code for all cases, in cache and not in cache */
           .then(() => {
+            Object.keys(staticAttributes.attributes).forEach(attribute => {
+              tag.setAttribute(attribute, staticAttributes.attributes[attribute]);
+            });
             Object.keys(userAttributes).forEach(attribute => {
               if (attribute !== "async") {
                 tag.setAttribute(attribute, userAttributes[attribute]);
               }
-            });
-            Object.keys(staticAttributes.attributes).forEach(attribute => {
-              tag.setAttribute(attribute, staticAttributes.attributes[attribute]);
             });
             loadedResources.push({
               url,
@@ -164,11 +159,9 @@ export function load(
                 while (tagsReadyToBeAdded[currPos] !== undefined && tagsReadyToBeAdded[currPos].state === WAITING) {
                   const { domTarget, tag, url } = tagsReadyToBeAdded[currPos];
                   perfMark(url);
-                  setTimeout(() => {
-                    domTarget.appendChild(tag);
-                    log(`%c added [${url}] to the ${target}`, "color: blue");
-                    perfMarkEnd(`add to DOM ${url}`, url);
-                  });
+                  domTarget.appendChild(tag);
+                  log(`%c added [${url}] to the ${target}`, "color: blue");
+                  perfMarkEnd(`add to DOM ${url}`, url);
                   tagsReadyToBeAdded[currPos].state = LOADED;
                   currPos++;
                 }
@@ -187,8 +180,13 @@ export function load(
                 error(`Error while loading resources ${lastErr}`);
                 reject(lastErr);
               } else {
-                resolve();
-                onLoadDoneCBWhenThereAreNoResources();
+                appendOnLoadScript({
+                  document,
+                  callback: resolve,
+                  overrideDomContentLoaded,
+                  onLoadDone,
+                  elementAddedToBody,
+                });
                 perfMarkEnd("RESOURCES LOAD", RESOURCES_LOAD_START);
               }
             }
