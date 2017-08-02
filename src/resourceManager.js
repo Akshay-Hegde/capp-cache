@@ -52,6 +52,8 @@ export function load(
 
       const tagsReadyToBeAdded = [];
       let parsedTagsCount = 0;
+      let allFromCache = true;
+      const resourcesResult = [];
       resources.forEach(resourceManifestObj => {
         let {
           url,
@@ -88,6 +90,7 @@ export function load(
         })
           /* resource already cached */
           .then(({ resource }) => {
+            resourcesResult.push({ url, fromCache: true });
             tag = documentTarget.createElement(staticAttributes.tagName);
 
             let { content } = resource;
@@ -111,6 +114,8 @@ export function load(
           .catch(e => {
             if (e === null) {
               //there is no error, the resource is simply not in cache
+              allFromCache = false;
+              resourcesResult.push({ url, fromCache: false });
               let tagType = staticAttributes.tagName;
               if (staticAttributes.tagNameWhenNotInline !== undefined) {
                 tagType = staticAttributes.tagNameWhenNotInline;
@@ -141,9 +146,8 @@ export function load(
             });
             loadedResources.push({
               url,
-              domSelector: documentTarget === MOCK_DOCUMENT
-                ? null
-                : `${staticAttributes.tagName}[${DATA_SRC_ATTR}="${url}"]`,
+              domSelector:
+                documentTarget === MOCK_DOCUMENT ? null : `${staticAttributes.tagName}[${DATA_SRC_ATTR}="${url}"]`,
             });
             if (!cacheOnly) {
               let currPos = resourceManifestObj._index;
@@ -182,7 +186,9 @@ export function load(
               } else {
                 appendOnLoadScript({
                   document,
-                  callback: resolve,
+                  callback: () => {
+                    resolve({ resources: resourcesResult, allFromCache });
+                  },
                   overrideDomContentLoaded,
                   onLoadDone,
                   elementAddedToBody,
