@@ -602,6 +602,40 @@ it("when a user turns on Overriding `DomContentLoaded` it triggers an event, whe
   await jest.runAllTimers();
   expect(domContentLoaded).toHaveBeenCalled();
 });
+describe("loadResources resolves with information about the loaded resources", () => {
+  it("returns an answer indicating if the resources were loaded from cache or not", async () => {
+    let result = await load({
+      resources: [
+        { url: DUMMY1, attributes: { attr1: true, attr2: "attr2 value" } },
+        {
+          url: DUMMY2,
+          attributes: { attr1: true, attr2: "attr2 value" },
+        },
+      ],
+      document,
+    });
+    await jest.runAllTimers();
+    expect(result.allFromCache).toBe(false);
+    expect(result.resources).toHaveLength(2);
+    expect(result.resources.every(r => r.fromCache === false)).toBe(true);
+
+    //second run, all in cache
+    result = await load({
+      resources: [
+        { url: DUMMY1, attributes: { attr1: true, attr2: "attr2 value" } },
+        {
+          url: DUMMY2,
+          attributes: { attr1: true, attr2: "attr2 value" },
+        },
+      ],
+      document,
+    });
+    await jest.runAllTimers();
+    expect(result.allFromCache).toBe(true);
+    expect(result.resources).toHaveLength(2);
+    expect(result.resources.every(r => r.fromCache === true)).toBe(true);
+  });
+});
 describe("getLoadedResources API", () => {
   it("returns a list of resources loaded in the current session", async () => {
     jest.resetModules();
