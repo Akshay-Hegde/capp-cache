@@ -157,20 +157,22 @@ Loads resources according to a manifest object; use this function to load script
 `manifest` - a manifest object with a `resources` property similar to the `cappCacheManifest.json` file. 
 `syncCacheOnly` - if set to `true` files are just cached, but not added to the DOM.
 `forceRecaching` - if set to `true` resources will be downloaded again to the cache, even if they already exists in the cache. If this flag is not set, a resource will never be downloaded once it is cached.
-**Returns** a promise that resolves when all synchronous resources were loaded to the DOM and parsed by the browser, or rejects on any error.     
+**Returns** a promise that resolves when all synchronous resources were loaded to the DOM and parsed by the browser, or rejects on any error. The resolved promise returns a single options object with the information about the loaded resources:   
+   *allFromCache* - if all resources were loaded from cache   
+   *resources* - an array of {url, fromCache}, indicating for each url if it was loaded from the cache or not   
 For example:
 
 ```javascript
-setTimeout(() => window.cappCache.loadResources({
-		    resources: [
-			    {
-				    url: "https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.4/lodash.min.js",
-				    "attributes": {
-				        "async": false
-				    }
-			    },
-		    ],
-	    }), 1000);
+window.cappCache.loadResources({
+	resources: [{
+		    url: "lodash.min.js",
+			    "attributes": {
+			        "async": false
+			    }
+		    }],
+    }).then(options => {
+        console.dir(options) // { allFromCache: false, resources: [{url: "lodash.min.js", fromCache: false}] }
+    })
 ```
 ### `window.cappCache.pruneDB()`
 
