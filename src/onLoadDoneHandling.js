@@ -35,8 +35,8 @@ export function appendOnLoadScript({
 		      delete window.cappCache["${ID}"]; 
 		      delete window.cappCache["${ID_PERF}"]; 
 		      ${overrideDomContentLoaded ? "document.dispatchEvent(new Event('DOMContentLoaded', {bubbles: true}));" : ""}
-		      ${onLoadText}
-		      document.querySelector("#${ID}").remove()`;
+		      ${onLoadText};
+		      document.querySelector("#${ID}").remove();`;
   const script = documentTarget.createElement("script");
   script.id = ID;
   script.async = false;
