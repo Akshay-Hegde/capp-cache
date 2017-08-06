@@ -3,6 +3,7 @@ import indexedDB from "./indexedDB";
 
 const DB_NAME = "RESOURCE_CACHE";
 const STORE_NAME = "RESOURCES";
+export const FAILED_TO_OPEN_IDB = "FAILED_TO_OPEN_IDB";
 const DB_VERSION = 4;
 
 let resolvedPromise = null;
@@ -11,6 +12,7 @@ export default function() {
   if (resolvedPromise) {
     return resolvedPromise;
   }
+  let dbOpenFailed = false;
   const idbWrapper = Object.create(null);
   let _db = null;
   const req = indexedDB.open(DB_NAME, DB_VERSION);
@@ -22,6 +24,9 @@ export default function() {
 
   idbWrapper.get = id =>
     new Promise((resolve, reject) => {
+  	  if (dbOpenFailed){
+		    return reject(FAILED_TO_OPEN_IDB);
+	    }
       const request = store("readonly").get(id);
       request.onsuccess = event => {
         if (event.target.result) {
@@ -40,6 +45,9 @@ export default function() {
 
   idbWrapper.exists = id =>
     new Promise((resolve, reject) => {
+  	  if (dbOpenFailed){
+		    return reject(FAILED_TO_OPEN_IDB);
+	    }
       const request = store("readonly").count(id);
       request.onsuccess = e => {
         const exists = e.target.result > 0;
@@ -56,6 +64,9 @@ export default function() {
 
   idbWrapper.removeResource = id =>
     new Promise((resolve, reject) => {
+	    if (dbOpenFailed){
+		    return reject(FAILED_TO_OPEN_IDB);
+	    }
       const objectStore = store();
       const request = objectStore.delete(id);
       request.onsuccess = () => {
@@ -70,6 +81,9 @@ export default function() {
 
   idbWrapper.put = (id, { content, contentType }) =>
     new Promise((resolve, reject) => {
+	    if (dbOpenFailed){
+		    return reject(FAILED_TO_OPEN_IDB);
+	    }
       const objectStore = store();
       const putRequest = objectStore.put({
         id,
@@ -86,6 +100,9 @@ export default function() {
 
   idbWrapper.pruneDb = (knownIds = []) =>
     new Promise((resolve, reject) => {
+	    if (dbOpenFailed){
+		    return reject(FAILED_TO_OPEN_IDB);
+	    }
       const objectStore = store();
       const request = objectStore.openCursor();
       request.onsuccess = e => {
@@ -116,8 +133,9 @@ export default function() {
       db.createObjectStore(STORE_NAME, { keyPath: "id" });
     };
     req.onerror = e => {
+	    dbOpenFailed = true;
       error("failed to open indexedDB " + JSON.stringify(e));
-      reject(e);
+      resolve(idbWrapper);
     };
   });
   return resolvedPromise;

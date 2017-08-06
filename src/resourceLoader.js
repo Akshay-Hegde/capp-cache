@@ -1,6 +1,7 @@
 import { log, error, perfMark, perfMarkEnd } from "./cappCacheLogger";
 import { id } from "./id";
 import { fetchResource } from "./network";
+import {FAILED_TO_OPEN_IDB} from "./indexedDBAccess";
 
 let RESOURCE_FETCH_DELAY = 1000;
 let cachedFilesInSession = {};
@@ -49,7 +50,7 @@ export const loadResource = ({
         perfMarkEnd(`loadResource ${url}${cacheOnly ? " (cache only)" : ""}`, `loadResource ${url} start`);
       })
       .catch(err => {
-        if (err) {
+        if (err && err !== FAILED_TO_OPEN_IDB) {
           error(
             `${forceRecaching ? "re-caching resource" : "failed to fetch resource from cache"} ${fullUrl}.${err
               ? " error" + err
