@@ -1,7 +1,7 @@
 import { log, error, perfMark, perfMarkEnd } from "./cappCacheLogger";
 import { id } from "./id";
 import { fetchResource } from "./network";
-import {FAILED_TO_OPEN_IDB} from "./indexedDBAccess";
+import { FAILED_TO_OPEN_IDB } from "./indexedDBAccess";
 
 let RESOURCE_FETCH_DELAY = 1000;
 let cachedFilesInSession = {};

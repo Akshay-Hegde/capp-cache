@@ -4,6 +4,7 @@ import tagPropertiesMap from "./tagPropertiesMap";
 import { loadResource, getCachedFiles } from "./resourceLoader";
 import { sortResources } from "./sortResources";
 import { appendOnLoadScript } from "./onLoadDoneHandling";
+import { encodeForDataUrl } from "./utils";
 
 const RESOURCES_LOAD_START = "Resources load start";
 const DATA_SRC_ATTR = "data-cappcache-src";
@@ -220,7 +221,9 @@ export function getResourceUri({ url, isBase64Text = false, isBinary = true }) {
         if (isBinary) {
           return URL.createObjectURL(content);
         } else {
-          return `data:${contentType}${isBase64Text ? ";base64" : ""},${isBase64Text ? btoa(content) : content}`;
+          return encodeForDataUrl(
+            `data:${contentType}${isBase64Text ? ";base64" : ""},${isBase64Text ? btoa(content) : content}`
+          );
         }
       })
       .then(dataUrl => {

@@ -1,4 +1,5 @@
 import { perfMarkEnd, isDetailedLog, log } from "./cappCacheLogger";
+import { encodeForDataUrl } from "./utils";
 
 const RESOURCES_LOAD_START = "Resources load start";
 
@@ -29,14 +30,14 @@ export function appendOnLoadScript({
         log("Done loading resources");
       }
     : Function.prototype;
-  const content = `data:text/javascript, 
+  const content = encodeForDataUrl(`data:text/javascript, 
 		      window.cappCache["${ID}"](); 
 		      window.cappCache["${ID_PERF}"](); 
 		      delete window.cappCache["${ID}"]; 
 		      delete window.cappCache["${ID_PERF}"]; 
 		      ${overrideDomContentLoaded ? "document.dispatchEvent(new Event('DOMContentLoaded', {bubbles: true}));" : ""}
 		      ${onLoadText};
-		      document.querySelector("#${ID}").remove();`.replace(/#/g, "%23");
+		      document.querySelector("#${ID}").remove();`);
   const script = documentTarget.createElement("script");
   script.id = ID;
   script.async = false;
