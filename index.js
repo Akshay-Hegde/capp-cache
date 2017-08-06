@@ -2,7 +2,7 @@ import { LOG_LEVELS, setLogLevel, error } from "./src/cappCacheLogger";
 import { load, pruneDB, getResourceUri, revokeResourceUriForUrl, getLoadedResources } from "./src/resourceManager";
 import { on, trigger } from "./src/eventBus";
 import manifestManager from "./src/manifestManager";
-import "./src/timestampManager";
+import { schedulePrune } from "./src/timestampManager";
 
 (function init() {
   if (window.location.search.indexOf("debug-cp") > 0) {
@@ -30,6 +30,10 @@ import "./src/timestampManager";
               trigger("manifestUpdated");
             })
             .catch(err => error(`failed to load manifest to cache after change ${err}`));
+        } else {
+          if (manifest.ttl) {
+            schedulePrune(manifest.ttl);
+          }
         }
       })
       .catch(err => {

@@ -1,6 +1,7 @@
 jest.mock("../src/network", () => require("./mocks/mockNetwork"));
 jest.mock("../src/id", () => ({ id: id => id }));
 jest.mock("../src/indexedDB", () => require("./mocks/mockIDB").mock);
+jest.mock("../src/eventBus", () => require("./mocks/mockEventBus"));
 const resourceLoader = require("../src/resourceLoader");
 const indexedDBAccess = require("../src/indexedDBAccess").default;
 const closeIndexedDBAccess = require("../src/indexedDBAccess").closeConnection;
@@ -47,8 +48,48 @@ it("saves the file in cache after fetching from the web", async () => {
   const idbAccess = await indexedDBAccess();
   await expect(loadResource({ indexedDBAccess: idbAccess, url: RESOURCE_URL })).rejects.toBeFalsy();
   await jest.runAllTimers();
-  expect(require("../src/indexedDB").dbData[RESOURCE_URL]).toBeTruthy();
+  expect(require("../src/indexedDB").dbData()[RESOURCE_URL]).toBeTruthy();
 });
-// it("updates ttl timestamp when loading resources", async () => {
-//   expect(false).toBeTruthy();
-// });
+it("sends an event for each resource loaded from the network", async () => {
+  const idbAccess = await indexedDBAccess();
+  try {
+    await loadResource({ indexedDBAccess: idbAccess, url: RESOURCE_URL });
+  } catch (e) {
+    /*rejects since the resource is not in cache*/
+  }
+  await jest.runAllTimers();
+  const eventBus = require("../src/eventBus");
+  expect(eventBus.trigger).toHaveBeenCalledWith("RESOURCE_ACCESS", { url: RESOURCE_URL });
+});
+it("sends an event for each resource loaded from the cache", async () => {
+  const idbAccess = await indexedDBAccess();
+  try {
+    await loadResource({ indexedDBAccess: idbAccess, url: RESOURCE_URL });
+  } catch (e) {
+    /*rejects since the resource is not in cache*/
+  }
+  await jest.runAllTimers();
+  jest.clearAllMocks();
+  await loadResource({ indexedDBAccess: idbAccess, url: RESOURCE_URL });
+  await jest.runAllTimers();
+  const eventBus = require("../src/eventBus");
+  expect(eventBus.trigger).toHaveBeenCalledWith("RESOURCE_ACCESS", { url: RESOURCE_URL });
+});
+it("does not send an event for networkOnly resources", async () => {
+  jest.clearAllMocks();
+  const idbAccess = await indexedDBAccess();
+  try {
+    await loadResource({ indexedDBAccess: idbAccess, url: RESOURCE_URL, networkOnly: true });
+  } catch (e) {
+    /*rejects since the resource is not in cache*/
+  }
+  await jest.runAllTimers();
+  const eventBus = require("../src/eventBus");
+  expect(eventBus.trigger).not.toHaveBeenCalled();
+});
+it("does not send an event for network loaded", async () => {
+  const idbAccess = await indexedDBAccess();
+  await expect(loadResource({ indexedDBAccess: idbAccess, url: RESOURCE_URL })).rejects.toBeFalsy();
+  await jest.runAllTimers();
+  expect(require("../src/indexedDB").dbData()[RESOURCE_URL]).toBeTruthy();
+});

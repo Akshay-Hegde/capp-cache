@@ -11,14 +11,14 @@ const MOCK_URL = "manifest.url";
 beforeEach(() => {
   mockNetwork.resetResponses();
   mockIDB.resetDB();
-  expect(mockIDB.dbData).toBeUndefined();
+  expect(mockIDB.dbData()).toBeUndefined();
 });
 
 it("saves the manifest in cache after first run", async () => {
   let manifestResult = await manifestManager.fetchManifest(MOCK_URL, mockIDB);
   expect(manifestResult.manifest.version).toBe("1");
   await jest.runAllTimers();
-  expect(mockIDB.dbData[MOCK_URL]).toEqual(expect.stringMatching(/.*version.*/));
+  expect(mockIDB.dbData()[MOCK_URL]).toEqual(expect.stringMatching(/.*version.*/));
 });
 it("uses the cached manifest on subsequent runs", async () => {
   await manifestManager.fetchManifest(MOCK_URL, mockIDB);
@@ -40,7 +40,7 @@ it("updates the manifest in the background", async () => {
     }),
   });
   await manifestManager.fetchManifest(MOCK_URL, mockIDB);
-  const dbDataValue = JSON.parse(mockIDB.dbData[MOCK_URL]);
+  const dbDataValue = JSON.parse(mockIDB.dbData()[MOCK_URL]);
   expect(dbDataValue.version).toBe("2");
 });
 

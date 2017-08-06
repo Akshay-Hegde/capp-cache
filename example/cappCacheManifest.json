@@ -2,6 +2,7 @@
   "version": "52",
   "recacheAfterVersionChange":true,
   "onLoadDone": "console.log(`finished loading in ${performance.now()}`);",
+  "ttl": 1000,
   "resources": [
     {
       "url": "index.css",

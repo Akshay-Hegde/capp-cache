@@ -9,7 +9,7 @@ const mockIndexedDb = {
   target: {
     result: {
       transaction(storeNames, type) {
-        return {
+        const dbFunctions = {
           objectStore(storeName) {
             if (!db[storeName]) {
               db[storeName] = {};
@@ -19,7 +19,8 @@ const mockIndexedDb = {
               deleteReq = {},
               openCursorReq = {};
             return {
-              put({ id, content }) {
+              put({ id, content, timestamp }) {
+                if (!content) content = timestamp;
                 if (type !== "readwrite") {
                   process.nextTick(() => putReq.onerror(`store was opened in mode ${type}`));
                 } else {
@@ -73,6 +74,9 @@ const mockIndexedDb = {
                 registerCall("delete");
                 return deleteReq;
               },
+              index(indexName) {
+                return { openCursor: dbFunctions.openCursor };
+              },
               openCursor() {
                 const keys = Object.keys(db[storeName]);
                 let idx = 0;
@@ -96,6 +100,7 @@ const mockIndexedDb = {
             };
           },
         };
+        return dbFunctions;
       },
     },
   },
@@ -108,8 +113,8 @@ export const mock = {
     process.nextTick(() => req.onsuccess(mockDBInstance));
     return req;
   },
-  get dbData() {
-    return db["RESOURCES"];
+  dbData(dbName = "RESOURCES") {
+    return db[dbName];
   },
   resetDB,
   registerCall,

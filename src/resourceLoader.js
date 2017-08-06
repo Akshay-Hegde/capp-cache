@@ -77,7 +77,9 @@ export const loadResource = ({
       });
   });
   cachedFilesInSession[fullUrl] = true;
-  trigger(EVENTS.RESOURCE_ACCESS, { url: fullUrl });
+  if (!networkOnly) {
+    trigger(EVENTS.RESOURCE_ACCESS, { url: fullUrl });
+  }
   return promise;
 };
 

@@ -2,7 +2,9 @@ jest.mock("../src/resourceManager", () => ({
   load: jest.fn(() => Promise.resolve()),
 }));
 jest.mock("../src/eventBus", () => ({
+  on: jest.fn(),
   trigger: jest.fn(),
+  EVENTS: {},
 }));
 
 global.document.getElementsByTagName = () => {

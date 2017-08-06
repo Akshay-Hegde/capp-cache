@@ -76,8 +76,8 @@ it("handles manifest with no resources ", async () => {
 it("fetches files to cache according to manifest", async () => {
   await load({ resources: [{ url: DUMMY1 }, { url: DUMMY2 }], document });
   await jest.runAllTimers();
-  expect(mockIDB.dbData[DUMMY1]).toBeTruthy();
-  expect(mockIDB.dbData[DUMMY2]).toBeTruthy();
+  expect(mockIDB.dbData()[DUMMY1]).toBeTruthy();
+  expect(mockIDB.dbData()[DUMMY2]).toBeTruthy();
 });
 it("adds elements to head by default", async () => {
   await load({ resources: [{ url: DUMMY1 }, { url: DUMMY2 }], document });
@@ -114,14 +114,14 @@ it("does not get the actual resource for cacheonly resources", async () => {
 it("downloads to the cache cacheOnly resources", async () => {
   await load({ resources: [{ url: DUMMY1, cacheOnly: true }], document });
   await jest.runAllTimers();
-  expect(mockIDB.dbData[DUMMY1]).toBeTruthy();
+  expect(mockIDB.dbData()[DUMMY1]).toBeTruthy();
 });
 it("fetches network only resources from the network and doesn't cache it", async () => {
   await load({ resources: [{ url: DUMMY1 }, { url: DUMMY2, networkOnly: true }], document });
   await jest.runAllTimers();
   await load({ resources: [{ url: DUMMY2, networkOnly: true }], document });
   await jest.runAllTimers();
-  expect(mockIDB.dbData[DUMMY2]).toBeUndefined();
+  expect(mockIDB.dbData()[DUMMY2]).toBeUndefined();
   expect(scriptTag.appendChild.mock.calls).toHaveLength(0);
   expect(
     scriptTag.setAttribute.mock.calls.filter(c => {
@@ -132,7 +132,7 @@ it("fetches network only resources from the network and doesn't cache it", async
 it("does not try to add blob to the DOM", async () => {
   await load({ resources: [{ url: DUMMY1, type: "blob" }], document });
   await jest.runAllTimers();
-  expect(mockIDB.dbData[DUMMY1]).toBeTruthy();
+  expect(mockIDB.dbData()[DUMMY1]).toBeTruthy();
   expect(head.appendChild).not.toHaveBeenCalled();
 });
 it("adds the script inline when the script is in the cache", async () => {
