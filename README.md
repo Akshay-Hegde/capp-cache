@@ -199,11 +199,13 @@ Fetches a resource (commonly images and fonts) and returns an object URL. You ca
 </script>
 ```
 If the resource is textual, set `isBinary` to false. In this case you will receive a [data URI](https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/Data_URIs) that you can use in a similar way.
+
 ```html
 <img id="myImage"/>
 <script>
-   var uri = window.cappCache.getResourceUri({url: "mySVGImage.svg", isBinary: false});
-   document.getElementById("myImage").setAttribute("src",uri);
+   window.cappCache.getResourceUri({url: "mySVGImage.svg", isBinary: false})
+       .then(uri => document.getElementById("myImage").setAttribute("src",uri))
+       .catch(err=> {/* some error handling */})
 </script>
 ```
 
