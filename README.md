@@ -33,6 +33,7 @@ version   | An identifier for the version of the manifest. A change in this vers
 forceLoadFromCache| By default, when a resource (especially relevant to Javascript) is not in cache, capp-cache will add it to the DOM with `src` attribute, and only then download the resource (again) in the background to cache for subsequent runs. While this improves performance for first run, it creates slightly different behavior due to the way the browser handles inline scripts vs. scripts with src attribute. It also doubles network traffic. This flag forces capp-cache to first fetch the resource and only then add it to the DOM in the same way it would have if the resource was already in the cache. On subsequent runs, when the cache is already full this flag has no effect. | boolean | false
 onLoadDone| A function that is called after all (synchronous) elements were evaluated by the browser. For example the value `"console.log('done')"` will print a "done" string once the last resource was loaded. <br/>In the capp-cache manifest JSON you can only pass a string that is convertible to a function using the `Function` contstructor. When using the programmatic API `loadResources` function you can pass an actual function. | string \| function
 recacheAfterVersionChange | A flag indicating to capp-cache to download all files in the manifest whenever the `version` field has changed. By default, capp-cache only downloads resources which were not already cached. That means that you cannot update the content of a cached resource; you have to provide a new resource url. With this flag set to `true` following a `version` change, capp-cache will download all resources from network, updating the resources content. Note that the update files will only be available on the second page load, as capp-cache immediately loads files according to the cached manifest. If you need register to `manifestUpdated ` event (see below) | boolean | false|
+ttl | (Time to live) Number of seconds since the last time a resource was loaded until it is removed from the cache. On each load, a background task is scheduled to remove obsolete resources. Each time a resource is loaded, either from the capp-cache manifest or using `loadResources` the timestamp for that resource is updated. Therefore, as long as a resource is loaded within the specified timeframe, it will not be removed. If the application was loaded after the ttl has elapsed for some resource and requested that resource, since the resource is still in cache, the resource will be fetched from the cache and will not be removed. If the `ttl` is not specifed, or equals 0, resources will never be removed. | number | 0
 
 
 When the page loads, the library will add your resources to the DOM, according to the resources list.
@@ -192,8 +193,9 @@ Fetches a resource (commonly images and fonts) and returns an object URL. You ca
 ```html
 <img id="myImage"/>
 <script>
-   var uri = window.cappCache.getResourceUri({url: "myImage.png"});
-   document.getElementById("myImage").setAttribute("src",uri);
+   window.cappCache.getResourceUri({url: "myImage.png"})
+       .then(uri => document.getElementById("myImage").setAttribute("src",uri))
+       .catch(err=> {/* some error handling */})
 </script>
 ```
 If the resource is textual, set `isBinary` to false. In this case you will receive a [data URI](https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/Data_URIs) that you can use in a similar way.
@@ -304,13 +306,3 @@ This library was developed in [Capriza](https://capriza.github.io/) to replace A
 
 #### Who designed the amazing Cupcake logo?
 [Nadav](https://github.com/fujifish). Thanks!
-
-## Todo
-- [ ] Local storage fallback
-- [ ] If service worker exists - fallback to regular SW?
-- [ ] Allow to invalidate file
-- [ ] Optional resources
-
-## Longer term todos
-- [ ] Use Web Workers for downloading?
-- [ ] Add benchmarking
