@@ -1,8 +1,8 @@
 const webpack = require("webpack");
 const path = require("path");
 
-module.exports = function(env = { dev: "true" }) {
-  const buildForDev = env.dev;
+module.exports = function(env = { dev: true }) {
+  const buildForDev = env.dev === true;
   const distFolder = path.join(__dirname, "dist");
   console.log(`Building webpack with env ${JSON.stringify(env)}. buildForDev = ${env.dev}`);
   const basePlugins = [];

@@ -1,5 +1,5 @@
 import { perfMarkEnd, isDetailedLog, log } from "./cappCacheLogger";
-import { encodeForDataUrl } from "./utils";
+import { getDataUrl } from "./utils";
 
 const RESOURCES_LOAD_START = "Resources load start";
 
@@ -30,8 +30,7 @@ export function appendOnLoadScript({
         log("Done loading resources");
       }
     : Function.prototype;
-  const content = encodeForDataUrl(`data:text/javascript, 
-		      window.cappCache["${ID}"](); 
+  const contentUrl = getDataUrl(`window.cappCache["${ID}"](); 
 		      window.cappCache["${ID_PERF}"](); 
 		      delete window.cappCache["${ID}"]; 
 		      delete window.cappCache["${ID_PERF}"]; 
@@ -41,6 +40,6 @@ export function appendOnLoadScript({
   const script = documentTarget.createElement("script");
   script.id = ID;
   script.async = false;
-  script.src = content;
+  script.src = contentUrl;
   documentTarget[elementAddedToBody ? "body" : "head"].appendChild(script);
 }
